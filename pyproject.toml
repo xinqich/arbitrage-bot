@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "arbitrage-bot-v2"
+version = "1.0.1"
+description = "Continuous market evidence and manual DMarket Steam route research"
+requires-python = ">=3.11"
+dependencies = ["PyNaCl==1.6.2"]
+
+[project.scripts]
+arbitrage-v2 = "arbitrage_v2.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["arbitrage_v2*"]
+
+[tool.setuptools.package-data]
+arbitrage_v2 = ["static/*.html", "static/*.css", "static/*.js"]

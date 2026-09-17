@@ -1,0 +1,28 @@
+{
+  "schema_version": 4,
+  "objective": "reliability_first_net_growth",
+  "evaluation": "resolved_routes_only",
+  "collection": "continuous",
+  "risk_management": "user_managed",
+  "eligible_balance_type": "including_restricted_tradable",
+  "steam_steps_user_operated": true,
+  "execution": "manual",
+  "starting_balances": [
+    {
+      "venue": "dmarket",
+      "account": "regular",
+      "currency": "USD",
+      "mode": "paper",
+      "amount_cents": 1000,
+      "purpose": "grow"
+    },
+    {
+      "venue": "csfloat",
+      "account": "deposited",
+      "currency": "USD",
+      "mode": "paper",
+      "amount_cents": 1000,
+      "purpose": "start"
+    }
+  ]
+}

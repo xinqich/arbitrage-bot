@@ -1,0 +1,133 @@
+{
+  "family": "cs2_standard_case_cycle_v1",
+  "snapshots": [],
+  "excluded": [
+    {
+      "title": "Fracture Case",
+      "reason": "stale_steam_book"
+    },
+    {
+      "title": "Recoil Case",
+      "reason": "stale_steam_book"
+    },
+    {
+      "title": "Revolution Case",
+      "reason": "stale_steam_book"
+    },
+    {
+      "title": "Kilowatt Case",
+      "reason": "stale_steam_book"
+    }
+  ],
+  "predictions": [],
+  "unsupported_scenarios": 0,
+  "positive_conditional_scenarios": 0,
+  "economic_evidence": "not_established",
+  "assumptions": {
+    "steam_fee": {
+      "steam_bps": 500,
+      "game_bps": 1000,
+      "minimum_steam_cents": 1,
+      "minimum_game_cents": 1
+    },
+    "dmarket_fee": {
+      "bps": 1000,
+      "minimum_cents": 1
+    },
+    "other_cost_cents": 0,
+    "minimum_known_delay_seconds": 1468800,
+    "minimum_return_delay_seconds": 864000,
+    "qualification": "research_assumptions_not_execution_qualified",
+    "notes": [
+      "Steam USD 5%/10% fees use separate per-item cent flooring and 1 cent component minima, checked against Steam client code on 2026-09-08 (docs/STEAM_FEE_AUDIT.md); actual account currency and transaction receipt still require confirmation.",
+      "DMarket default 10% / 1 cent minimum observed 2026-09-08; first 100 reductions do not prove no item-specific reduction.",
+      "Other costs set to zero ONLY for an optimistic screen; actual costs must be supplied before a qualified prediction.",
+      "17 days models the cited sequential CS2 waits, excluding uncertain sale/transfer/settlement time; not a guaranteed duration.",
+      "Current quotes are conditional proxies for later exits, not reserved fills.",
+      "The return review uses a separate 10-day CS2 visibility assumption from the new Steam purchase; actual eligibility and completion remain unverified until observed."
+    ]
+  },
+  "as_of": "2026-09-08T12:54:49.947907+00:00",
+  "source_diagnostics": [
+    {
+      "title": "Fracture Case",
+      "steam_capture_id": "capture:a67fa322-82eb-4fec-9095-96df3a431d47",
+      "retrieved_at": "2026-09-08T12:51:41.172080+00:00",
+      "histogram_date": "2026-09-08T06:02:07.012Z",
+      "histogram_updated_at": "2026-09-08T06:02:07.042Z",
+      "histogram_age_at_retrieval_seconds": 24574,
+      "price_history_updated_at": "2026-09-08T12:05:54.104Z",
+      "latest_reported_history_point": {
+        "date": "2026-09-08T09:00:00.000Z",
+        "price": "0.705",
+        "quantity": 565
+      },
+      "distinct_provider_history_points_collected": 2
+    },
+    {
+      "title": "Recoil Case",
+      "steam_capture_id": "capture:32182cef-aaea-4776-983e-4a1e4e25a388",
+      "retrieved_at": "2026-09-08T12:51:42.686431+00:00",
+      "histogram_date": "2026-09-08T06:03:50.711Z",
+      "histogram_updated_at": "2026-09-08T06:03:50.743Z",
+      "histogram_age_at_retrieval_seconds": 24471,
+      "price_history_updated_at": "2026-09-08T11:27:11.062Z",
+      "latest_reported_history_point": {
+        "date": "2026-09-08T09:00:00.000Z",
+        "price": "0.401",
+        "quantity": 607
+      },
+      "distinct_provider_history_points_collected": 2
+    },
+    {
+      "title": "Revolution Case",
+      "steam_capture_id": "capture:15a1db7f-24f6-490b-9c8e-e8b30b97f8f0",
+      "retrieved_at": "2026-09-08T12:51:44.061849+00:00",
+      "histogram_date": "2026-09-08T06:04:16.212Z",
+      "histogram_updated_at": "2026-09-08T06:04:16.252Z",
+      "histogram_age_at_retrieval_seconds": 24447,
+      "price_history_updated_at": "2026-09-08T12:29:23.202Z",
+      "latest_reported_history_point": {
+        "date": "2026-09-08T10:00:00.000Z",
+        "price": "0.302",
+        "quantity": 2928
+      },
+      "distinct_provider_history_points_collected": 2
+    },
+    {
+      "title": "Kilowatt Case",
+      "steam_capture_id": "capture:fc8745a1-b60b-4e87-bc5b-ac71ff5fa2ca",
+      "retrieved_at": "2026-09-08T12:51:45.194458+00:00",
+      "histogram_date": "2026-09-08T06:03:31.597Z",
+      "histogram_updated_at": "2026-09-08T06:03:31.626Z",
+      "histogram_age_at_retrieval_seconds": 24493,
+      "price_history_updated_at": "2026-09-08T12:29:13.960Z",
+      "latest_reported_history_point": {
+        "date": "2026-09-08T10:00:00.000Z",
+        "price": "0.194",
+        "quantity": 2833
+      },
+      "distinct_provider_history_points_collected": 2
+    }
+  ],
+  "capture_ids_this_cycle": [
+    "capture:a67fa322-82eb-4fec-9095-96df3a431d47",
+    "capture:c59972eb-87ec-4fc0-8f29-d7fdb9c2a2d0",
+    "capture:1faf1d5f-3edf-46dd-a5dd-deb9d9207055",
+    "capture:32182cef-aaea-4776-983e-4a1e4e25a388",
+    "capture:7bc4cbd7-51cc-4240-a972-af3a196d730c",
+    "capture:dc56180f-6162-4076-8778-fe17ef59325f",
+    "capture:15a1db7f-24f6-490b-9c8e-e8b30b97f8f0",
+    "capture:14d38d69-6719-4900-89c4-3d594a5b58a0",
+    "capture:26972fa6-ee77-4448-869a-bf2567e7306c",
+    "capture:fc8745a1-b60b-4e87-bc5b-ac71ff5fa2ca",
+    "capture:0b2f9934-525a-417c-943c-e6dba2034cbd",
+    "capture:5cb8b77b-354d-4158-877b-349025cd289c"
+  ],
+  "provider_quota_before_cycle": {
+    "included_remaining": 284,
+    "overage_enabled": false
+  },
+  "confirmed_routes_or_outcomes_created": false,
+  "background_collection_started": false
+}

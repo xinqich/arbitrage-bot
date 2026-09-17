@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "app_id": 730,
+      "title": "Fracture Case"
+    },
+    {
+      "app_id": 730,
+      "title": "Recoil Case"
+    },
+    {
+      "app_id": 730,
+      "title": "Revolution Case"
+    },
+    {
+      "app_id": 730,
+      "title": "Kilowatt Case"
+    }
+  ],
+  "steam_source": "steam_public",
+  "steam_request_allowance": 100,
+  "steam_public_request_allowance": 1000,
+  "total_request_allowance": 1000,
+  "exploration_items": [
+    {
+      "app_id": 730,
+      "title": "Paris 2023 Legends Sticker Capsule"
+    },
+    {
+      "app_id": 730,
+      "title": "AK-47 | Slate (Field-Tested)"
+    }
+  ],
+  "item_sources": {
+    "Paris 2023 Legends Sticker Capsule": "steamapis",
+    "AK-47 | Slate (Field-Tested)": "steamapis"
+  }
+}

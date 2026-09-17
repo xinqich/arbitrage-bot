@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "live_contract_qualified": false,
+  "selling_fee_bps": 200,
+  "payout": {
+    "fee_bps": null,
+    "minimum_cents": null,
+    "fixed_fee_cents": null,
+    "conversion_fee_cents": null,
+    "bank_fee_cents": null,
+    "rounding": "ceil"
+  },
+  "credit_delay_seconds": null,
+  "payout_delay_seconds": null,
+  "withdrawal_evidence": "not_qualified"
+}

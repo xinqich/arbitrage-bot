@@ -1,0 +1,90 @@
+{
+  "source": "https://community.fastly.steamstatic.com/public/javascript/economy_common.js",
+  "sha256": "84429d06a9ef8c250ac567f9fedc9fb155d23ceb7442c92a19b815840c102784",
+  "checked_at": "2026-09-08T12:25:29.480Z",
+  "function": "GetItemPriceFromTotal",
+  "wallet": {
+    "wallet_publisher_fee_percent_default": 0.1,
+    "wallet_fee_percent": 0.05,
+    "wallet_currency_increment": 1,
+    "wallet_market_minimum": 1
+  },
+  "cases": [
+    {
+      "gross_cents": 3,
+      "net_cents": 1
+    },
+    {
+      "gross_cents": 4,
+      "net_cents": 2
+    },
+    {
+      "gross_cents": 5,
+      "net_cents": 3
+    },
+    {
+      "gross_cents": 10,
+      "net_cents": 8
+    },
+    {
+      "gross_cents": 18,
+      "net_cents": 16
+    },
+    {
+      "gross_cents": 19,
+      "net_cents": 17
+    },
+    {
+      "gross_cents": 30,
+      "net_cents": 27
+    },
+    {
+      "gross_cents": 39,
+      "net_cents": 35
+    },
+    {
+      "gross_cents": 40,
+      "net_cents": 36
+    },
+    {
+      "gross_cents": 65,
+      "net_cents": 58
+    },
+    {
+      "gross_cents": 66,
+      "net_cents": 59
+    },
+    {
+      "gross_cents": 67,
+      "net_cents": 59
+    },
+    {
+      "gross_cents": 68,
+      "net_cents": 59
+    },
+    {
+      "gross_cents": 69,
+      "net_cents": 60
+    },
+    {
+      "gross_cents": 70,
+      "net_cents": 61
+    },
+    {
+      "gross_cents": 100,
+      "net_cents": 88
+    },
+    {
+      "gross_cents": 150,
+      "net_cents": 131
+    },
+    {
+      "gross_cents": 792,
+      "net_cents": 689
+    },
+    {
+      "gross_cents": 1000,
+      "net_cents": 870
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "steam_fee": {
+    "steam_bps": 500,
+    "game_bps": 1000,
+    "minimum_steam_cents": 1,
+    "minimum_game_cents": 1
+  },
+  "dmarket_fee": {
+    "bps": 1000,
+    "minimum_cents": 1
+  },
+  "other_cost_cents": 0,
+  "minimum_known_delay_seconds": 1468800,
+  "minimum_return_delay_seconds": 864000,
+  "qualification": "research_assumptions_not_execution_qualified",
+  "notes": [
+    "Steam USD 5%/10% fees use separate per-item cent flooring and 1 cent component minima, checked against Steam client code on 2026-09-08 (docs/STEAM_FEE_AUDIT.md); actual account currency and transaction receipt still require confirmation.",
+    "DMarket default 10% / 1 cent minimum observed 2026-09-08; first 100 reductions do not prove no item-specific reduction.",
+    "Other costs set to zero ONLY for an optimistic screen; actual costs must be supplied before a qualified prediction.",
+    "17 days models the cited sequential CS2 waits, excluding uncertain sale/transfer/settlement time; not a guaranteed duration.",
+    "Current quotes are conditional proxies for later exits, not reserved fills.",
+    "The return review uses a separate 10-day CS2 visibility assumption from the new Steam purchase; actual eligibility and completion remain unverified until observed."
+  ]
+}

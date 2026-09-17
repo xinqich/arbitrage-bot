@@ -1,0 +1,4444 @@
+[
+  {
+    "provider": "steamapis",
+    "title": "AK-47 | Slate (Field-Tested)",
+    "kind": "details",
+    "app_id": 730,
+    "retrieved_at": "2026-09-14T17:34:42.983986+00:00",
+    "status": 200,
+    "error": null,
+    "input_kind": "recorded",
+    "payload": {
+      "result": {
+        "item": {
+          "appId": 730,
+          "marketName": "AK-47 | Slate (Field-Tested)"
+        },
+        "meta": {
+          "flags": {
+            "commodity": false,
+            "marketable": true,
+            "ownerOnly": false,
+            "tradable": true
+          }
+        },
+        "histogram": {
+          "_id": "6aa7feb2347a93a3e7b15472",
+          "buyOrders": [
+            {
+              "price": "5.12",
+              "quantity": 8
+            },
+            {
+              "price": "5.1",
+              "quantity": 63
+            },
+            {
+              "price": "5.09",
+              "quantity": 105
+            },
+            {
+              "price": "5.02",
+              "quantity": 131
+            },
+            {
+              "price": "5.01",
+              "quantity": 136
+            },
+            {
+              "price": 5,
+              "quantity": 160
+            },
+            {
+              "price": "4.98",
+              "quantity": 170
+            },
+            {
+              "price": "4.96",
+              "quantity": 215
+            },
+            {
+              "price": "4.95",
+              "quantity": 358
+            },
+            {
+              "price": "4.94",
+              "quantity": 370
+            },
+            {
+              "price": "4.92",
+              "quantity": 515
+            },
+            {
+              "price": "4.91",
+              "quantity": 742
+            },
+            {
+              "price": "4.9",
+              "quantity": 810
+            },
+            {
+              "price": "4.89",
+              "quantity": 835
+            },
+            {
+              "price": "4.88",
+              "quantity": 1004
+            },
+            {
+              "price": "4.87",
+              "quantity": 1091
+            },
+            {
+              "price": "4.86",
+              "quantity": 1180
+            },
+            {
+              "price": "4.85",
+              "quantity": 1294
+            },
+            {
+              "price": "4.84",
+              "quantity": 1332
+            },
+            {
+              "price": "4.83",
+              "quantity": 1403
+            },
+            {
+              "price": "4.8",
+              "quantity": 1636
+            },
+            {
+              "price": "4.79",
+              "quantity": 1663
+            },
+            {
+              "price": "4.78",
+              "quantity": 1793
+            },
+            {
+              "price": "4.77",
+              "quantity": 1956
+            },
+            {
+              "price": "4.76",
+              "quantity": 2091
+            },
+            {
+              "price": "4.75",
+              "quantity": 2151
+            },
+            {
+              "price": "4.74",
+              "quantity": 2197
+            },
+            {
+              "price": "4.73",
+              "quantity": 2331
+            },
+            {
+              "price": "4.72",
+              "quantity": 2498
+            },
+            {
+              "price": "4.71",
+              "quantity": 2968
+            },
+            {
+              "price": "4.69",
+              "quantity": 3679
+            },
+            {
+              "price": "4.68",
+              "quantity": 3739
+            },
+            {
+              "price": "4.67",
+              "quantity": 3787
+            },
+            {
+              "price": "4.66",
+              "quantity": 3872
+            },
+            {
+              "price": "4.65",
+              "quantity": 3965
+            },
+            {
+              "price": "4.64",
+              "quantity": 4229
+            },
+            {
+              "price": "4.63",
+              "quantity": 4293
+            },
+            {
+              "price": "4.62",
+              "quantity": 4449
+            },
+            {
+              "price": "4.6",
+              "quantity": 4550
+            },
+            {
+              "price": "4.57",
+              "quantity": 4591
+            },
+            {
+              "price": "4.56",
+              "quantity": 4639
+            },
+            {
+              "price": "4.55",
+              "quantity": 4704
+            },
+            {
+              "price": "4.54",
+              "quantity": 4709
+            },
+            {
+              "price": "4.52",
+              "quantity": 4875
+            },
+            {
+              "price": "4.51",
+              "quantity": 4931
+            },
+            {
+              "price": "4.5",
+              "quantity": 5045
+            },
+            {
+              "price": "4.49",
+              "quantity": 5127
+            },
+            {
+              "price": "4.48",
+              "quantity": 5187
+            },
+            {
+              "price": "4.46",
+              "quantity": 5241
+            },
+            {
+              "price": "4.44",
+              "quantity": 5376
+            },
+            {
+              "price": "4.43",
+              "quantity": 5396
+            },
+            {
+              "price": "4.42",
+              "quantity": 5510
+            },
+            {
+              "price": "4.41",
+              "quantity": 5524
+            },
+            {
+              "price": "4.4",
+              "quantity": 5604
+            },
+            {
+              "price": "4.39",
+              "quantity": 5678
+            },
+            {
+              "price": "4.38",
+              "quantity": 5695
+            },
+            {
+              "price": "4.34",
+              "quantity": 5885
+            },
+            {
+              "price": "4.33",
+              "quantity": 6001
+            },
+            {
+              "price": "4.32",
+              "quantity": 6096
+            },
+            {
+              "price": "4.31",
+              "quantity": 6156
+            },
+            {
+              "price": "4.3",
+              "quantity": 6263
+            },
+            {
+              "price": "4.29",
+              "quantity": 6275
+            },
+            {
+              "price": "4.28",
+              "quantity": 6364
+            },
+            {
+              "price": "4.27",
+              "quantity": 6470
+            },
+            {
+              "price": "4.26",
+              "quantity": 6619
+            },
+            {
+              "price": "4.25",
+              "quantity": 6637
+            },
+            {
+              "price": "4.23",
+              "quantity": 6649
+            },
+            {
+              "price": "4.22",
+              "quantity": 6794
+            },
+            {
+              "price": "4.21",
+              "quantity": 6799
+            },
+            {
+              "price": "4.2",
+              "quantity": 6921
+            },
+            {
+              "price": "4.19",
+              "quantity": 6933
+            },
+            {
+              "price": "4.18",
+              "quantity": 7061
+            },
+            {
+              "price": "4.17",
+              "quantity": 7279
+            },
+            {
+              "price": "4.16",
+              "quantity": 7345
+            },
+            {
+              "price": "4.15",
+              "quantity": 7503
+            },
+            {
+              "price": "4.14",
+              "quantity": 7511
+            },
+            {
+              "price": "4.11",
+              "quantity": 7725
+            },
+            {
+              "price": "4.1",
+              "quantity": 7870
+            },
+            {
+              "price": "4.09",
+              "quantity": 7945
+            },
+            {
+              "price": "4.08",
+              "quantity": 8282
+            },
+            {
+              "price": "4.07",
+              "quantity": 8401
+            },
+            {
+              "price": "4.06",
+              "quantity": 8748
+            },
+            {
+              "price": "4.05",
+              "quantity": 8863
+            },
+            {
+              "price": "4.04",
+              "quantity": 9009
+            },
+            {
+              "price": "4.03",
+              "quantity": 9146
+            },
+            {
+              "price": "4.02",
+              "quantity": 9277
+            },
+            {
+              "price": 4,
+              "quantity": 9695
+            },
+            {
+              "price": "3.99",
+              "quantity": 9885
+            },
+            {
+              "price": "3.98",
+              "quantity": 10126
+            },
+            {
+              "price": "3.97",
+              "quantity": 10368
+            },
+            {
+              "price": "3.96",
+              "quantity": 10489
+            },
+            {
+              "price": "3.95",
+              "quantity": 10491
+            },
+            {
+              "price": "3.94",
+              "quantity": 11187
+            },
+            {
+              "price": "3.93",
+              "quantity": 11259
+            },
+            {
+              "price": "3.92",
+              "quantity": 11361
+            },
+            {
+              "price": "3.91",
+              "quantity": 11449
+            },
+            {
+              "price": "3.88",
+              "quantity": 11895
+            },
+            {
+              "price": "3.87",
+              "quantity": 11897
+            },
+            {
+              "price": "3.86",
+              "quantity": 12065
+            },
+            {
+              "price": "3.85",
+              "quantity": 12492
+            },
+            {
+              "price": "3.84",
+              "quantity": 12570
+            }
+          ],
+          "date": "2026-09-14T14:03:30.197Z",
+          "sellOrders": [
+            {
+              "price": "5.72",
+              "quantity": 1
+            },
+            {
+              "price": "5.8",
+              "quantity": 8
+            },
+            {
+              "price": "5.81",
+              "quantity": 15
+            },
+            {
+              "price": "5.88",
+              "quantity": 16
+            },
+            {
+              "price": "5.9",
+              "quantity": 25
+            },
+            {
+              "price": "5.91",
+              "quantity": 26
+            },
+            {
+              "price": "5.93",
+              "quantity": 30
+            },
+            {
+              "price": "5.95",
+              "quantity": 31
+            },
+            {
+              "price": "5.99",
+              "quantity": 34
+            },
+            {
+              "price": 6,
+              "quantity": 35
+            },
+            {
+              "price": "6.01",
+              "quantity": 36
+            },
+            {
+              "price": "6.02",
+              "quantity": 37
+            },
+            {
+              "price": "6.04",
+              "quantity": 41
+            },
+            {
+              "price": "6.06",
+              "quantity": 44
+            },
+            {
+              "price": "6.07",
+              "quantity": 45
+            },
+            {
+              "price": "6.09",
+              "quantity": 49
+            },
+            {
+              "price": "6.11",
+              "quantity": 54
+            },
+            {
+              "price": "6.12",
+              "quantity": 55
+            },
+            {
+              "price": "6.13",
+              "quantity": 59
+            },
+            {
+              "price": "6.14",
+              "quantity": 60
+            },
+            {
+              "price": "6.15",
+              "quantity": 61
+            },
+            {
+              "price": "6.16",
+              "quantity": 69
+            },
+            {
+              "price": "6.18",
+              "quantity": 72
+            },
+            {
+              "price": "6.22",
+              "quantity": 78
+            },
+            {
+              "price": "6.25",
+              "quantity": 80
+            },
+            {
+              "price": "6.27",
+              "quantity": 86
+            },
+            {
+              "price": "6.28",
+              "quantity": 87
+            },
+            {
+              "price": "6.29",
+              "quantity": 99
+            },
+            {
+              "price": "6.3",
+              "quantity": 100
+            },
+            {
+              "price": "6.32",
+              "quantity": 101
+            },
+            {
+              "price": "6.33",
+              "quantity": 102
+            },
+            {
+              "price": "6.35",
+              "quantity": 105
+            },
+            {
+              "price": "6.36",
+              "quantity": 106
+            },
+            {
+              "price": "6.37",
+              "quantity": 108
+            },
+            {
+              "price": "6.39",
+              "quantity": 112
+            },
+            {
+              "price": "6.4",
+              "quantity": 116
+            },
+            {
+              "price": "6.41",
+              "quantity": 118
+            },
+            {
+              "price": "6.44",
+              "quantity": 121
+            },
+            {
+              "price": "6.45",
+              "quantity": 124
+            },
+            {
+              "price": "6.46",
+              "quantity": 126
+            },
+            {
+              "price": "6.49",
+              "quantity": 131
+            },
+            {
+              "price": "6.5",
+              "quantity": 142
+            },
+            {
+              "price": "6.52",
+              "quantity": 145
+            },
+            {
+              "price": "6.55",
+              "quantity": 148
+            },
+            {
+              "price": "6.56",
+              "quantity": 150
+            },
+            {
+              "price": "6.57",
+              "quantity": 153
+            },
+            {
+              "price": "6.58",
+              "quantity": 157
+            },
+            {
+              "price": "6.6",
+              "quantity": 160
+            },
+            {
+              "price": "6.61",
+              "quantity": 162
+            },
+            {
+              "price": "6.62",
+              "quantity": 163
+            },
+            {
+              "price": "6.63",
+              "quantity": 173
+            },
+            {
+              "price": "6.64",
+              "quantity": 224
+            },
+            {
+              "price": "6.67",
+              "quantity": 236
+            },
+            {
+              "price": "6.68",
+              "quantity": 237
+            },
+            {
+              "price": "6.69",
+              "quantity": 241
+            },
+            {
+              "price": "6.7",
+              "quantity": 244
+            },
+            {
+              "price": "6.71",
+              "quantity": 247
+            },
+            {
+              "price": "6.73",
+              "quantity": 262
+            },
+            {
+              "price": "6.74",
+              "quantity": 264
+            },
+            {
+              "price": "6.75",
+              "quantity": 266
+            },
+            {
+              "price": "6.76",
+              "quantity": 267
+            },
+            {
+              "price": "6.78",
+              "quantity": 272
+            },
+            {
+              "price": "6.79",
+              "quantity": 293
+            },
+            {
+              "price": "6.8",
+              "quantity": 297
+            },
+            {
+              "price": "6.81",
+              "quantity": 300
+            },
+            {
+              "price": "6.82",
+              "quantity": 305
+            },
+            {
+              "price": "6.83",
+              "quantity": 320
+            },
+            {
+              "price": "6.84",
+              "quantity": 322
+            },
+            {
+              "price": "6.85",
+              "quantity": 323
+            },
+            {
+              "price": "6.86",
+              "quantity": 331
+            },
+            {
+              "price": "6.87",
+              "quantity": 335
+            },
+            {
+              "price": "6.9",
+              "quantity": 356
+            },
+            {
+              "price": "6.91",
+              "quantity": 357
+            },
+            {
+              "price": "6.92",
+              "quantity": 358
+            },
+            {
+              "price": "6.94",
+              "quantity": 368
+            },
+            {
+              "price": "6.95",
+              "quantity": 372
+            },
+            {
+              "price": "6.96",
+              "quantity": 377
+            },
+            {
+              "price": "6.97",
+              "quantity": 379
+            },
+            {
+              "price": "6.98",
+              "quantity": 380
+            },
+            {
+              "price": "6.99",
+              "quantity": 394
+            },
+            {
+              "price": "7.01",
+              "quantity": 396
+            },
+            {
+              "price": "7.02",
+              "quantity": 398
+            },
+            {
+              "price": "7.03",
+              "quantity": 400
+            },
+            {
+              "price": "7.05",
+              "quantity": 401
+            },
+            {
+              "price": "7.06",
+              "quantity": 404
+            },
+            {
+              "price": "7.07",
+              "quantity": 405
+            },
+            {
+              "price": "7.08",
+              "quantity": 407
+            },
+            {
+              "price": "7.09",
+              "quantity": 410
+            },
+            {
+              "price": "7.1",
+              "quantity": 413
+            },
+            {
+              "price": "7.13",
+              "quantity": 425
+            },
+            {
+              "price": "7.14",
+              "quantity": 428
+            },
+            {
+              "price": "7.15",
+              "quantity": 431
+            },
+            {
+              "price": "7.16",
+              "quantity": 432
+            },
+            {
+              "price": "7.17",
+              "quantity": 438
+            },
+            {
+              "price": "7.19",
+              "quantity": 440
+            },
+            {
+              "price": "7.2",
+              "quantity": 446
+            },
+            {
+              "price": "7.22",
+              "quantity": 453
+            },
+            {
+              "price": "7.24",
+              "quantity": 458
+            },
+            {
+              "price": "7.25",
+              "quantity": 461
+            },
+            {
+              "price": "7.26",
+              "quantity": 462
+            },
+            {
+              "price": "7.27",
+              "quantity": 465
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "provider": "dmarket",
+    "title": "AK-47 | Slate (Field-Tested)",
+    "kind": "offers",
+    "app_id": 730,
+    "retrieved_at": "2026-09-14T17:34:43.278620+00:00",
+    "status": 200,
+    "error": null,
+    "input_kind": "recorded",
+    "payload": {
+      "items": [
+        {
+          "offerId": "494d32ae-956b-47bf-b00c-082622de1ab7",
+          "priceCents": "384",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": false,
+            "tradable": false,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.3035792112350464",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%201909D2CCB491D118011E399211311D291D21A5C4F4ED1A59A518719A99999915691D69878059",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 188,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "8306552f-435a-422d-94e6-888912137590",
+          "priceCents": "400",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": false,
+            "tradable": false,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.34683865308761597",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%205747A3CACCC29F564F5077DC5F7F5367536F81FE91A25417FD513FD4D7D7D75B275F72F94F97",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 810,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "1ba04b81-e830-410c-aa3d-817ec424124a",
+          "priceCents": "419",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.331409215927124",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%20EDFD527A24412BECF5EACD66E5C5E9DDE9D515314B18EEAD3CEF856E6D6D6DE19DE5E5251EED",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 337,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "2290eaa6-6374-43d6-abd1-9b6d64f6a7c8",
+          "priceCents": "419",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": false,
+            "tradable": false,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.25173941254615784",
+              "floatPart": "FLOAT_PART_FT_3",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%205444ED83D2D29C554C5374DF5C7C5064506CA993D7A05714985036515C5444AF6136515C5544AF6136515C5644AF6136515C5744AF613CD7D4D4D458245C994D9E2C",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 588,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "Paris 2023 | Autograph",
+                  "colors": [
+                    "COLOR_GREEN",
+                    "COLOR_YELLOW"
+                  ],
+                  "id": 6907,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/paris2023/sig_k0nfig_holo.98672fd3d6f6a085f46ac5b2465642347237fbd4.png",
+                  "name": "k0nfig (Holo) | Paris 2023",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "k0nfig",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "Ninjas in Pyjamas",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Paris 2023 | Autograph",
+                  "colors": [
+                    "COLOR_GREEN",
+                    "COLOR_YELLOW"
+                  ],
+                  "id": 6907,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/paris2023/sig_k0nfig_holo.98672fd3d6f6a085f46ac5b2465642347237fbd4.png",
+                  "name": "k0nfig (Holo) | Paris 2023",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "k0nfig",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "Ninjas in Pyjamas",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Paris 2023 | Autograph",
+                  "colors": [
+                    "COLOR_GREEN",
+                    "COLOR_YELLOW"
+                  ],
+                  "id": 6907,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/paris2023/sig_k0nfig_holo.98672fd3d6f6a085f46ac5b2465642347237fbd4.png",
+                  "name": "k0nfig (Holo) | Paris 2023",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "k0nfig",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "Ninjas in Pyjamas",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Paris 2023 | Autograph",
+                  "colors": [
+                    "COLOR_GREEN",
+                    "COLOR_YELLOW"
+                  ],
+                  "id": 6907,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/paris2023/sig_k0nfig_holo.98672fd3d6f6a085f46ac5b2465642347237fbd4.png",
+                  "name": "k0nfig (Holo) | Paris 2023",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "k0nfig",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "Ninjas in Pyjamas",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "351a4f9f-83da-4525-91ff-b5eeb51d06d2",
+          "priceCents": "419",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.3108365535736084",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%203D2DC1F6CDA4FB3C253A1DB63515390D3905C5F6C1C93E7D963F5F32353C2DD6070091078000783D6B62065F32353E2DC00300AD58490378ED99B0015F32353E2DE802008D0EC700789D560E015F32353E2DB07D00C55B330078DD57320155BEBDBDBD314D354588A281",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 299,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7531,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/cph2024/sig_grim.314dd95539b9bb0eeb5d510adb9a125ee3c0c609.png",
+                  "name": "Grim | Copenhagen 2024",
+                  "offsetX": "0.092397064",
+                  "offsetY": "0.003407836",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "Complexity Gaming",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 8061,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/sha2024/sig_malbsmd.a34d23d8dad9106f957463d7545630d4504f425f.png",
+                  "name": "malbsMd | Shanghai 2024",
+                  "offsetX": "0.23866868",
+                  "offsetY": "0.017290503",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "G2 Esports",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 8149,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/sha2024/sig_siuhy.35ee8084b0e3885bfebf445872c1b8d9f142e89c.png",
+                  "name": "siuhy | Shanghai 2024",
+                  "offsetX": "0.1221689",
+                  "offsetY": "0.010950953",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "MOUZ",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 8205,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/sha2024/sig_lucky.c8ad441c8821e9f99e137b85ea374f74ee39dee4.png",
+                  "name": "Lucky | Shanghai 2024",
+                  "offsetX": "0.034766167",
+                  "offsetY": "0.008753508",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "3DMAX",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "f9ae5d0d-1039-41bd-9ea0-b7a2c8eed217",
+          "priceCents": "419",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.29741042852401733",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%203626D7FEA38BF0372E3116BD3E1E3206320E98BAD7C23576D73054223E3426FA0B1B363676760BECEB5D087366B1B20A54223E3526FD0B1B363676F70B681B97087336A99C0A54223E3526FD0B1B3636F6740B14F84908734629B90A54223E3526FC0B1B3636A6F40B34E27F0873560B680A54223E3726FC0B1B3636AA740B3DB8878B7336853C0D5EB5B6B6B63A463E7CFBEB0E",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 865,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7884,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/community/elemental_craft/paper_lightning_one.09cb59c68c48400dd229d68d8b6b1c0ef7da3137.png",
+                  "name": "Bolt Energy",
+                  "offsetX": "0.23033848",
+                  "offsetY": "0.016177803",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "3",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7883,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/community/elemental_craft/paper_lightning_three.0dfe5ab3ff9f0f99a7f18f881301c9f12ca2e3df.png",
+                  "name": "Bolt Charge",
+                  "offsetX": "0.31479925",
+                  "offsetY": "0.02082777",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "-12",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7883,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/community/elemental_craft/paper_lightning_three.0dfe5ab3ff9f0f99a7f18f881301c9f12ca2e3df.png",
+                  "name": "Bolt Charge",
+                  "offsetX": "0.24980977",
+                  "offsetY": "0.017471045",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "96",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7882,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/community/elemental_craft/paper_lightning_two.10aa16c1181a45f45dbe6a5971785e7c6400ee9c.png",
+                  "name": "Bolt Strike",
+                  "offsetX": "0.19709781",
+                  "offsetY": "0.013564438",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "-72",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7882,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/community/elemental_craft/paper_lightning_two.10aa16c1181a45f45dbe6a5971785e7c6400ee9c.png",
+                  "name": "Bolt Strike",
+                  "offsetX": "-0.08669671",
+                  "offsetY": "0.0021163821",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "78",
+                  "scale": "",
+                  "slot": 4,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "7063fbfd-5726-4da9-bc45-186b9219bd7d",
+          "priceCents": "423",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.33879533410072327",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%20C0D04829477B07C1D8C7E04BC8E8C4F0C4F8552D7535C38009C5A2CFC8C2D056F9FDEEB763FD853080687CA2CFC8C3D056F9FD245C41FE8500E3B37CA2CFC8C3D056F9FDA47757FE85008BB87CA2D4C8C1D056F9EDC0C01E02FD1A7B297C85ACB079FDA843404040CCB0C8C1BC4363",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 713,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7318,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/cph2024/pain.ddac4282e43cc9c00d20d8db8c1d0209a4be8f25.png",
+                  "name": "paiN Gaming | Copenhagen 2024",
+                  "offsetX": "0.07981716",
+                  "offsetY": "-0.020538777",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "paiN Gaming",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7318,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/cph2024/pain.ddac4282e43cc9c00d20d8db8c1d0209a4be8f25.png",
+                  "name": "paiN Gaming | Copenhagen 2024",
+                  "offsetX": "0.2531501",
+                  "offsetY": "-0.014840066",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "paiN Gaming",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7318,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/cph2024/pain.ddac4282e43cc9c00d20d8db8c1d0209a4be8f25.png",
+                  "name": "paiN Gaming | Copenhagen 2024",
+                  "offsetX": "0.29632103",
+                  "offsetY": "-0.015154779",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "paiN Gaming",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7318,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/cph2024/pain.ddac4282e43cc9c00d20d8db8c1d0209a4be8f25.png",
+                  "name": "paiN Gaming | Copenhagen 2024",
+                  "offsetX": "-0.028531957",
+                  "offsetY": "0.09054646",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "-111",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "paiN Gaming",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "c800677d-002a-4328-b092-c61cceb13d48",
+          "priceCents": "423",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.1954021006822586",
+              "floatPart": "FLOAT_PART_FT_1",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%20F5E55330784935F4EDF2D57EFDDDF1C5F1CD085B5507F6B54BF297FAFDF6E509CDC8AF8ABCCBB0D53F39C997E1FDF6E52FD1E8F5F575CAC8DDD4E7CBB045F83EC99D76757575F985FD1D883BCA",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 958,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7292,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/cph2024/ence_holo.111869dfc2c135844ba25978d4725b40010f43be.png",
+                  "name": "ENCE (Holo) | Copenhagen 2024",
+                  "offsetX": "0.19677487",
+                  "offsetY": "0.024998724",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "ENCE",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 4698,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/community/sticker_craft/paper_ct_left_hand.91b1beab7e5c986c9961bf6712400eccc89ec02b.png",
+                  "name": "Lefty (CT)",
+                  "offsetX": "0.1427046",
+                  "offsetY": "0.0247868",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "2f10f23f-70d2-49e4-b2bb-4fd696187b00",
+          "priceCents": "424",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.25698593258857727",
+              "floatPart": "FLOAT_PART_FT_3",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%20AFBF5B7F371869AEB7A88F24A787AB9FAB970608215BACEF31ACCDAAA7AFBF498BCDAAA7AEBF718BCDAAA7ADBF4D8BCDAAA7ACBF3E86C72C2F2F2FA3DFABC592893B",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 414,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "2020 RMR",
+                  "colors": [
+                    "COLOR_YELLOW"
+                  ],
+                  "id": 4710,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/rmr2020/nip_holo.32216d4544a35b60f914c40cef7a19acd71b0aa7.png",
+                  "name": "Ninjas in Pyjamas (Holo) | 2020 RMR",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "Ninjas in Pyjamas",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "2020 RMR",
+                  "colors": [
+                    "COLOR_GOLD"
+                  ],
+                  "id": 4702,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/rmr2020/vita_holo.64dbbe5c0664dd398484f6eb38ef02a2e8a8eab1.png",
+                  "name": "Vitality (Holo) | 2020 RMR",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "Vitality",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "2020 RMR",
+                  "colors": [
+                    "COLOR_RED"
+                  ],
+                  "id": 4706,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/rmr2020/hero_holo.3c41251a8c201d113b1147c92eacc83a53f8faf9.png",
+                  "name": "Heroic (Holo) | 2020 RMR",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "HEROIC",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "The Boardroom",
+                  "colors": [
+                    "COLOR_PURPLE"
+                  ],
+                  "id": 5265,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/spring2022/t_rush_holo.c64b8a833daf7ea9f5762f4513c91469a667584f.png",
+                  "name": "T Rush (Holo)",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "772c012d-af59-46bf-9446-8045afab902f",
+          "priceCents": "424",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.359537273645401",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%20C9D9230D613C0EC8D1CEE942C1E1CDF9CDF10C63293CCA893FCCABDDC1CAD91AF4E4C9C97D8BF46D89CDF78C499DDDF5ABDDC1C9D91AF4E4C9C9550BF495ACD7778C49FFD2F5ABDDC1C9D91AF4E4C9C97D8BF4A18A10748CC9D649F3ABDDC1CAD91AF4E4C9C95F0BF4041149F78C49D16CF5A14A494949C5B9CD05EC4C01",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 758,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7891,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/community/elemental_craft/paper_fire_one.8b92a0d19bf5e5896c78ee491ab4828fe25a58c1.png",
+                  "name": "Scorch Loop",
+                  "offsetX": "0.12915283",
+                  "offsetY": "0.0090533495",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "90",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7891,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/community/elemental_craft/paper_fire_one.8b92a0d19bf5e5896c78ee491ab4828fe25a58c1.png",
+                  "name": "Scorch Loop",
+                  "offsetX": "-0.15468353",
+                  "offsetY": "0.009473443",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "-78",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7891,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/community/elemental_craft/paper_fire_one.8b92a0d19bf5e5896c78ee491ab4828fe25a58c1.png",
+                  "name": "Scorch Loop",
+                  "offsetX": "-0.1060856",
+                  "offsetY": "0.0009774864",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "90",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7891,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/community/elemental_craft/paper_fire_one.8b92a0d19bf5e5896c78ee491ab4828fe25a58c1.png",
+                  "name": "Scorch Loop",
+                  "offsetX": "0.25165406",
+                  "offsetY": "0.020153284",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "-75",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "90b5f4a5-8278-4c89-8cc2-755870a9d1bd",
+          "priceCents": "424",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.27932441234588623",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%204252B892DAF584435A4562C94A6A4672467ADEC5FEB64102FB4420474A4252906620474A4352D76A20474A4052CB6A20474A4152A0642AC1C2C2C24E324A61B85FBE",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 825,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "Broken Fang",
+                  "colors": [
+                    "COLOR_BLUE"
+                  ],
+                  "id": 4690,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/broken_fang/stone_scales.e2ce2f7991f551a3d0786f2472381cde933fbfe3.png",
+                  "name": "Stone Scales",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Stockholm 2021 | Autograph",
+                  "colors": [
+                    "COLOR_YELLOW"
+                  ],
+                  "id": 5141,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/stockh2021/sig_electronic.8dd5a5d245646512f07cbe3a9c9dce08f84f429d.png",
+                  "name": "electroNic | Stockholm 2021",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "electronic",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "Natus Vincere",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Stockholm 2021 | Autograph",
+                  "colors": [
+                    "COLOR_YELLOW"
+                  ],
+                  "id": 5129,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/stockh2021/sig_s1mple.e6754a75fd1d7a277308a3ef60c6b1958b981f6e.png",
+                  "name": "s1mple | Stockholm 2021",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "s1mple",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "Natus Vincere",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Stockholm 2021",
+                  "colors": [
+                    "COLOR_YELLOW"
+                  ],
+                  "id": 4962,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/stockh2021/navi.41abe210293116082319ddf4fef0cfc1ce82e4a0.png",
+                  "name": "Natus Vincere | Stockholm 2021",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "Natus Vincere",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "c5b18e6b-2c95-4a28-8609-c5ffa9fd20e4",
+          "priceCents": "424",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.3266480565071106",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%20FDED0A7B08093AFCE5FADD76F5D5F9CDF9C517016108FEBD6DF89FF2F5FCED68C9C069575840B8FD551BC79FF2F5FDED68C9C0DD2C2140B83DDD03C69FF2F5FEED68C9C060A276C3B85D29A3C19FF2F5FEED68C9C08BE456C3B8BD18A0C1957E7D7D7DF18DF90543D891",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 656,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "Paris 2023",
+                  "colors": [
+                    "COLOR_RED"
+                  ],
+                  "id": 6677,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/paris2023/faze_glitter.57086c587848764ee6415ffafab58f741e2b40ab.png",
+                  "name": "FaZe Clan (Glitter) | Paris 2023",
+                  "offsetX": "-0.08089176",
+                  "offsetY": "0.0017597675",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Glitter",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "FaZe Clan",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Paris 2023",
+                  "colors": [
+                    "COLOR_RED"
+                  ],
+                  "id": 6677,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/paris2023/faze_glitter.57086c587848764ee6415ffafab58f741e2b40ab.png",
+                  "name": "FaZe Clan (Glitter) | Paris 2023",
+                  "offsetX": "-0.10782075",
+                  "offsetY": "0.007755369",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Glitter",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "FaZe Clan",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Paris 2023",
+                  "colors": [
+                    "COLOR_RED"
+                  ],
+                  "id": 6677,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/paris2023/faze_glitter.57086c587848764ee6415ffafab58f741e2b40ab.png",
+                  "name": "FaZe Clan (Glitter) | Paris 2023",
+                  "offsetX": "0.27221385",
+                  "offsetY": "0.013600498",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Glitter",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "FaZe Clan",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Paris 2023",
+                  "colors": [
+                    "COLOR_RED"
+                  ],
+                  "id": 6677,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/paris2023/faze_glitter.57086c587848764ee6415ffafab58f741e2b40ab.png",
+                  "name": "FaZe Clan (Glitter) | Paris 2023",
+                  "offsetX": "0.33417863",
+                  "offsetY": "0.013543427",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Glitter",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "FaZe Clan",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "ff6317df-bb9f-4818-b99e-d64e127ce92f",
+          "priceCents": "424",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.304042786359787",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%20FBEB7B2A634C3DFAE3FCDB70F3D3FFCBFFC3042D150FF8BBA799FEF3FBEB46D899FEF3FAEB46D899FEF3F9EB46D899FEF3F8EB46D893787B7B7BF78BFF8E03D3E2",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 92,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "Halo",
+                  "colors": [
+                    "COLOR_BLUE"
+                  ],
+                  "id": 4541,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/halo/noble.e7c669b76269b0ebbb3cfafd92b3418e5224cbef.png",
+                  "name": "Noble",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Halo",
+                  "colors": [
+                    "COLOR_BLUE"
+                  ],
+                  "id": 4541,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/halo/noble.e7c669b76269b0ebbb3cfafd92b3418e5224cbef.png",
+                  "name": "Noble",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Halo",
+                  "colors": [
+                    "COLOR_BLUE"
+                  ],
+                  "id": 4541,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/halo/noble.e7c669b76269b0ebbb3cfafd92b3418e5224cbef.png",
+                  "name": "Noble",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Halo",
+                  "colors": [
+                    "COLOR_BLUE"
+                  ],
+                  "id": 4541,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/halo/noble.e7c669b76269b0ebbb3cfafd92b3418e5224cbef.png",
+                  "name": "Noble",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "53d5b8cb-ebbf-45d2-8f0d-793ed2458fd9",
+          "priceCents": "426",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.3277621865272522",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%2045558FFEA1F982445D4265CE4D6D4175417DB7E5DAB04605C14627404D4555B26C274F4D4455B26C58C7AA9A7B27404D4755B26C27404D4655B26C2DC6C5C5C549354DB7101E0F",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 388,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "Antwerp 2022",
+                  "colors": [
+                    "COLOR_WHITE"
+                  ],
+                  "id": 5367,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/antwerp2022/pgl.15db6c17f758ac00df70876b448939919fa5bdc5.png",
+                  "name": "PGL | Antwerp 2022",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Antwerp 2022",
+                  "colors": [
+                    "COLOR_WHITE"
+                  ],
+                  "id": 5367,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/antwerp2022/pgl.15db6c17f758ac00df70876b448939919fa5bdc5.png",
+                  "name": "PGL | Antwerp 2022",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": "0.43737417"
+                },
+                {
+                  "collection": "Antwerp 2022",
+                  "colors": [
+                    "COLOR_WHITE"
+                  ],
+                  "id": 5367,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/antwerp2022/pgl.15db6c17f758ac00df70876b448939919fa5bdc5.png",
+                  "name": "PGL | Antwerp 2022",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Antwerp 2022",
+                  "colors": [
+                    "COLOR_WHITE"
+                  ],
+                  "id": 5367,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/antwerp2022/pgl.15db6c17f758ac00df70876b448939919fa5bdc5.png",
+                  "name": "PGL | Antwerp 2022",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "881c586e-d198-475d-a3c4-7129978cdbb4",
+          "priceCents": "426",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.31839507818222046",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%200B1BA5B6E680CC0A130C2B8003230F3B0F33A58287FE084BF00A691F03081BE549160B0B8B3436BB226EB64EBB2ABC376912030B1BE54916DCA87B34260B0B3A48369D1AA0B54E0BD27C37691F03081BE549160B0B8B34365B1DC9374E5B4ADA37691203081BE549160B0B8B34260B8B3948367F4488364EBB42C13763888B8B8B077B0F84FD9C21",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 251,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 8558,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/aus2025/mouz.b8dbf533f2d6de17969eed25d5eae15e713ce6a6.png",
+                  "name": "MOUZ | Austin 2025",
+                  "offsetX": "-0.05594796",
+                  "offsetY": "0.02235493",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "MOUZ",
+                  "tintId": 0,
+                  "wear": "1"
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 8558,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/aus2025/mouz.b8dbf533f2d6de17969eed25d5eae15e713ce6a6.png",
+                  "name": "MOUZ | Austin 2025",
+                  "offsetX": "-0.33411855",
+                  "offsetY": "0.01512742",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "177",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "MOUZ",
+                  "tintId": 0,
+                  "wear": "0.94"
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 8558,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/aus2025/mouz.b8dbf533f2d6de17969eed25d5eae15e713ce6a6.png",
+                  "name": "MOUZ | Austin 2025",
+                  "offsetX": "0.02369228",
+                  "offsetY": "0.025543839",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "MOUZ",
+                  "tintId": 0,
+                  "wear": "1"
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 8558,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/aus2025/mouz.b8dbf533f2d6de17969eed25d5eae15e713ce6a6.png",
+                  "name": "MOUZ | Austin 2025",
+                  "offsetX": "0.06411639",
+                  "offsetY": "0.02469334",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "178.5",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "MOUZ",
+                  "tintId": 0,
+                  "wear": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "c42fd5d9-c662-481a-8660-da0ec38998a0",
+          "priceCents": "426",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.2960295081138611",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%20EEFE2E3639592DEFF6E9CE65E6C6EADEEAD6404C301AEDAE808CEBE6EEFE21C78CEBE6EFFE1CCA8CEBE6ECFE25CA8CEBE6EDFE75C1866D6E6E6EE29EEA347D4A98",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 110,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "Antwerp 2022",
+                  "colors": [
+                    "COLOR_GREEN"
+                  ],
+                  "id": 5327,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/antwerp2022/imp.1684314e9b0e7b75975830f81753b60323b7f5f8.png",
+                  "name": "Imperial Esports | Antwerp 2022",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "Imperial Esports",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "2020 RMR",
+                  "colors": [
+                    "COLOR_ORANGE"
+                  ],
+                  "id": 4722,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/rmr2020/fntc_holo.245af212b5853a1f16c19553191648fd63d44e24.png",
+                  "name": "Fnatic (Holo) | 2020 RMR",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "Fnatic",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Broken Fang",
+                  "colors": [],
+                  "id": 4683,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/broken_fang/ancient_protector.1a2328394da5c798a68652aa77b7900e2f6b4fbc.png",
+                  "name": "Ancient Protector",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "IEM Rio 2022",
+                  "colors": [
+                    "COLOR_GRAY"
+                  ],
+                  "id": 6043,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/rio2022/gray_holo.ff8f567c3ea3abd357b82a15e51baa7fe0b98c5a.png",
+                  "name": "Grayhound Gaming (Holo) | Rio 2022",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "Grayhound Gaming",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "c4ed426c-6ee8-4ec1-9ec4-beeb00d4e9ae",
+          "priceCents": "438",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.33014658093452454",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%20879713560C4A42869F80A70C8FAF83B783BF7E16237284C75681E5828F869730BAE5828F859734BAEF040707078BF78391FDBB49",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 849,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7863,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/cph2024/sig_aleksib_champion.c342aba5e1a4f72b31e41440a3931da97f9988f6.png",
+                  "name": "Aleksib (Champion) | Copenhagen 2024",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "Natus Vincere",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 7859,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/cph2024/sig_jl_champion.0ae28dfdaef2e85d4b495455ba1c42969f995330.png",
+                  "name": "jL (Champion) | Copenhagen 2024",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "Natus Vincere",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "0667d3ac-19df-4c07-8e48-65a7dfb771da",
+          "priceCents": "444",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.3571646511554718",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%206C7C81A2BBAAAB6D746B4CE76444685C6854A5D0B7996F2C866D0E63646C7CD544512C7197D0296CBBFD570E78646F7C8447416C6C2CAC51962BF552294C7B2F500E75646F7CA45271A1A06053416C6CC4AD51E151C952292C9286570E78646F7CED40416C6CC4AD519C487052292C77B5570E78646F7CDE59416C6C7CAD516CDE20D7296CD95D5704EFECECEC601C68AD8EFFC2",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 234,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "Stockholm 2021 | Autograph",
+                  "colors": [
+                    "COLOR_RED"
+                  ],
+                  "id": 5177,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/stockh2021/sig_ax1le.ca8ed2b84b844af12cd8c560d9d2d139e150a42b.png",
+                  "name": "Ax1Le | Stockholm 2021",
+                  "offsetX": "-0.030653596",
+                  "offsetY": "0.004450679",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "Ax1Le",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "Gambit Esports",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Antwerp 2022 | Autograph",
+                  "colors": [
+                    "COLOR_RED"
+                  ],
+                  "id": 5608,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/antwerp2022/sig_norwi.da977d24e306f06aa4fdc61adaba9a05c825bda4.png",
+                  "name": "Norwi | Antwerp 2022",
+                  "offsetX": "0.29937726",
+                  "offsetY": "0.011907369",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "Norwi",
+                  "rarity": "Paper",
+                  "rotation": "-3",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "forZe eSports",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "",
+                  "colors": [],
+                  "id": 8008,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/sha2024/psnu.7b51379a4233d713cafc78d11fc5ed87bbf103e3.png",
+                  "name": "Passion UA | Shanghai 2024",
+                  "offsetX": "0.32273522",
+                  "offsetY": "0.0071714222",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Paper",
+                  "rotation": "-21",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "Passion UA",
+                  "tintId": 0,
+                  "wear": "0.55"
+                },
+                {
+                  "collection": "Antwerp 2022 | Autograph",
+                  "colors": [
+                    "COLOR_RED"
+                  ],
+                  "id": 5633,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/antwerp2022/sig_farlig_glitter.ef0a2d1c840c6e2ecd6ae2264dc410acefd39eea.png",
+                  "name": "Farlig (Glitter) | Antwerp 2022",
+                  "offsetX": "0.15248466",
+                  "offsetY": "0.006625563",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "Farlig",
+                  "rarity": "Glitter",
+                  "rotation": "-21",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "Astralis",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Paris 2023 | Autograph",
+                  "colors": [],
+                  "id": 6834,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/paris2023/sig_gxx_glitter.db88bef974760cba4af745d09c9909b18bc41094.png",
+                  "name": "gxx- (Glitter) | Paris 2023",
+                  "offsetX": "-0.0031234026",
+                  "offsetY": "0.002711594",
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "gxx-",
+                  "rarity": "Glitter",
+                  "rotation": "-9",
+                  "scale": "",
+                  "slot": 4,
+                  "team": "Bad News Eagles",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "24aac36b-7906-415e-a393-52fc93fac5ef",
+          "priceCents": "444",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.24521273374557495",
+              "floatPart": "FLOAT_PART_FT_3",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%204858BA869F8E8F49504F68C340604C784C70C4FAA4BB4B08834A2A4D404858FC652A4D404958FC652A4D404A58FC652A4D404B58FC6520CBC8C8C844384014D07ADC",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 331,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "Antwerp 2022 | Autograph",
+                  "colors": [
+                    "COLOR_GRAY"
+                  ],
+                  "id": 5812,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/antwerp2022/sig_techno4k.bf2bb05207467b53cefd7e374aa2d29618f8af63.png",
+                  "name": "Techno4K | Antwerp 2022",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "Techno4K",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "IHC Esports",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Antwerp 2022 | Autograph",
+                  "colors": [
+                    "COLOR_GRAY"
+                  ],
+                  "id": 5812,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/antwerp2022/sig_techno4k.bf2bb05207467b53cefd7e374aa2d29618f8af63.png",
+                  "name": "Techno4K | Antwerp 2022",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "Techno4K",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "IHC Esports",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Antwerp 2022 | Autograph",
+                  "colors": [
+                    "COLOR_GRAY"
+                  ],
+                  "id": 5812,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/antwerp2022/sig_techno4k.bf2bb05207467b53cefd7e374aa2d29618f8af63.png",
+                  "name": "Techno4K | Antwerp 2022",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "Techno4K",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "IHC Esports",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Antwerp 2022 | Autograph",
+                  "colors": [
+                    "COLOR_GRAY"
+                  ],
+                  "id": 5812,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/antwerp2022/sig_techno4k.bf2bb05207467b53cefd7e374aa2d29618f8af63.png",
+                  "name": "Techno4K | Antwerp 2022",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "Techno4K",
+                  "rarity": "Paper",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "IHC Esports",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "offerId": "27b0c3f5-c904-404e-8361-a2357098e761",
+          "priceCents": "444",
+          "locked": false,
+          "attributes": {
+            "title": "AK-47 | Slate (Field-Tested)",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "snakebite",
+              "colors": [
+                "COLOR_BLACK"
+              ],
+              "customName": "",
+              "defIndex": 7,
+              "exterior": "EXTERIOR_FIELD_TESTED",
+              "fadePercent": "0",
+              "family": "slate",
+              "float": "0.35488495230674744",
+              "floatPart": "FLOAT_PART_FT_4",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "steam://run/730//+csgo_econ_action_preview%203121C1FFE6F7F630293611BA391935013509CAD7E7C432712153343931218B1F5334393021D71B5334393321B60153343932219A1459B2B1B1B13D41357E2A02EA",
+              "isProskin": false,
+              "itemType": "rifle",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 1035,
+              "paintSeed": 16,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_RESTRICTED",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": [
+                {
+                  "collection": "10 Year Birthday",
+                  "colors": [
+                    "COLOR_PINK",
+                    "COLOR_PURPLE"
+                  ],
+                  "id": 5946,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/csgo10/zeusception_holo.1b6ea89f4cc48b46f255889f0f6bf0959fd4f838.png",
+                  "name": "Zeusception (Holo)",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 0,
+                  "team": "",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "Antwerp 2022 | Autograph",
+                  "colors": [
+                    "COLOR_PURPLE"
+                  ],
+                  "id": 5478,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/antwerp2022/sig_yuurih_holo.fb8c60dff1233aafd50cb0f29de62f266f1ab690.png",
+                  "name": "yuurih (Holo) | Antwerp 2022",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "yuurih",
+                  "rarity": "Holo",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 1,
+                  "team": "FURIA",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "IEM Rio 2022 | Autograph",
+                  "colors": [
+                    "COLOR_PURPLE"
+                  ],
+                  "id": 6151,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/rio2022/sig_electronic_glitter.077a0a9061d0e0fa943dcb7c10290092814f21ed.png",
+                  "name": "electronic (Glitter) | Rio 2022",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "electronic",
+                  "rarity": "Glitter",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 2,
+                  "team": "Natus Vincere",
+                  "tintId": 0,
+                  "wear": ""
+                },
+                {
+                  "collection": "2020 RMR",
+                  "colors": [
+                    "COLOR_BLUE"
+                  ],
+                  "id": 4779,
+                  "image": "https://cdn.steamstatic.com/apps/730/icons/econ/stickers/rmr2020/liq_foil.4a39925b957877a7e7a16eeea5b5c3009c69831b.png",
+                  "name": "Liquid (Foil) | 2020 RMR",
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "offsetZ": 0,
+                  "pattern": 0,
+                  "player": "",
+                  "rarity": "Foil",
+                  "rotation": "",
+                  "scale": "",
+                  "slot": 3,
+                  "team": "Team Liquid",
+                  "tintId": 0,
+                  "wear": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "provider": "dmarket",
+    "title": "AK-47 | Slate (Field-Tested)",
+    "kind": "targets",
+    "app_id": 730,
+    "retrieved_at": "2026-09-14T17:34:43.449403+00:00",
+    "status": 200,
+    "error": null,
+    "input_kind": "recorded",
+    "payload": {
+      "orders": [
+        {
+          "amount": "1",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "365",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "5",
+          "attributes": {
+            "floatPartValue": "FT-0",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "365",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "1",
+          "attributes": {
+            "floatPartValue": "FT-1",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "365",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "84",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "364",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "62",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "363",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "1",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "354",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "6",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "353",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "89",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "351",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "100",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "344",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "1",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "321",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "20",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "320",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "1",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "302",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "3",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "300",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "5",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "242",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "9",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "241",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "1",
+          "attributes": {
+            "floatPartValue": "FT-3",
+            "paintSeed": "882",
+            "phase": "any"
+          },
+          "price": "212",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "10",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "201",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "100",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "200",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "15",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "185",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "1",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "169",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "2",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "150",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "5",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "123",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "1",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "80",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "1",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "8",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "1",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "7",
+          "title": "AK-47 | Slate (Field-Tested)"
+        },
+        {
+          "amount": "101",
+          "attributes": {
+            "floatPartValue": "any",
+            "paintSeed": "any",
+            "phase": "any"
+          },
+          "price": "2",
+          "title": "AK-47 | Slate (Field-Tested)"
+        }
+      ]
+    }
+  },
+  {
+    "provider": "steamapis",
+    "title": "Paris 2023 Legends Sticker Capsule",
+    "kind": "details",
+    "app_id": 730,
+    "retrieved_at": "2026-09-14T17:36:16.637039+00:00",
+    "status": 200,
+    "error": null,
+    "input_kind": "recorded",
+    "payload": {
+      "result": {
+        "item": {
+          "appId": 730,
+          "marketName": "Paris 2023 Legends Sticker Capsule"
+        },
+        "meta": {
+          "flags": {
+            "commodity": true,
+            "marketable": true,
+            "ownerOnly": false,
+            "tradable": true
+          }
+        },
+        "histogram": {
+          "_id": "6aa7fe02347a93a3e7b0f61d",
+          "buyOrders": [
+            {
+              "price": "0.11",
+              "quantity": 157
+            },
+            {
+              "price": "0.1",
+              "quantity": 9973
+            },
+            {
+              "price": "0.09",
+              "quantity": 46636
+            },
+            {
+              "price": "0.08",
+              "quantity": 100961
+            },
+            {
+              "price": "0.07",
+              "quantity": 169886
+            },
+            {
+              "price": "0.06",
+              "quantity": 207588
+            },
+            {
+              "price": "0.05",
+              "quantity": 215231
+            },
+            {
+              "price": "0.04",
+              "quantity": 229429
+            },
+            {
+              "price": "0.03",
+              "quantity": 578918
+            }
+          ],
+          "date": "2026-09-14T14:00:34.300Z",
+          "sellOrders": [
+            {
+              "price": "0.12",
+              "quantity": 75
+            },
+            {
+              "price": "0.13",
+              "quantity": 15956
+            },
+            {
+              "price": "0.14",
+              "quantity": 63985
+            },
+            {
+              "price": "0.15",
+              "quantity": 79309
+            },
+            {
+              "price": "0.16",
+              "quantity": 89416
+            },
+            {
+              "price": "0.17",
+              "quantity": 95108
+            },
+            {
+              "price": "0.18",
+              "quantity": 104193
+            },
+            {
+              "price": "0.19",
+              "quantity": 105335
+            },
+            {
+              "price": "0.2",
+              "quantity": 107724
+            },
+            {
+              "price": "0.21",
+              "quantity": 108735
+            },
+            {
+              "price": "0.23",
+              "quantity": 109639
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "provider": "dmarket",
+    "title": "Paris 2023 Legends Sticker Capsule",
+    "kind": "offers",
+    "app_id": 730,
+    "retrieved_at": "2026-09-14T17:36:16.902123+00:00",
+    "status": 200,
+    "error": null,
+    "input_kind": "recorded",
+    "payload": {
+      "items": [
+        {
+          "offerId": "00c4bef4-a9c6-48b3-b3c2-fe051a43142f",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "026eabea-dd5a-4d99-994b-f6d4be21371c",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "06103244-8019-4279-8dc2-9af13331ccab",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "0871dfd4-34ec-4058-9058-d8604aaf2c0e",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "09f41770-9393-48ca-b4dd-b7ca8a1a036f",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "0c879a2a-625d-46fb-98c3-7ec6de8954af",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "0e00cf0b-c0c5-4306-8eb6-0e98210d74fe",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "116d2ef6-9c24-4e0f-a31b-c86d500356b4",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "11eadab6-f6d2-411c-b751-2512dfd9c67c",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "18397fef-429a-40dd-be22-bd9262aab607",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "1950c66b-7cb7-44eb-a75b-3ddb8c6084ca",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "1a3f9ec5-0634-4f20-95a3-150208abe81b",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "1ca84f3c-95ef-42de-905e-dd3eadb17ee6",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "20833cdf-c14f-45c3-b33f-0ef02a9f2d2c",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "2084acc9-7440-4f26-9636-93fda69675b2",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "212a0323-c9b1-4a6f-a906-25c1edd511d8",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "232928d3-aa09-4af5-8b27-8aa61c9ef416",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "285cc007-620a-4833-af3c-2c36feac1ffa",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "28b2c1f9-7d1e-4238-9808-d0addc642f7a",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        },
+        {
+          "offerId": "296b07cd-6466-4c68-9d87-756eef1cc19b",
+          "priceCents": "15",
+          "locked": false,
+          "attributes": {
+            "title": "Paris 2023 Legends Sticker Capsule",
+            "gameId": "a8db",
+            "withdrawable": true,
+            "tradable": true,
+            "cs2": {
+              "category": "CATEGORY_NORMAL",
+              "charmPattern": 0,
+              "charms": [],
+              "collection": "",
+              "colors": [],
+              "customName": "",
+              "defIndex": 0,
+              "exterior": "EXTERIOR_UNSPECIFIED",
+              "fadePercent": "0",
+              "family": "paris 2023 legends sticker capsule",
+              "float": "0",
+              "floatPart": "FLOAT_PART_UNSPECIFIED",
+              "inspectInGameTemplateUri": "",
+              "inspectInGameUri": "",
+              "isProskin": false,
+              "itemType": "container",
+              "killEaterScoreType": 0,
+              "killEaterValue": 0,
+              "paintIndex": 0,
+              "paintSeed": 0,
+              "phase": "",
+              "phaseTitle": "PHASE_TITLE_UNSPECIFIED",
+              "proskin": {
+                "hasHighlights": false,
+                "proPlayerNickname": "",
+                "proPlayerOwned": false
+              },
+              "quality": "QUALITY_BASE_GRADE",
+              "rareInfo": "",
+              "rarePattern": "RARE_PATTERN_UNSPECIFIED",
+              "stickers": []
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "provider": "dmarket",
+    "title": "Paris 2023 Legends Sticker Capsule",
+    "kind": "targets",
+    "app_id": 730,
+    "retrieved_at": "2026-09-14T17:36:17.068947+00:00",
+    "status": 200,
+    "error": null,
+    "input_kind": "recorded",
+    "payload": {
+      "orders": [
+        {
+          "amount": "3",
+          "attributes": {},
+          "price": "14",
+          "title": "Paris 2023 Legends Sticker Capsule"
+        },
+        {
+          "amount": "40",
+          "attributes": {},
+          "price": "3",
+          "title": "Paris 2023 Legends Sticker Capsule"
+        },
+        {
+          "amount": "101",
+          "attributes": {},
+          "price": "2",
+          "title": "Paris 2023 Legends Sticker Capsule"
+        }
+      ]
+    }
+  }
+]

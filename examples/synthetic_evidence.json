@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "source": "illustration-only",
+  "input_kind": "synthetic",
+  "retrieved_at": "2026-09-07T14:05:00Z",
+  "item": {
+    "app_id": 730,
+    "market_hash_name": "SYNTHETIC ITEM — not a market recommendation",
+    "attributes": {}
+  },
+  "book": {
+    "venue": "dmarket",
+    "observed_at": "2026-09-07T14:03:56.518Z",
+    "side": "bid",
+    "quantity_semantics": "incremental",
+    "currency": "USD",
+    "price_unit": "usd",
+    "levels": [
+      {
+        "price": "2.92",
+        "quantity": 1
+      },
+      {
+        "price": "2.91",
+        "quantity": 5
+      }
+    ]
+  },
+  "sales": [
+    {
+      "event_id": "synthetic-sale-1",
+      "venue": "steam",
+      "occurred_at": "2026-09-06T12:00:00Z",
+      "quantity": 1,
+      "evidence_kind": "provider_reported_completed_sale"
+    }
+  ]
+}
