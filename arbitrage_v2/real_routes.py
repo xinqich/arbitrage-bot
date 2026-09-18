@@ -2,7 +2,8 @@
 from .discovery import DISCOVERY_VERSION, SUPPORTED_DISCOVERY_VERSIONS, route_inputs
 from .evidence import stamp, utc
 from .funds import REAL_ACCOUNTS, account_money
-from .prediction import FAMILY, ITEM_FAMILY, QUALIFIED_ITEMS, calculate, cents, may_use_balance
+from .identity import known_item
+from .prediction import FAMILY, ITEM_FAMILY, calculate, cents, may_use_balance
 from .real_funds import EMPTY_MANDATE, assert_cash, real_time, reference_available, text_field
 from .routes import _state, add_event, open_route
 
@@ -34,7 +35,7 @@ def _review(journal, prediction_id, mandate, policy, at, db):
     if not blockers:
         try:
             a, b = route_inputs(journal, pred, at, db=db)
-            current = calculate(a, b, pred["quantity_a"], policy, pred["sale_scenarios"]["steam"], pred["sale_scenarios"]["dmarket"])
+            current = calculate(a, b, pred["quantity_a"], policy, pred["sale_scenarios"]["steam"], pred["sale_scenarios"]["dmarket"],pred.get("return_quantity_limit"))
             if current["input_kind"] != "recorded" or current["evidence_ids"] != pred["evidence_ids"] or current["quote_legs"] != pred["quote_legs"]:
                 blockers.append("Prices or source records changed. Search again and review the new estimate.")
         except (ValueError, KeyError, TypeError) as exc:
@@ -172,7 +173,7 @@ def record_step(journal, request):
         elif kind in {"buy_b", "sell_b"}:
             title = record["item_title"]
             text_field(title)
-            if not (title.endswith(" Case") or title in QUALIFIED_ITEMS):
+            if not known_item(journal, title, db):
                 raise ValueError("Choose a supported CS2 item title.")
             key = "730:"+title
             if kind == "buy_b":

@@ -56,7 +56,7 @@ def _review(journal, prediction_id, mandate, policy, at, db):
             else:
                 snapshots = {title: market_snapshot(journal, title, at, FRESHNESS_SECONDS, db) for title in titles}
                 a, b = snapshots[pred["item_a"]], snapshots[pred["item_b"]]
-            current = calculate(unused_entry(journal, a, db), b, pred["quantity_a"], policy)
+            current = calculate(unused_entry(journal, a, db), b, pred["quantity_a"], policy, return_quantity_limit=pred.get("return_quantity_limit"))
             if current["input_kind"] != "recorded":
                 blockers.append("Current evidence is not recorded market data.")
             elif current["evidence_ids"] != pred["evidence_ids"] or current["quote_legs"] != pred["quote_legs"]:

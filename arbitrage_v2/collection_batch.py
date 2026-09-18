@@ -6,6 +6,7 @@ research scan, so requesting a book twice cannot spend the allowance twice.
 from datetime import timedelta
 
 from .collector import GAME_IDS, capture
+from . import catalogue
 from .evidence import stamp, utc
 from .steam_public import capture_public
 
@@ -13,6 +14,10 @@ from .steam_public import capture_public
 def request_for(watchlist, app_id, title, kind):
     provider = (watchlist.get("item_sources", {}).get(title, watchlist.get("steam_source", "steamapis"))
                 if kind == "details" else "dmarket")
+    if (kind == 'details' and watchlist.get('catalogue',{}).get('enabled')
+            and title not in {r['title'] for r in watchlist['items']}
+            and title not in watchlist.get('item_sources',{})):
+        provider='steamapis'
     request = {"provider": provider, "kind": kind, "app_id": app_id, "title": title}
     request_key(request)
     return request
@@ -22,12 +27,16 @@ def request_key(request):
     provider, kind, app_id, title = (request[k] for k in ("provider", "kind", "app_id", "title"))
     if (type(app_id) is not int or app_id not in GAME_IDS or not isinstance(title, str) or not title.strip()
             or (provider, kind) not in {("steam_public", "details"), ("steamapis", "details"),
-                                        ("dmarket", "offers"), ("dmarket", "targets")}):
+                                        ("dmarket", "offers"), ("dmarket", "targets"), ("dmarket", "catalogue")}):
         raise ValueError("unsupported read-only collection request")
+    if kind == 'catalogue':
+        return provider, kind, app_id, title, request.get('cursor',''), tuple(request.get('titles') or [])
     return provider, kind, app_id, title
 
 
 def fetch_request(journal, request, keys):
+    if request["kind"] == "catalogue":
+        return catalogue.fetch(journal,request,keys)
     if request["provider"] == "steam_public":
         return capture_public(journal, request["app_id"], request["title"])
     return capture(journal, request["provider"], request["kind"], request["app_id"], request["title"], keys)
@@ -61,15 +70,16 @@ class CollectionBatch:
 
     def _failure(self, request, result):
         provider = request["provider"]
-        self.failed.add(provider)
-        retry = self.sources.get(provider, {}).get("retry_count", 0) + 1
+        source_key = provider+":catalogue" if request["kind"] == "catalogue" else provider
+        self.failed.add(source_key)
+        retry = self.sources.get(source_key, {}).get("retry_count", 0) + 1
         error, status = result.get("error"), result.get("status")
         transient = status not in {401, 403, 429} and (
             status in {500, 502, 503, 504} or (error or "").startswith("network_"))
         delays = self.config["retry_seconds"]
         retry_at = (stamp(utc(self.clock()) + timedelta(seconds=delays[retry-1]))
                     if transient and retry <= len(delays) else None)
-        self.sources[provider] = dict(request, status=status, error=error or "unexpected_http_status",
+        self.sources[source_key] = dict(request, status=status, error=error or "unexpected_http_status",
             state="retry_wait" if retry_at else "blocked", retry_count=retry, next_retry_at=retry_at)
 
     def ensure(self, requests):
@@ -84,8 +94,9 @@ class CollectionBatch:
                 return
             self.seen.add(key)
             provider = request["provider"]
-            source = self.sources.get(provider)
-            if provider in self.failed or (source and (not source.get("next_retry_at") or utc(self.clock()) < utc(source["next_retry_at"]))):
+            source_key = provider+":catalogue" if request["kind"] == "catalogue" else provider
+            source = self.sources.get(source_key)
+            if source_key in self.failed or (source and (not source.get("next_retry_at") or utc(self.clock()) < utc(source["next_retry_at"]))):
                 self.deferred.append(dict(request, reason="source_waiting"))
                 continue
             if self.exhausted or self.count >= self.config["request_budget"]:
@@ -116,7 +127,7 @@ class CollectionBatch:
             if result.get("error") or result.get("status") != 200:
                 self._failure(request, result)
             else:
-                self.sources.pop(provider, None)
+                self.sources.pop(source_key, None)
 
     def completed(self, requests):
         successful = {request_key(r) for r in self.results if r.get("status") == 200 and not r.get("error")}

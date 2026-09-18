@@ -56,7 +56,7 @@ class NewContracts(unittest.TestCase):
         self.assertEqual(len(capsule["dmarket_ask"]["levels"]), 20)
         skin = market_snapshot(self.journal, "AK-47 | Slate (Field-Tested)", T2, 14400)
         self.assertEqual(skin["dmarket_bid"]["quantity"], 1)  # Excludes the FT-0/FT-1 orders at the same price.
-        self.assertEqual(len(skin["dmarket_ask"]["levels"]), 1)  # Excludes locked/premium-decorated offers.
+        self.assertEqual(len(skin["dmarket_ask"]["levels"]), 17)  # Decorations have zero premium; locked offers remain excluded.
         self.assertEqual(skin["steam_ask"]["quantity"], 1)
 
     def test_correction_keeps_raw_record_and_changes_final_cost(self):

@@ -165,7 +165,9 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(result['prediction_count'], len(result['predictions']))
         self.assertEqual({p['engine_version'] for p in result['predictions']}, {ENGINE, LISTING_ENGINE})
         values = [p['predicted_net_cents'] for p in result['predictions']]
-        self.assertEqual(values, sorted(values, reverse=True))
+        from arbitrage_v2.search_rules import sort_key
+        keys=[sort_key(p) for p in result['predictions']]
+        self.assertEqual(keys, sorted(keys))
         self.assertEqual(self.journal.records('request_attempt'), [])
 
     def test_bad_skin_attribute_is_an_input_problem_not_a_search_crash(self):

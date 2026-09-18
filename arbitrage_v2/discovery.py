@@ -1,5 +1,6 @@
 """Price opportunities independently of history and of the paper fill engine."""
 from collections import Counter
+from . import search_rules
 from itertools import product
 
 from .depth import ENGINE, book, total
@@ -7,8 +8,8 @@ from .evidence import stamp, utc
 from .prediction import (FAMILY, ITEM_FAMILY, LISTING_ENGINE, MIDPOINT_ENGINE, _market_captures, _offer_ask,
     _steam_observation, _steam_book, _target_bid, calculate, cents)
 
-DISCOVERY_VERSION = "separate-sale-scenarios-v2"
-SUPPORTED_DISCOVERY_VERSIONS = {"separate-sale-scenarios-v1", DISCOVERY_VERSION}
+DISCOVERY_VERSION = "cs2-catalogue-scenarios-v3"
+SUPPORTED_DISCOVERY_VERSIONS = {"separate-sale-scenarios-v1", "separate-sale-scenarios-v2", DISCOVERY_VERSION}
 BOOKS = {"steam_bid": "details", "steam_ask": "details",
          "dmarket_ask": "offers", "dmarket_bid": "targets"}
 SALE_BOOKS = {venue:{"current_bids":(venue+"_bid",), "listing_price":(venue+"_ask",),
@@ -39,12 +40,12 @@ def _problem(title, name, exc):
             "status": status, "reason": reason, "message": message}
 
 
-def snapshot(journal, title, at, max_age_seconds=14400, db=None):
+def snapshot(journal, title, at, max_age_seconds=14400, db=None, index=None):
     result = {"title": title, "app_id": 730, "books": {}, "issues": []}
     for kind in ("details", "offers", "targets"):
         names = [name for name, source in BOOKS.items() if source == kind]
         try:
-            captures, partition = _market_captures(journal, title, at, max_age_seconds, (kind,), db)
+            captures, partition = _market_captures(journal, title, at, max_age_seconds, (kind,), db, index)
             capture = captures[kind]
             source_time = capture["retrieved_at"]
             if kind == "details":
@@ -93,10 +94,15 @@ def route_inputs(journal, pred, at, max_age_seconds=14400, db=None):
             if name not in source["books"]:
                 problem = next(i for i in source["issues"] if i["book"] == name)
                 raise ValueError(problem["reason"])
+    for venue, ref in pred.get('ranking_price_sources', {}).items():
+        source = a if venue == 'steam' else b
+        current = source['books'].get(venue+'_ask')
+        if current is None or current['evidence_id'] != ref['evidence_id']:
+            raise ValueError('ranking_comparison_changed_search_again')
     return _inputs(a, names_a), _inputs(b, names_b)
 
 
-def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_seconds=14400, mode="paper"):
+def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_seconds=14400, mode="paper", settings=None):
     cents(capital_cents)
     if type(max_age_seconds) is not int or max_age_seconds < 0:
         raise ValueError("invalid freshness bound")
@@ -104,7 +110,11 @@ def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_second
         raise ValueError("invalid delay floor")
     if mode not in {"paper", "confirmed"}:
         raise ValueError("invalid search mode")
+    settings = search_rules.validate(settings or search_rules.current(journal))
     snapshots, issues, predictions, limits = [], [], [], Counter()
+    # One projection for the entire scan, not three full journal reads per item.
+    index = capture_index(journal, as_of)
+    quote_cache = {}
     seen = set()
     for item in watchlist["items"]:
         key = (item["app_id"], item["title"])
@@ -115,7 +125,7 @@ def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_second
             issues.append({"title": item["title"], "status": "unsupported_game",
                 "reason": "unsupported_game", "message": "This game is not supported by the current CS2 calculations."})
             continue
-        row = snapshot(journal, item["title"], as_of, max_age_seconds)
+        row = snapshot(journal, item["title"], as_of, max_age_seconds, index=index)
         snapshots.append(row)
         issues.extend(row["issues"])
 
@@ -143,6 +153,9 @@ def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_second
                 if issue not in issues:
                     issues.append(issue)
                 continue
+            if a['dmarket_ask']['price_cents'] < settings['minimum_purchase_cents']:
+                limits[(a['title'], '', steam_mode, '', 'purchase_below_minimum')] += 1
+                continue
             upper = min(capital_cents // a["dmarket_ask"]["price_cents"], total(book(a, "dmarket_ask")), 1000)
             if steam_mode == "current_bids":
                 upper = min(upper, total(book(a, steam_books[0])))
@@ -158,16 +171,42 @@ def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_second
                 except ValueError as exc:
                     limits[key + (str(exc),)] += 1
                     continue
-                for quantity in range(1, upper + 1):
+                if b['steam_ask']['price_cents'] < settings['minimum_purchase_cents']:
+                    limits[key + ('purchase_below_minimum',)] += 1
+                    continue
+                # Destination receipts increase with quantity inside each priority.
+                # Retain the maximum affordable quantity and the narrow-spread boundary.
+                # Smaller B quantities within either priority are safely dominated.
+                return_limits = [None]
+                ask_row = source_b['books'].get('dmarket_ask')
+                if dmarket_mode == 'current_bids' and ask_row and ask_row['input_kind']==b['input_kind']:
+                    ask = ask_row['value']['price_cents']
+                    bids = book(b,'dmarket_bid')
+                    if max(r['price_cents'] for r in bids) <= ask:
+                        narrow = sum(r['quantity'] for r in bids
+                            if (ask-r['price_cents'])*10000 < ask*settings['narrow_spread_bps'])
+                        if 0 < narrow < total(bids):
+                            return_limits.append(narrow)
+                for quantity, return_limit in product(range(1, upper + 1), return_limits):
                     try:
-                        pred = calculate(a, b, quantity, policy, steam_mode, dmarket_mode)
+                        pred = calculate(a, b, quantity, policy, steam_mode, dmarket_mode, return_limit, quote_cache)
                         if pred["entry_cost_cents"] > capital_cents:
                             limits[key + ("entry_exceeds_available_budget",)] += 1
-                            break
+                            continue
                     except ValueError as exc:
                         limits[key + (str(exc),)] += 1
                         continue
-                    pred.update(predicted_at=stamp(utc(as_of)), discovery_version=DISCOVERY_VERSION, search_mode=mode,
+                    if return_limit is not None:
+                        maximum = calculate(a,b,quantity,policy,steam_mode,dmarket_mode,None,quote_cache)
+                        if maximum['quantity_b'] == pred['quantity_b']:
+                            continue
+                    search_rules.annotate(pred,source_a,source_b,settings)
+                    # Ranking may compare an ask not used by the economic calculation.
+                    pred['ranking_price_sources'] = {venue:_price_source(source['books'][venue+'_ask'])
+                        for venue,source in (('steam',source_a),('dmarket',source_b))
+                        if venue+'_ask' in source['books'] and source['books'][venue+'_ask']['input_kind']==pred['input_kind']}
+                    pred['ranking_evidence_ids'] = sorted({r['evidence_id'] for r in pred['ranking_price_sources'].values()})
+                    pred.update(return_quantity_limit=return_limit, predicted_at=stamp(utc(as_of)), discovery_version=DISCOVERY_VERSION, search_mode=mode,
                         price_sources={"entry": _price_source(source_a["books"]["dmarket_ask"]),
                                        "steam_sale": sale_sources(source_a, steam_books),
                                        "return_purchase": _price_source(source_b["books"]["steam_ask"]),
@@ -179,11 +218,11 @@ def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_second
                             predicted_net_cents=pred["base_net_cents"]+pred["entry_cost_cents"]*model["return_bias_bps"]//10000,
                             predicted_duration_seconds=max(pred["minimum_known_delay_seconds"], model["duration_mean_seconds"]))
                         pred["uncertainty"]["sale_time"] = "estimated_from_resolved_routes"
-                    identifier = journal.append("prediction", pred)
-                    predictions.append(dict(pred, prediction_id=identifier))
-    predictions.sort(key=lambda p: (p["predicted_net_cents"] is None, -(p["predicted_net_cents"] or 0),
-                                    p["entry_cost_cents"], p["item_a"], p["item_b"]))
-    return {"family": FAMILY, "discovery_version": DISCOVERY_VERSION, "snapshots": snapshots,
+                    predictions.append(pred)
+    with journal.connect(True) as db:
+        predictions = [dict(p,prediction_id=journal.append('prediction',p,db=db)) for p in predictions]
+    predictions.sort(key=search_rules.sort_key)
+    return {"family": FAMILY, "discovery_version": DISCOVERY_VERSION, "ranking_version":search_rules.VERSION, "search_settings":settings, "snapshots": snapshots,
         "excluded": issues, "predictions": predictions, "unsupported_scenarios": sum(limits.values()),
         "scenario_limits": [{"item_a": k[0], "item_b": k[1], "steam_sale": k[2], "dmarket_sale": k[3],
                              "reason": k[4], "quantities_affected": count} for k, count in limits.items()],
@@ -191,3 +230,17 @@ def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_second
         "economic_evidence": "not_established", "assumptions": policy,
         "search_limits": {"maximum_entry_quantity": 1000, "roster_items": len(seen), "price_max_age_seconds": max_age_seconds},
         "uncertainty_note": "Missing history does not exclude a route. Future prices, buyers and sale times are unknown. Listing estimates assume a sale at an observed asking price; listing quantities are not buyer demand."}
+
+
+def capture_index(journal, as_of):
+    result = {}
+    at = utc(as_of)
+    for c in journal.records('capture'):
+        if (c.get('kind') not in {'details','offers','targets'} or c.get('app_id') != 730
+                or utc(c['retrieved_at']) > at or utc(c['_recorded_at']) > at):
+            continue
+        item = result.setdefault(c['title'], {})
+        old = item.get(c['kind'])
+        if old is None or utc(old['retrieved_at']) <= utc(c['retrieved_at']):
+            item[c['kind']] = c
+    return result

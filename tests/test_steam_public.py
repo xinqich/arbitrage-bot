@@ -83,7 +83,7 @@ class SteamPublicTests(unittest.TestCase):
                 normalize_fields(bad,self.at)
 
     def test_identity_and_commodity_are_checked(self):
-        for key,value in [('market_hash_name','Recoil Case'),('appid',570),('commodity',False)]:
+        for key,value in [('market_hash_name','Recoil Case'),('appid',570),('commodity',None)]:
             bad = deepcopy(self.fields)
             bad['queries']['description']['data'][key] = value
             with self.subTest(key=key),self.assertRaisesRegex(ValueError,'identity'):

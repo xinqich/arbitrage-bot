@@ -5,7 +5,8 @@ from uuid import uuid4
 
 from .depth import ENGINE, available, book, consume, quote, total
 from .evidence import stamp, utc
-from .prediction import (FAMILY, ITEM_FAMILY, QUALIFIED_ITEMS, cents, destination_snapshot, return_snapshot,
+from .identity import valid_title
+from .prediction import (FAMILY, ITEM_FAMILY, cents, destination_snapshot, return_snapshot,
                          steam_sale_snapshot, steam_net, dmarket_net)
 from .routes import _state, add_event
 
@@ -35,7 +36,7 @@ def configure(journal, route_id, enabled, watchlist, policy, at, db=None):
             titles = [i["title"] for i in watchlist["items"] if i["app_id"] == 730]
             if pred["item_a"] not in titles or not titles or len(set(titles)) != len(titles):
                 raise ValueError("paper basket must include outward item and unique titles")
-            if any(not (title.endswith(" Case") or title in QUALIFIED_ITEMS) for title in titles):
+            if any(not valid_title(title) for title in titles):
                 raise ValueError("paper basket contains an unqualified item")
             cents(policy["minimum_return_delay_seconds"])
             if policy.get("other_cost_cents") is None:
@@ -46,6 +47,9 @@ def configure(journal, route_id, enabled, watchlist, policy, at, db=None):
                 "titles": titles, "policy": policy, "freshness_seconds": 14400,
                 "selection_rule": "highest_destination_receipts_then_least_leftover_then_title",
                 "partial_sales": True, "residual_rule": "user_decision"}
+        if not old and pred.get('ranking_version'):
+            record.update(search_settings=pred['search_settings'],ranking_version=pred['ranking_version'],
+                          selection_rule='bid_priority_then_destination_receipts_v1')
         journal.append("paper_settings", record, db=db)
     return record
 
@@ -72,7 +76,7 @@ def required_evidence(journal, route_id, at):
         if stage in {"steam_locked", "awaiting_steam_sale"}:
             pairs = [(pred["item_a"], "details")]
         elif stage == "steam_wallet":
-            pairs = [(title, kind) for title in cfg["titles"] for kind in ("details", "targets")]
+            pairs = [(title, kind) for title in cfg["titles"] for kind in (("details", "targets", "offers") if cfg.get("search_settings") else ("details", "targets"))]
         elif stage in {"return_item_locked", "awaiting_dmarket_sale"}:
             held = [key for key, quantity in assets.items() if quantity]
             pairs = [(held[0].removeprefix("730:"), "targets")] if len(held) == 1 else []
@@ -148,6 +152,14 @@ def step(journal, route_id, at):
                     try:
                         candidate = snapshot_for(return_snapshot, title)
                         cap = _capacity(journal, candidate, "steam_ask", db)
+                        if cfg.get('search_settings'):
+                            from .search_rules import return_choices
+                            for priority,buy,sale,quality in return_choices(candidate,cap[1],movements['steam_wallet'],net_dm,cfg['search_settings']):
+                                chosen=dict(candidate,return_quality=quality)
+                                if candidate.get('comparison_ask'):
+                                    chosen['evidence_ids']=sorted(set(chosen['evidence_ids']+[candidate['comparison_ask']['evidence_id']]))
+                                choices.append((sale['net_cents'],movements['steam_wallet']-buy['gross_cents'],title,chosen,cap,buy))
+                            continue
                         buy = quote(cap[1], total(book(candidate, "dmarket_bid")),
                                     budget=movements["steam_wallet"])
                         sale = quote(book(candidate, "dmarket_bid"), buy["quantity"], net_dm)
@@ -161,7 +173,7 @@ def step(journal, route_id, at):
                     return {"status": "waiting_for_evidence", "missing": missing}
                 if not choices:
                     return {"status": "manual_decision", "reason": "no_affordable_supported_return"}
-                choices.sort(key=lambda c: (-c[0], c[1], c[2]))
+                choices.sort(key=lambda c: (c[3].get("return_quality",{}).get("priority",0),-c[0], c[1], c[2]))
                 _, _, title, snapshot, capacity, fill = choices[0]
                 action = "return_purchase"
                 movement("steam_wallet", -fill["gross_cents"])

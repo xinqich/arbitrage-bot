@@ -5,14 +5,16 @@ from itertools import product
 from .evidence import utc, stamp
 from .money import exact_integer, price_cents
 from .depth import levels, book, total, quote, ENGINE
+from .identity import valid_title, general_order, base_offer
 
 FAMILY="cs2_standard_case_cycle_v1"
 ITEM_FAMILY="cs2_standard_item_cycle_v2"
+# Compatibility fixture metadata, not an item admission list.
 QUALIFIED_ITEMS={"Paris 2023 Legends Sticker Capsule":True,"AK-47 | Slate (Field-Tested)":False}
 
 
 def qualified_identity(title,commodity):
-    return (title.endswith(" Case") and commodity is True) or (title in QUALIFIED_ITEMS and commodity is QUALIFIED_ITEMS[title])
+    return valid_title(title) and type(commodity) is bool
 
 
 def cents(value):
@@ -70,12 +72,12 @@ def _top(rows,side,unit,price_key="price",quantity_key="quantity"):
     # The top cumulative quantity is unambiguous; overlapping duplicate rows are not summed.
     return {"price_cents":best,"quantity":max(q for p,q in parsed if p==best)}
 
-def _market_captures(journal,title,as_of,max_age_seconds,kinds,db=None):
+def _market_captures(journal,title,as_of,max_age_seconds,kinds,db=None,index=None):
     if type(max_age_seconds) is not int or max_age_seconds<0:
         raise ValueError("invalid freshness bound")
     now=utc(as_of)
     relevant={}
-    for capture in journal.records("capture",db):
+    for capture in (index.get(title, {}).values() if index is not None else journal.records("capture",db)):
         if (capture["kind"] in kinds
                 and capture["title"]==title and capture["app_id"]==730
                 and utc(capture["retrieved_at"])<=now and utc(capture["_recorded_at"])<=now):
@@ -100,7 +102,9 @@ def _steam_observation(capture,title,as_of,max_age_seconds):
     if steam["item"]["appId"]!=730 or steam["item"].get("marketName")!=title:
         raise ValueError("Steam item identity mismatch")
     if not qualified_identity(title,steam.get("meta",{}).get("flags",{}).get("commodity")):
-        raise ValueError("outside_standard_case_family")
+        raise ValueError("unknown_item_metadata")
+    if any(steam.get("meta",{}).get("flags",{}).get(k) is False for k in ("marketable","tradable")):
+        raise ValueError("item_not_marketable_or_tradable")
     observed=utc(steam["histogram"]["date"])
     if not 0<=(utc(as_of)-observed).total_seconds()<=max_age_seconds:
         raise ValueError("stale_steam_book")
@@ -124,9 +128,7 @@ def _steam_book(capture,steam,side):
 
 def _target_bid(capture,title):
     rows=[r for r in capture["payload"]["orders"]
-          if r.get("title")==title and (r.get("attributes")=={} or
-              (title in QUALIFIED_ITEMS and QUALIFIED_ITEMS[title] is False and
-               r.get("attributes")=={"floatPartValue":"any","paintSeed":"any","phase":"any"}))]
+          if r.get("title")==title and general_order(r.get("attributes"))]
     return _book(rows,"bid","cents","price","amount")
 
 
@@ -151,7 +153,14 @@ def return_snapshot(journal,title,as_of,max_age_seconds,db=None):
     captures,input_kind=_market_captures(journal,title,as_of,max_age_seconds,
                                         ("details","targets"),db)
     steam,observed=_steam_observation(captures["details"],title,as_of,max_age_seconds)
-    return {"title":title,"app_id":730,
+    comparison=None
+    try:
+        offers,kind=_market_captures(journal,title,as_of,max_age_seconds,('offers',),db)
+        if kind==input_kind:
+            comparison={'value':_offer_ask(offers['offers'],title),'evidence_id':offers['offers']['record_id']}
+    except (ValueError,KeyError,TypeError):
+        pass
+    return {"comparison_ask":comparison,"title":title,"app_id":730,
             "steam_ask":_steam_book(captures["details"],steam,"ask"),
             "dmarket_bid":_target_bid(captures["targets"],title),
             "evidence_ids":[captures[k]["record_id"] for k in ("details","targets")],
@@ -167,18 +176,8 @@ def _offer_ask(capture,title):
         if (attr.get("title")==title and attr.get("gameId")=="a8db"
                 and attr.get("withdrawable") is True and attr.get("tradable") is True
                 and row.get("locked") is False):
-            cs2=attr.get("cs2",{})
-            if title in QUALIFIED_ITEMS and QUALIFIED_ITEMS[title] is False:
-                if (cs2.get("stickers")!=[] or cs2.get("charms")!=[] or cs2.get("isProskin") is not False
-                        or cs2.get("phase")!="" or cs2.get("rarePattern")!="RARE_PATTERN_UNSPECIFIED"):
-                    continue
-                from decimal import Decimal, InvalidOperation
-                try:
-                    value=Decimal(str(cs2.get("float","-1")))
-                except InvalidOperation as exc:
-                    raise ValueError("invalid_skin_float") from exc
-                if not value.is_finite() or not Decimal("0.15")<=value<Decimal("0.38"):
-                    continue
+            if not base_offer(attr, title):
+                continue
             price=cents(exact_integer(row["priceCents"]))
             if row["offerId"] in offers and offers[row["offerId"]]!=price:
                 raise ValueError("conflicting_duplicate_offer")
@@ -241,28 +240,39 @@ def sale_quote(snapshot, venue, quantity, net, mode):
     return _sale_estimate(book(snapshot, venue+("_bid" if mode=="current_bids" else "_ask")), quantity, net, mode)
 
 
-def calculate(a,b,quantity,policy,steam_sale_mode="current_bids",dmarket_sale_mode="current_bids"):
+def calculate(a,b,quantity,policy,steam_sale_mode="current_bids",dmarket_sale_mode="current_bids",return_quantity_limit=None,cache=None):
     if steam_sale_mode not in {"current_bids","listing_price","midpoint"} or dmarket_sale_mode not in {"current_bids","listing_price","midpoint"}:
         raise ValueError("unsupported_sale_scenario")
     if a["input_kind"]!=b["input_kind"]:
         raise ValueError("mixed_evidence_kinds")
     if type(quantity) is not int or quantity<=0:
         raise ValueError("positive whole-item quantity required")
-    entry=quote(book(a,"dmarket_ask"),quantity)
+    def cached(key, make):
+        if cache is None:
+            return make()
+        if key not in cache:
+            cache[key] = make()
+        return cache[key]
+    entry=cached(('entry',a['title'],quantity),lambda:quote(book(a,"dmarket_ask"),quantity))
     sf=policy["steam_fee"]
-    sale=sale_quote(a,"steam",quantity,lambda p:steam_net(p,sf["steam_bps"],
-        sf["game_bps"],sf["minimum_steam_cents"],sf["minimum_game_cents"]),steam_sale_mode)
+    sale=cached(("sale",a["title"],quantity,steam_sale_mode),lambda:sale_quote(a,"steam",quantity,lambda p:steam_net(p,sf["steam_bps"],
+        sf["game_bps"],sf["minimum_steam_cents"],sf["minimum_game_cents"]),steam_sale_mode))
     if not entry["complete"] or not sale["complete"]:
         raise ValueError("insufficient_entry_or_steam_sale_depth")
     spend,steam_receipt=entry["gross_cents"],sale["net_cents"]
     return_limit=total(book(b,"dmarket_bid")) if dmarket_sale_mode=="current_bids" else total(book(b,"steam_ask"))
-    purchase=quote(book(b,"steam_ask"),return_limit,budget=steam_receipt)
+    if return_quantity_limit is not None:
+        if type(return_quantity_limit) is not int or return_quantity_limit <= 0:
+            raise ValueError('positive return quantity required')
+        return_limit=min(return_limit,return_quantity_limit)
+    purchase=cached(('purchase',b['title'],return_limit,steam_receipt),
+                    lambda:quote(book(b,"steam_ask"),return_limit,budget=steam_receipt))
     return_quantity=purchase["quantity"]
     if return_quantity==0:
         raise ValueError("no_affordable_supported_return")
     df=policy["dmarket_fee"]
-    exit_quote=sale_quote(b,"dmarket",return_quantity,
-                     lambda p:dmarket_net(p,df["bps"],df["minimum_cents"]),dmarket_sale_mode)
+    exit_quote=cached(("exit",b["title"],return_quantity,dmarket_sale_mode),lambda:sale_quote(b,"dmarket",return_quantity,
+                     lambda p:dmarket_net(p,df["bps"],df["minimum_cents"]),dmarket_sale_mode))
     returned=exit_quote["net_cents"]
     extra=policy["other_cost_cents"]
     if extra is not None:

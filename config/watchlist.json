@@ -34,5 +34,12 @@
   "item_sources": {
     "Paris 2023 Legends Sticker Capsule": "steamapis",
     "AK-47 | Slate (Field-Tested)": "steamapis"
+  },
+  "catalogue": {
+    "enabled": true,
+    "source": "dmarket",
+    "page_size": 100,
+    "steam_catalogue_access": "denied_2026_09_17",
+    "note": "SteamApis catalogue access returned HTTP 403. DMarket catalogue plus per-item Steam details are qualified."
   }
 }

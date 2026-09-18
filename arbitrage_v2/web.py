@@ -8,6 +8,7 @@ from uuid import uuid4
 from urllib.parse import parse_qs, urlsplit
 
 from .evidence import read_json, utc
+from . import search_rules, catalogue
 from .paper import configure, settings
 from .paper_entry import preview as preview_paper, enter as enter_paper
 from .recovery import open_recovery
@@ -20,7 +21,7 @@ ASSETS = {"/": ("index.html", "text/html; charset=utf-8"),
           "/style.css": ("style.css", "text/css; charset=utf-8")}
 REPORTS = {"DEVELOPMENT_PLAN.md", "IMPLEMENTATION_STATUS.md", "APPROVED_DESIGN.md",
            "CSFLOAT_FEASIBILITY_2026-09-14.md", "STEAM_FEE_AUDIT.md", "LOCAL_DESK.md",
-           "NONCASE_QUALIFICATION_2026-09-14.md", "RELEASE_0_5_CHECKS.md", "RELEASE_0_6_CHECKS.md", "RELEASE_0_7_CHECKS.md", "DISCOVERY_FILTER_AUDIT.md", "RELEASE_0_8_CHECKS.md", "REAL_GROWTH_WORKFLOW.md", "RELEASE_0_9_CHECKS.md", "BACKUP_RESTORE.md", "RELEASE_1_0_CHECKS.md", "UI_REWORK.md"}
+           "NONCASE_QUALIFICATION_2026-09-14.md", "RELEASE_0_5_CHECKS.md", "RELEASE_0_6_CHECKS.md", "RELEASE_0_7_CHECKS.md", "DISCOVERY_FILTER_AUDIT.md", "RELEASE_0_8_CHECKS.md", "REAL_GROWTH_WORKFLOW.md", "RELEASE_0_9_CHECKS.md", "BACKUP_RESTORE.md", "RELEASE_1_0_CHECKS.md", "UI_REWORK.md", "CS2_SEARCH_EXPANSION.md"}
 
 
 def overview(worker):
@@ -49,7 +50,7 @@ def overview(worker):
             row=db.execute("SELECT id,payload FROM records WHERE category='search_report' AND "
                            "coalesce(json_extract(payload,'$.mode'),'paper')=? ORDER BY seq DESC LIMIT 1",(mode,)).fetchone()
             searches[mode]=dict(json.loads(row[1]),record_id=row[0]) if row else None
-    return {"searches":searches, "holding_costs":holding_costs.summary(journal),
+    return {"search_settings":search_rules.current(journal), "catalogue_coverage":catalogue.coverage(journal,[]), "searches":searches, "holding_costs":holding_costs.summary(journal),
         "steam_wallet":steam_wallet.status(journal), "version": __version__, "at": at, "controls": controls(journal), "busy": worker.busy,
         "worker_alive": bool(worker.thread and worker.thread.is_alive()), "health": health,
         "next_action_at": min(due, key=utc) if due else None,
@@ -115,6 +116,29 @@ def create_server(worker, root, port=8765):
                     if len(query)!=1 or set(query)-{'prediction_id','route_id'} or any(len(v)!=1 for v in query.values()):
                         raise ValueError('Choose one prediction or route.')
                     return self.reply(200,route_details.detail(worker.journal,at=now(),**{k:v[0] for k,v in query.items()}))
+                if path.path == '/api/catalogue':
+                    query=parse_qs(path.query)
+                    if set(query)-{'offset'}:
+                        raise ValueError('Unknown catalogue parameter')
+                    offset=int(query.get('offset',['0'])[0])
+                    if offset < 0:
+                        raise ValueError('Invalid catalogue offset')
+                    state=catalogue.view(worker.journal);titles=sorted(state['items'])
+                    from .discovery import capture_index, snapshot
+                    at=now();index=capture_index(worker.journal,at);items=[]
+                    for title in titles[offset:offset+100]:
+                        item=dict(state['items'][title])
+                        if title not in index:
+                            item.update(detail_status='pending_first_check',detail_issues=[])
+                        else:
+                            detail=snapshot(worker.journal,title,at,index=index)
+                            item.update(detail_status='partially_checked' if detail['issues'] else 'checked',
+                                        detail_issues=sorted({r['reason'] for r in detail['issues']}))
+                        items.append(item)
+                    return self.reply(200,{'total':len(titles),'offset':offset,
+                        'items':items,
+                        'next_offset':offset+100 if offset+100<len(titles) else None,
+                        'note':'Catalogue summaries select items to check. They are not executable prices.'})
                 if path.path == "/api/session":
                     return self.reply(200, {"token": token})
                 if path.path == "/api/status":
@@ -153,6 +177,10 @@ def create_server(worker, root, port=8765):
                 if action in {"pause", "resume", "check_now"} and set(data) == {"action"}:
                     result = control(worker.journal, action)
                     worker.wake.set()
+                elif action == 'search_settings' and set(data)=={'action','settings'}:
+                    value=search_rules.validate(data['settings'])
+                    worker.journal.append('search_settings',{'at':now(),'settings':value,'ranking_version':search_rules.VERSION})
+                    result={'settings':value,'note':'Used by the next search. Saved predictions are unchanged.'}
                 elif action == "backup" and set(data) == {"action"}:
                     from .backups import create_backup
                     result = create_backup(worker.journal, root/"data/backups"/("manual-"+uuid4().hex), root)

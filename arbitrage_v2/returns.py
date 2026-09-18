@@ -2,7 +2,7 @@
 from datetime import datetime, timezone
 
 from .evidence import stamp, utc
-from .prediction import FAMILY, cents, dmarket_net, return_snapshot
+from .prediction import FAMILY, ITEM_FAMILY, cents, dmarket_net, return_snapshot
 from .routes import _state
 from .depth import book, quote, total, ENGINE
 
@@ -38,8 +38,8 @@ def review_returns(journal, route_id, watchlist, policy, as_of,
         route, pred, events, movements, assets, stage, eligible, last, resolved = _state(journal, route_id, db)
         if resolved:
             raise ValueError("route already resolved")
-        if pred["family"] != FAMILY or pred["app_id"] != 730:
-            raise ValueError("outside_standard_case_family")
+        if pred["family"] not in {FAMILY,ITEM_FAMILY} or pred["app_id"] != 730:
+            raise ValueError("unsupported_game_or_family")
         if now < last:
             raise ValueError("review time precedes recorded events")
         if route["mode"] == "confirmed" and now > datetime.now(timezone.utc):
@@ -67,7 +67,7 @@ def review_returns(journal, route_id, watchlist, policy, as_of,
             for item in items:
                 try:
                     if item["app_id"] != 730:
-                        raise ValueError("outside_standard_case_family")
+                        raise ValueError("unsupported_game_or_family")
                     snapshot = return_snapshot(journal, item["title"], as_of, max_age_seconds, db)
                     if snapshot["input_kind"] != pred["input_kind"]:
                         raise ValueError("route_and_quote_evidence_partition_mismatch")
@@ -100,7 +100,7 @@ def review_returns(journal, route_id, watchlist, policy, as_of,
         options.sort(key=lambda row: (-row["predicted_dmarket_receipts_cents"],
                                      row["steam_wallet_residual_cents"], row["item_b"]))
         report = {"route_id": route_id, "original_prediction_id": route["prediction_id"],
-            "mode": route["mode"], "input_kind": pred["input_kind"], "family": FAMILY,
+            "mode": route["mode"], "input_kind": pred["input_kind"], "family": pred["family"],
             "evaluated_at": stamp(now), "model_version": ENGINE,
             "route_event_ids": [event["record_id"] for event in events],
             "wallet_available_cents": wallet, "remaining_cost_cents": remaining_cost_cents,

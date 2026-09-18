@@ -8,6 +8,8 @@ from .evidence import stamp, utc
 from .funds import available_capital
 from .paper import required_evidence, settings, step
 from .prediction import screen
+from . import catalogue, search_rules
+from .discovery import capture_index
 from .routes import route_status, _state
 
 
@@ -55,11 +57,21 @@ def search(journal, purpose, watchlist, policy, mandate, at, mode="paper"):
             "economic_evidence": "not_established"}
     capital = available_capital(journal, mandate, mode=mode)
     if not capital:
-        return {"purpose": purpose, "status": "no_available_funds", "capital_cents": 0, "predictions": [], "mode": mode, "note": "Record real DMarket funds first." if mode=="confirmed" and not journal.records("real_funding") else "No uncommitted money is available in this funding pool."}
+        return {"purpose": purpose, "status": "no_available_funds", "capital_cents": 0, "predictions": [], "mode": mode,
+            "ranking_version":search_rules.VERSION,"search_settings":search_rules.current(journal),
+            "catalogue_coverage":catalogue.coverage(journal,[]),
+            "note": "Record real DMarket funds first." if mode=="confirmed" and not journal.records("real_funding") else "No uncommitted money is available in this funding pool."}
     scan_watch=dict(watchlist,items=list(watchlist["items"]))
     known={(r["app_id"],r["title"]) for r in scan_watch["items"]}
     scan_watch["items"].extend(r for r in watchlist.get("exploration_items",[]) if (r["app_id"],r["title"]) not in known)
+    if watchlist.get('catalogue',{}).get('enabled'):
+        index=capture_index(journal,at)
+        # Pending catalogue names remain visible in coverage; only captured names
+        # are priced. This keeps a large catalogue out of the quadratic calculator.
+        known={r['title'] for r in scan_watch['items']}
+        scan_watch['items'].extend({'app_id':730,'title':title} for title in index if title not in known)
     result = screen(journal, scan_watch, policy, at, capital_cents=capital, mode=mode)
+    result['catalogue_coverage']=catalogue.coverage(journal,result['snapshots'],[r['title'] for r in scan_watch['items']])
     return dict(result, purpose=purpose, status="conditional_estimates", capital_cents=capital, mode=mode,
                 predictions=result["predictions"], prediction_count=len(result["predictions"]),
                 note="These alternatives share the same funds. Existing route funds are excluded.")
@@ -176,7 +188,7 @@ class Worker:
             return
         self.busy = True
         research_due = manual or utc(at) >= utc(research_at)
-        retry_requests = [{k: s[k] for k in ("provider", "kind", "app_id", "title")}
+        retry_requests = [{k: s[k] for k in ("provider", "kind", "app_id", "title", "cursor", "titles") if k in s}
                           for s in sources.values() if s.get("next_retry_at") and utc(s["next_retry_at"]) <= utc(at)]
         batch = CollectionBatch(self.journal, self.watchlist, self.config, self.keys, sources,
                                 self.clock, self.cancelled, self.fetch)
@@ -201,7 +213,30 @@ class Worker:
         batch.ensure(retry_requests)
         roster = list(self.watchlist["items"])
         rotation = health.get("rotation_index", 0)
-        if research_due:
+        if research_due and self.watchlist.get('catalogue',{}).get('enabled'):
+            # One catalogue page per cycle; pagination survives restarts.
+            state=catalogue.view(self.journal)
+            catalogue_requests=[catalogue.request(state['cursor'])]
+            batch.ensure(catalogue_requests)
+            state=catalogue.view(self.journal)
+            index=capture_index(self.journal,self.clock())
+            mode='confirmed' if self.journal.records('real_funding') else 'paper'
+            capital=available_capital(self.journal,self.mandate,mode=mode)
+            remaining=max(0,self.config['request_budget']-batch.count)
+            slots=min(remaining//3,max(0,self.config['steam_budget']-batch.steam_count))
+            seeds=self.watchlist['items']+self.watchlist.get('exploration_items',[])
+            roster,count=catalogue.research_roster(self.journal,seeds,capital,search_rules.current(self.journal),slots,index,self.clock())
+            research_requests=self._requests([dict(item,kind=kind) for item in roster for kind in ('details','offers','targets')])
+            batch.ensure(research_requests)
+            checked=dict(state['progress'].get('checked',{}))
+            attempted={r['title'] for r in batch.results}
+            selected=[r for r in roster if r['title'] in attempted]
+            for item in selected:
+                checked[item['title']]=self.clock()
+            self.journal.append('catalogue_progress',dict(at=self.clock(),
+                selection_count=state['progress']['selection_count']+len(selected),checked=checked))
+            research_requests=catalogue_requests+research_requests
+        elif research_due:
             exploration = self.watchlist.get("exploration_items", [])
             if exploration:
                 roster.append(exploration[rotation % len(exploration)])

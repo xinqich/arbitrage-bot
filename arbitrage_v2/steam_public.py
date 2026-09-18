@@ -21,9 +21,9 @@ EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 def listing_url(app_id, title):
     if (type(app_id) is not int or app_id != 730 or not isinstance(title, str)
-            or not title.endswith(' Case') or len(title) > 200
+            or not title.strip() or len(title) > 300
             or any(ord(char) < 32 for char in title)):
-        raise ValueError('public Steam source supports exact CS2 case titles only')
+        raise ValueError('public Steam source requires an exact CS2 item title')
     return 'https://steamcommunity.com/market/listings/730/' + quote(title, safe='') + '?currency=1&l=english'
 
 
@@ -139,7 +139,7 @@ def normalize_fields(fields, retrieved_at):
     book = queries['orderbook']['data']
     history = queries['pricehistory']['data']
     if (description['appid'] != app_id or description['market_hash_name'] != title
-            or description['commodity'] is not True or description['marketable'] is not True):
+            or type(description['commodity']) is not bool or description['marketable'] is not True):
         raise ValueError('Steam item identity mismatch')
     if any(type(currency) is not int or currency != 1 for currency in
            (fields['page_currency'], book['eCurrency'], history['ecurrency'])):
@@ -164,7 +164,7 @@ def normalize_fields(fields, retrieved_at):
             raise ValueError('conflicting_history_timestamp')
         points[at] = point
     return {'result': {'item': {'appId': app_id, 'marketName': title},
-        'meta': {'flags': {'commodity': True, 'marketable': True}},
+        'meta': {'flags': {'commodity': description['commodity'], 'marketable': True}},
         'histogram': {'date': stamp(observed), 'buyOrders': _book_rows(book, 'buy'),
                       'sellOrders': _book_rows(book, 'sell')},
         'priceHistory': {'data': [points[at] for at in sorted(points)]}},

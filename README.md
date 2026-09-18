@@ -1,6 +1,6 @@
 # Arbitrage Bot V2
 
-Version **1.0.1** is the local DMarket growth tool: market evidence, route suggestions, paper trials and manual real transaction records. Profit/loss and prediction errors appear only after a route is resolved. Real trades remain manual.
+Version **1.0.2** is the local DMarket growth tool: market evidence, route suggestions, paper trials and manual real transaction records. Profit/loss and prediction errors appear only after a route is resolved. Real trades remain manual.
 
 ## Open the program
 
@@ -43,7 +43,7 @@ In **Controls**, **Create backup** saves and checks history, routes and public s
 - Open routes show holdings and waits. Leftovers require a user decision. Original predictions remain fixed; paper results never become confirmed results.
 - Manual money/item/stage/closure forms, corrections to open records, and linked recovery of explicitly written-off holdings. Earlier records/outcomes remain intact.
 - Separate source/destination accounting, including restricted DMarket Tradable and CSFloat deposited/pending/spendable/withdrawable funds. Internal payout transfers do not create additional profit.
-- A bounded CS2 exploration roster adds one of two qualified noncase examples per cycle: a capsule and an ordinary skin. The existing trial's four-case basket does not change.
+- CS2 discovery now rotates through a DMarket catalogue and checks exact Steam/DMarket books. The default purchase floor is $0.10; covered bids rank before midpoint and listing assumptions. Existing request limits remain unchanged. See [coverage and verification](docs/CS2_SEARCH_EXPANSION.md).
 
 ## Still needs evidence
 
@@ -76,3 +76,5 @@ The [v1.0 acceptance record](docs/RELEASE_1_0_CHECKS.md) explains the completed 
 
 
 Version 1.0.1 simplifies the local page, merges Routes and Search, adds midpoint comparisons, full Steam wallet records and held-item purchase costs. See [UI changes and checks](docs/UI_REWORK.md). Real/paper modes stay separate.
+
+Version 1.0.2 expands item types and adds configurable spread/price ranking. SteamApis catalogue access is denied on the current account; the working DMarket catalogue fallback is gradual, with coverage shown explicitly.

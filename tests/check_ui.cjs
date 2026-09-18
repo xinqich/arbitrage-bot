@@ -27,13 +27,19 @@ const $=id=>{const value=document.getElementById(id);assert(value,'Missing eleme
 const requests=[],saved=new Map();
 const context=vm.createContext({document,location:{hash:'#overview'},window:{addEventListener(){}},localStorage:{getItem:k=>saved.get(k),setItem:(k,v)=>saved.set(k,v)},setInterval(){},setTimeout,clearTimeout,AbortController,Intl,Date,console,crypto:require('crypto').webcrypto,
   FormData:class{constructor(form){this.values=form.querySelectorAll('input').concat(form.querySelectorAll('select')).filter(e=>e.name&&!(e.type==='checkbox'&&!e.checked)).map(e=>[e.name,e.type==='checkbox'?'on':e.value]);}[Symbol.iterator](){return this.values[Symbol.iterator]();}},
-  fetch:async(path,options={})=>{requests.push([path,options.body]);let value;if(path==='/api/session')value={token:'test-session'};else if(path==='/api/status')value=fixture.state;else if(path.startsWith('/api/route-detail?')){const id=decodeURIComponent(path.split('=')[1]);value=fixture.details[id];assert(value,'Unknown detail '+id);}else if(path==='/api/action'){const body=JSON.parse(options.body);if(body.action.startsWith('preview_'))value=fixture.reviews[body.prediction_id];else value={status:'saved'};}else throw Error('Unexpected fetch '+path);return {ok:true,json:async()=>structuredClone(value)};}});
+  fetch:async(path,options={})=>{requests.push([path,options.body]);let value;if(path==='/api/session')value={token:'test-session'};else if(path==='/api/status')value=fixture.state;else if(path==='/api/catalogue?offset=0')value={items:[{title:'Sticker | Browser fixture',dmarket_ask_cents:12,detail_status:'pending_first_check',detail_issues:[]}],next_offset:null};else if(path.startsWith('/api/route-detail?')){const id=decodeURIComponent(path.split('=')[1]);value=fixture.details[id];assert(value,'Unknown detail '+id);}else if(path==='/api/action'){const body=JSON.parse(options.body);if(body.action.startsWith('preview_'))value=fixture.reviews[body.prediction_id];else value={status:'saved'};}else throw Error('Unexpected fetch '+path);return {ok:true,json:async()=>structuredClone(value)};}});
 vm.runInContext(fs.readFileSync(process.argv[3],'utf8'),context);
 const run=source=>vm.runInContext(source,context);
 (async()=>{
   await new Promise(resolve=>setTimeout(resolve,40));
   assert.equal($('connection').textContent,'Connected locally');
   assert($('overview-dmarket').textContent.includes('$'));
+  assert.equal($('search-minimum').value,'0.10');assert.equal($('search-spread').value,'10.00');
+  $('search-minimum').value='0.15';$('search-spread').value='9.99';await run('refresh()');
+  assert.equal($('search-minimum').value,'0.15');assert.equal($('search-spread').value,'9.99');
+  await $('search-settings-form').fire('submit');await new Promise(resolve=>setTimeout(resolve,20));
+  const preferences=requests.map(r=>r[1]&&JSON.parse(r[1])).filter(Boolean).find(r=>r.action==='search_settings');
+  assert.deepEqual(preferences.settings,{minimum_purchase_cents:15,narrow_spread_bps:999});
   assert($('routes').hidden);assert(!$('overview').hidden);
   assert(!$('overview').textContent.includes('Evidence health'));
   run("location.hash='#search';navigate()");assert(!$('routes').hidden);assert(!document.getElementById('search'));
@@ -47,6 +53,10 @@ const run=source=>vm.runInContext(source,context);
   const id=fixture.state.searches.confirmed.predictions[0].prediction_id;
   await run('reviewPaper('+JSON.stringify(id)+')');assert(!$('paper-preview').hidden);assert.equal($('paper-entry-button').textContent,'Start real trial');
   $('paper-route-name').value='keep trial name';const selected=$('paper-preview-content').children[0];await run('refresh()');assert.equal($('paper-route-name').value,'keep trial name');assert.equal($('paper-preview-content').children[0],selected);
+  const browse=$('search-result').querySelectorAll('details').find(e=>e.textContent.includes('Browse catalogue'));
+  assert(browse);browse.open=true;await browse.fire('toggle');await new Promise(resolve=>setTimeout(resolve,20));
+  assert(browse.textContent.includes('Sticker | Browser fixture'));assert(browse.textContent.includes('pending first check'));
+  assert(browse.querySelector('button').hidden);
   const headings=$('search-result').querySelectorAll('th').map(e=>e.textContent);assert.deepEqual(headings,['Rank','Sell scenario','Game A → B','Item A','Buy total A','Steam sale A','Steam net A','Item B','Buy total B','Sell total B','Sell net B','Profit','ROI']);
   run("setMode('paper')");assert($('paper-preview').hidden);assert($('active-detail').hidden);
   const unsupported=fixture.state.searches.paper.predictions.find(p=>p.engine_version!=='observed-depth-v2');
@@ -55,5 +65,5 @@ const run=source=>vm.runInContext(source,context);
   const wallet=$('steam-wallet-form');wallet.querySelector('input[name=amount]').value='12.34';wallet.querySelector('input[name=reference]').value='Steam balance test';await wallet.fire('submit');await new Promise(resolve=>setTimeout(resolve,20));
   const body=requests.map(r=>r[1]&&JSON.parse(r[1])).filter(Boolean).find(r=>r.action==='steam_wallet');assert.equal(body.record.amount_cents,1234);
   assert(!requests.some(([path])=>/^https?:/.test(path)));
-  console.log('UI DOM contracts passed: mode separation, navigation, 13 columns, details, paper eligibility, form/selection preservation and wallet submission.');
+  console.log('UI DOM contracts passed: mode separation, navigation, 13 columns, details, paper eligibility, form/selection preservation wallet submission, search preferences and catalogue browsing.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
