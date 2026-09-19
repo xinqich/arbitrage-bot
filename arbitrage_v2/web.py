@@ -19,7 +19,7 @@ from .worker import controls, control, latest, now, search, available_capital
 ASSETS = {"/": ("index.html", "text/html; charset=utf-8"),
           "/app.js": ("app.js", "text/javascript; charset=utf-8"),
           "/style.css": ("style.css", "text/css; charset=utf-8")}
-REPORTS = {"DEVELOPMENT_PLAN.md", "IMPLEMENTATION_STATUS.md", "APPROVED_DESIGN.md",
+REPORTS = {"COLLECTION_RELIABILITY.md", "DEVELOPMENT_PLAN.md", "IMPLEMENTATION_STATUS.md", "APPROVED_DESIGN.md",
            "CSFLOAT_FEASIBILITY_2026-09-14.md", "STEAM_FEE_AUDIT.md", "LOCAL_DESK.md",
            "NONCASE_QUALIFICATION_2026-09-14.md", "RELEASE_0_5_CHECKS.md", "RELEASE_0_6_CHECKS.md", "RELEASE_0_7_CHECKS.md", "DISCOVERY_FILTER_AUDIT.md", "RELEASE_0_8_CHECKS.md", "REAL_GROWTH_WORKFLOW.md", "RELEASE_0_9_CHECKS.md", "BACKUP_RESTORE.md", "RELEASE_1_0_CHECKS.md", "UI_REWORK.md", "CS2_SEARCH_EXPANSION.md"}
 

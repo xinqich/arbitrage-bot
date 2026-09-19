@@ -76,14 +76,10 @@ def _market_captures(journal,title,as_of,max_age_seconds,kinds,db=None,index=Non
     if type(max_age_seconds) is not int or max_age_seconds<0:
         raise ValueError("invalid freshness bound")
     now=utc(as_of)
-    relevant={}
-    for capture in (index.get(title, {}).values() if index is not None else journal.records("capture",db)):
-        if (capture["kind"] in kinds
-                and capture["title"]==title and capture["app_id"]==730
-                and utc(capture["retrieved_at"])<=now and utc(capture["_recorded_at"])<=now):
-            previous=relevant.get(capture["kind"])
-            if previous is None or utc(capture["retrieved_at"])>=utc(previous["retrieved_at"]):
-                relevant[capture["kind"]]=capture
+    from .capture_selection import select_captures
+    rows = (index.get(title, {}).values() if index is not None else journal.records("capture",db))
+    relevant = {key[2]: capture for key, capture in select_captures(
+        (c for c in rows if c['kind'] in kinds and c['title'] == title and c['app_id'] == 730), as_of).items()}
     if not set(kinds)<=relevant.keys():
         raise ValueError("missing_capture")
     for capture in relevant.values():

@@ -112,15 +112,15 @@ class EntryTests(unittest.TestCase):
             self.start(fresh)
         self.assertEqual(self.journal.records("route"), [])
 
-    def test_failed_latest_capture_and_changed_policy_block_entry(self):
+    def test_changed_policy_blocks_but_failed_fetch_preserves_fresh_entry_evidence(self):
         request = self.request()
         altered = dict(self.policy, other_cost_cents=1)
         with self.assertRaisesRegex(ValueError, "assumptions"):
             enter(self.journal, request, self.mandate, altered, self.at)
         capture = self.journal.records("capture")[0]
         self.journal.append("capture", dict(capture, status=503, error="http_503", payload=None))
-        with self.assertRaisesRegex(ValueError, "provider_request_failed"):
-            self.start(request)
+        self.start(request)
+        self.assertEqual(len(self.journal.records('route')), 1)
 
     def test_synthetic_or_nonpositive_predictions_are_not_page_entries(self):
         for change in ({"input_kind": "synthetic"}, {"base_net_cents": -1, "predicted_net_cents": -1},

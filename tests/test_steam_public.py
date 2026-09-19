@@ -23,7 +23,7 @@ def fixture(name='fracture_case'):
     return json.loads((ROOT/'tests/fixtures'/('steam_public_'+name+'.json')).read_text(encoding='utf-8'))
 
 
-def page(fields):
+def page(fields, history_status='success'):
     # Minimal page envelope with recorded market fields and unrelated private-looking
     # values that must not enter the archive. No JavaScript is executed by the parser.
     loaders = [json.dumps({'steamid': '0', 'sessionid': 'DO_NOT_ARCHIVE'}),
@@ -31,7 +31,8 @@ def page(fields):
                json.dumps({'success': True, 'appid': fields['app_id'], 'bCommodity': True})]
     queries = [{'queryKey': ['market', kind, fields['app_id'], fields['title']],
                 'state': {'data': row['data'], 'dataUpdatedAt': row['data_updated_at_ms'],
-                          'status': 'success', 'error': None}} for kind, row in fields['queries'].items()]
+                          'status': history_status if kind == 'pricehistory' else 'success',
+                          'error': None}} for kind, row in fields['queries'].items()]
     context = json.dumps({'queryData': json.dumps({'queries': queries})})
     return ('<html><script>window.SSR.loaderData = '+json.dumps(loaders)+';'
             'window.SSR.renderContext=JSON.parse('+json.dumps(context)+');'
@@ -73,12 +74,11 @@ class SteamPublicTests(unittest.TestCase):
         self.assertNotIn('DO_NOT_ARCHIVE',json.dumps(parsed))
         self.assertNotIn('MUST_NOT_EXECUTE',json.dumps(parsed))
 
-    def test_wrong_currency_at_any_level_is_rejected(self):
-        for where in ('page','book','history'):
+    def test_wrong_price_currency_is_rejected(self):
+        for where in ('page','book'):
             bad = deepcopy(self.fields)
             if where == 'page':bad['page_currency'] = 3
             elif where == 'book':bad['queries']['orderbook']['data']['eCurrency'] = 3
-            else:bad['queries']['pricehistory']['data']['ecurrency'] = 3
             with self.subTest(where=where),self.assertRaisesRegex(ValueError,'USD'):
                 normalize_fields(bad,self.at)
 
@@ -89,6 +89,29 @@ class SteamPublicTests(unittest.TestCase):
             with self.subTest(key=key),self.assertRaisesRegex(ValueError,'identity'):
                 normalize_fields(bad,self.at)
         with self.assertRaises(ValueError):listing_url(570,'Fracture Case')
+
+    def test_missing_failed_or_invalid_history_keeps_verified_book(self):
+        expected = normalize_fields(self.fields,self.at)['result']['histogram']
+        for scenario in ('missing', 'failed', 'currency', 'future', 'malformed', 'empty'):
+            with self.subTest(scenario=scenario):
+                fields = deepcopy(self.fields)
+                if scenario == 'missing':fields['queries'].pop('pricehistory')
+                if scenario == 'currency':fields['queries']['pricehistory']['data']['ecurrency'] = 3
+                if scenario == 'future':fields['queries']['pricehistory']['data_updated_at_ms'] = 9999999999999
+                if scenario == 'malformed':fields['queries']['pricehistory']['data']['prices'] = None
+                if scenario == 'empty':fields['queries']['pricehistory']['data']['prices'] = []
+                parsed = page_fields(page(fields,'error' if scenario=='failed' else 'success'),730,'Fracture Case')
+                result = normalize_fields(parsed,self.at)
+                self.assertEqual(result['result']['histogram'],expected)
+                self.assertEqual(result['result']['priceHistory']['data'],[])
+                self.assertIn(result['provenance']['history_status'], ('unavailable','invalid','empty'))
+                _steam_observation({'payload':result},'Fracture Case',self.at,14400)
+
+    def test_missing_required_query_still_rejects_page(self):
+        for kind in ('description','orderbook'):
+            fields = deepcopy(self.fields);fields['queries'].pop(kind)
+            with self.subTest(kind=kind), self.assertRaisesRegex(ValueError,'market_query'):
+                page_fields(page(fields),730,'Fracture Case')
 
     def test_packed_book_boundaries_and_totals_fail_closed(self):
         alterations = [lambda b:b['rgCompactBuyOrders'].pop(),
@@ -120,8 +143,10 @@ class SteamPublicTests(unittest.TestCase):
         bad = deepcopy(self.fields)
         history = bad['queries']['pricehistory']['data']['prices']
         history.append(dict(history[-1],purchases=12345))
-        with self.assertRaisesRegex(ValueError,'conflicting_history'):
-            normalize_fields(bad,self.at)
+        invalid = normalize_fields(bad,self.at)
+        self.assertEqual(invalid['provenance']['history_status'], 'invalid')
+        self.assertEqual(invalid['result']['priceHistory']['data'], [])
+        self.assertEqual(invalid['result']['histogram'], result['result']['histogram'])
 
     def test_redirects_cannot_leave_public_listing_surface(self):
         redirect = ListingRedirect()

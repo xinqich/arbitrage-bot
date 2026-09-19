@@ -94,14 +94,14 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(sale['fills'], [])
         self.assertEqual(best['predicted_dmarket_receipts_cents'], 10*dmarket_net(150, 1000, 1))
 
-    def test_failed_targets_preserve_listing_but_are_not_observed_illiquidity(self):
+    def test_failed_targets_preserve_fresh_bids_and_report_failure_separately(self):
         self.replace_capture('Return Case', 'targets', lambda c: c.update(status=503, error='http_503', payload=None))
         result = self.scan()
-        self.assertFalse(self.candidates(result))
+        self.assertTrue(self.candidates(result))
         self.assertTrue(self.candidates(result, dmarket='listing_price'))
-        issue = next(i for i in result['excluded'] if i['title'] == 'Return Case' and i['book'] == 'dmarket_bid')
-        self.assertEqual(issue['status'], 'needs_data')
-        self.assertEqual(issue['reason'], 'provider_request_failed')
+        item = next(i for i in result['snapshots'] if i['title'] == 'Return Case')
+        self.assertEqual(item['collection_warnings'][0]['error'], 'http_503')
+        self.assertEqual(item['collection_warnings'][0]['kind'], 'targets')
 
     def test_missing_or_stale_essential_price_is_visible_without_invented_profit(self):
         self.replace_capture('Return Case', 'details', lambda c: c['payload']['result']['histogram'].update(date=stamp(utc(self.at)-timedelta(hours=5))))

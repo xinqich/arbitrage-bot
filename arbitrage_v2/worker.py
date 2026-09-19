@@ -215,10 +215,10 @@ class Worker:
         rotation = health.get("rotation_index", 0)
         if research_due and self.watchlist.get('catalogue',{}).get('enabled'):
             # One catalogue page per cycle; pagination survives restarts.
-            state=catalogue.view(self.journal)
-            catalogue_requests=[catalogue.request(state['cursor'])]
+            catalogue_state=catalogue.view(self.journal)
+            catalogue_requests=[catalogue.request(catalogue_state['cursor'])]
             batch.ensure(catalogue_requests)
-            state=catalogue.view(self.journal)
+            catalogue_state=catalogue.view(self.journal)
             index=capture_index(self.journal,self.clock())
             mode='confirmed' if self.journal.records('real_funding') else 'paper'
             capital=available_capital(self.journal,self.mandate,mode=mode)
@@ -228,13 +228,13 @@ class Worker:
             roster,count=catalogue.research_roster(self.journal,seeds,capital,search_rules.current(self.journal),slots,index,self.clock())
             research_requests=self._requests([dict(item,kind=kind) for item in roster for kind in ('details','offers','targets')])
             batch.ensure(research_requests)
-            checked=dict(state['progress'].get('checked',{}))
+            checked=dict(catalogue_state['progress'].get('checked',{}))
             attempted={r['title'] for r in batch.results}
             selected=[r for r in roster if r['title'] in attempted]
             for item in selected:
                 checked[item['title']]=self.clock()
             self.journal.append('catalogue_progress',dict(at=self.clock(),
-                selection_count=state['progress']['selection_count']+len(selected),checked=checked))
+                selection_count=catalogue_state['progress']['selection_count']+len(selected),checked=checked))
             research_requests=catalogue_requests+research_requests
         elif research_due:
             exploration = self.watchlist.get("exploration_items", [])

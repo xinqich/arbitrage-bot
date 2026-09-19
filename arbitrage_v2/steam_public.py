@@ -85,7 +85,7 @@ def page_fields(body, app_id, title):
     context = json.loads(_decode_after(parser.scripts, r'window\.SSR\.renderContext\s*=\s*JSON\.parse\('), parse_float=str)
     queries = json.loads(context['queryData'], parse_float=str)['queries']
     selected = {}
-    for kind in ('description', 'orderbook', 'pricehistory'):
+    for kind in ('description', 'orderbook'):
         rows = [row for row in queries if row.get('queryKey') == ['market', kind, app_id, title]]
         if len(rows) != 1 or rows[0]['state'].get('status') != 'success' or rows[0]['state'].get('error') is not None:
             raise ValueError('missing_or_failed_steam_market_query')
@@ -96,10 +96,19 @@ def page_fields(body, app_id, title):
         elif kind == 'orderbook':
             data = {key: data[key] for key in ('eCurrency', 'amtMaxBuyOrder', 'amtMinSellOrder',
                 'cBuyOrders', 'cSellOrders', 'rgCompactBuyOrders', 'rgCompactSellOrders')}
-        else:
-            data = {'ecurrency': data['ecurrency'], 'prices': [
-                {key: row[key] for key in ('time', 'price_median', 'purchases')} for row in data['prices']]}
         selected[kind] = {'data': data, 'data_updated_at_ms': state['dataUpdatedAt']}
+    # Chart history is optional and never determines whether a valid book exists.
+    try:
+        rows = [row for row in queries if row.get('queryKey') == ['market', 'pricehistory', app_id, title]]
+        if len(rows) != 1 or rows[0]['state'].get('status') != 'success' or rows[0]['state'].get('error') is not None:
+            raise ValueError('history_unavailable')
+        state = rows[0]['state']
+        data = state['data']
+        selected['pricehistory'] = {'data_updated_at_ms': state['dataUpdatedAt'], 'data': {
+            'ecurrency': data['ecurrency'], 'prices': [
+                {key: row[key] for key in ('time', 'price_median', 'purchases')} for row in data['prices']]}}
+    except (ValueError, KeyError, TypeError, AttributeError):
+        pass
     return {'app_id': app_id, 'title': title, 'page_currency': currency, 'queries': selected}
 
 
@@ -131,22 +140,12 @@ def _book_rows(book, side):
     return [{'price': f'{price//100}.{price%100:02d}', 'quantity': quantity} for price, quantity in pairs]
 
 
-def normalize_fields(fields, retrieved_at):
-    title, app_id = fields['title'], fields['app_id']
-    listing_url(app_id, title)
-    queries = fields['queries']
-    description = queries['description']['data']
-    book = queries['orderbook']['data']
-    history = queries['pricehistory']['data']
-    if (description['appid'] != app_id or description['market_hash_name'] != title
-            or type(description['commodity']) is not bool or description['marketable'] is not True):
-        raise ValueError('Steam item identity mismatch')
-    if any(type(currency) is not int or currency != 1 for currency in
-           (fields['page_currency'], book['eCurrency'], history['ecurrency'])):
+def _history_points(query, retrieved_at):
+    history = query['data']
+    if type(history['ecurrency']) is not int or history['ecurrency'] != 1:
         raise ValueError('explicit_USD_currency_required')
-    observed = _timestamp(queries['orderbook']['data_updated_at_ms'], True)
-    history_observed = _timestamp(queries['pricehistory']['data_updated_at_ms'], True)
-    if observed > utc(retrieved_at) or history_observed > utc(retrieved_at):
+    history_observed = _timestamp(query['data_updated_at_ms'], True)
+    if history_observed > utc(retrieved_at):
         raise ValueError('future_steam_query_timestamp')
     points = {}
     for row in history['prices']:
@@ -163,15 +162,40 @@ def normalize_fields(fields, retrieved_at):
         if at in points and points[at] != point:
             raise ValueError('conflicting_history_timestamp')
         points[at] = point
+    return [points[at] for at in sorted(points)], stamp(history_observed)
+
+
+def normalize_fields(fields, retrieved_at):
+    title, app_id = fields['title'], fields['app_id']
+    listing_url(app_id, title)
+    queries = fields['queries']
+    description = queries['description']['data']
+    book = queries['orderbook']['data']
+    if (description['appid'] != app_id or description['market_hash_name'] != title
+            or type(description['commodity']) is not bool or description['marketable'] is not True):
+        raise ValueError('Steam item identity mismatch')
+    if any(type(currency) is not int or currency != 1 for currency in
+           (fields['page_currency'], book['eCurrency'])):
+        raise ValueError('explicit_USD_currency_required')
+    observed = _timestamp(queries['orderbook']['data_updated_at_ms'], True)
+    if observed > utc(retrieved_at):
+        raise ValueError('future_steam_query_timestamp')
+    points, history_observed, history_status = [], None, 'unavailable'
+    if 'pricehistory' in queries:
+        try:
+            points, history_observed = _history_points(queries['pricehistory'], retrieved_at)
+            history_status = 'available' if points else 'empty'
+        except (ValueError, KeyError, TypeError, AttributeError, InvalidOperation, OverflowError):
+            history_status = 'invalid'
     return {'result': {'item': {'appId': app_id, 'marketName': title},
         'meta': {'flags': {'commodity': description['commodity'], 'marketable': True}},
         'histogram': {'date': stamp(observed), 'buyOrders': _book_rows(book, 'buy'),
                       'sellOrders': _book_rows(book, 'sell')},
-        'priceHistory': {'data': [points[at] for at in sorted(points)]}},
+        'priceHistory': {'data': points}},
         'provenance': {'source': 'steam_public', 'currency': 'USD',
             'book_price_unit_original': 'cents', 'book_quantity_semantics': 'incremental',
             'book_timestamp_kind': 'steam_server_query_observed_at',
-            'history_observed_at': stamp(history_observed),
+            'history_observed_at': history_observed, 'history_status': history_status,
             'history_semantics': 'Steam_chart_aggregate_medians_and_reported_purchase_counts',
             'history_coverage': 'unknown', 'underlying_market_cache_age': 'not_exposed'}}
 

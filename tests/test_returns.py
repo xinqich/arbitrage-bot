@@ -168,11 +168,12 @@ class ReturnReviewTests(unittest.TestCase):
         self.assertEqual(report['status'], 'no_supported_options')
         self.assertEqual(report['excluded'][0]['reason'], 'stale_steam_book')
 
-    def test_new_failed_request_does_not_fall_back_to_previous_good_quote(self):
+    def test_new_failed_request_preserves_previous_fresh_quote(self):
         self.ready()
         self.captures()
+        before = self.review()['options']
         self.captures(status=429)
-        self.assertEqual(self.review()['excluded'][0]['reason'], 'provider_request_failed')
+        self.assertEqual(self.review()['options'], before)
 
     def test_quote_and_route_evidence_partitions_cannot_mix(self):
         self.ready()

@@ -41,12 +41,14 @@ def _problem(title, name, exc):
 
 
 def snapshot(journal, title, at, max_age_seconds=14400, db=None, index=None):
-    result = {"title": title, "app_id": 730, "books": {}, "issues": []}
+    result = {"title": title, "app_id": 730, "books": {}, "issues": [], "collection_warnings": []}
     for kind in ("details", "offers", "targets"):
         names = [name for name, source in BOOKS.items() if source == kind]
         try:
             captures, partition = _market_captures(journal, title, at, max_age_seconds, (kind,), db, index)
             capture = captures[kind]
+            if capture.get('latest_request_failure'):
+                result['collection_warnings'].append(capture['latest_request_failure'])
             source_time = capture["retrieved_at"]
             if kind == "details":
                 steam, observed = _steam_observation(capture, title, at, max_age_seconds)
@@ -233,14 +235,10 @@ def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_second
 
 
 def capture_index(journal, as_of):
+    from .capture_selection import select_captures
     result = {}
-    at = utc(as_of)
-    for c in journal.records('capture'):
-        if (c.get('kind') not in {'details','offers','targets'} or c.get('app_id') != 730
-                or utc(c['retrieved_at']) > at or utc(c['_recorded_at']) > at):
-            continue
-        item = result.setdefault(c['title'], {})
-        old = item.get(c['kind'])
-        if old is None or utc(old['retrieved_at']) <= utc(c['retrieved_at']):
-            item[c['kind']] = c
+    rows = (c for c in journal.records('capture')
+            if c.get('kind') in {'details','offers','targets'} and c.get('app_id') == 730)
+    for (_, title, kind), capture in select_captures(rows, as_of).items():
+        result.setdefault(title, {})[kind] = capture
     return result

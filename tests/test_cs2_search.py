@@ -264,6 +264,20 @@ class BroadWorkerTests(worker_fixture.WorkerTests):
         self.assertLessEqual(len(calls),7);self.assertEqual(calls[0]['kind'],'catalogue')
         self.assertEqual(catalogue.view(Journal(self.journal.path))['cursor'],'cursor-two')
         self.assertTrue(any(r['title']=='Agent | Test' and r['kind']=='details' for r in calls))
+        from arbitrage_v2.worker import latest
+        from arbitrage_v2.evidence import utc, stamp
+        from datetime import timedelta
+        for _ in range(2):
+            health=latest(self.journal,'worker_health')
+            self.assertFalse(health['fatal'])
+            self.assertIsNone(health['reason'])
+            self.assertEqual(health['status'],'waiting')
+            self.assertGreater(utc(health['next_check_at']),utc(self.at))
+            self.assertEqual(health['last_success_at'],self.at)
+            self.at=stamp(utc(health['next_check_at'])+timedelta(seconds=1))
+            self.worker(fetch).tick(self.at)  # New worker instance, same saved journal.
+        self.assertFalse(latest(self.journal,'worker_health')['fatal'])
+        self.assertEqual(self.journal.records('route'),[])
 
     def test_active_route_precedes_catalogue_and_pause_keeps_state(self):
         self.watch['catalogue']={'enabled':True};self.route();calls=[]

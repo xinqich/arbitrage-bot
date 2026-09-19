@@ -4,6 +4,7 @@ The local worker owns the collection lock. A batch spans its paper checks and
 research scan, so requesting a book twice cannot spend the allowance twice.
 """
 from datetime import timedelta
+from hashlib import sha256
 
 from .collector import GAME_IDS, capture
 from . import catalogue
@@ -42,12 +43,51 @@ def fetch_request(journal, request, keys):
     return capture(journal, request["provider"], request["kind"], request["app_id"], request["title"], keys)
 
 
+def failure_scope(request, result):
+    """Keep connection/quota failures broad, but isolate unsupported item data."""
+    error, status = result.get('error') or '', result.get('status')
+    if (error in {'missing_STEAMAPIS_KEY', 'missing_DMarket_credentials',
+                  'invalid_source_configuration', 'provider_allowance_exhausted'}
+            or status in {401, 429, 500, 502, 503, 504} or error.startswith('network_')):
+        return 'provider'
+    if request.get('kind') == 'catalogue' or status == 403:
+        return 'endpoint'
+    if (status in {400, 404, 422} or error in {'invalid_json_or_size',
+            'invalid_or_unsupported_steam_page'}):
+        return 'item'
+    return 'provider'
+
+
+def scope_key(request, scope):
+    key = request['provider']
+    if scope in {'endpoint', 'item'}:
+        key += ':' + request['kind']
+    if scope == 'item':
+        key += ':' + str(request['app_id']) + ':' + sha256(request['title'].encode()).hexdigest()[:24]
+    return key
+
+
+def normalize_sources(sources):
+    """Narrow known legacy format stops without discarding existing retry state."""
+    result = {}
+    for old_key, source in sources.items():
+        source = dict(source)
+        if all(k in source for k in ('provider', 'kind', 'app_id', 'title')):
+            scope = failure_scope(source, source)
+            source['scope'] = scope
+            key = scope_key(source, scope)
+        else:
+            key = old_key
+        result[key] = source
+    return result
+
+
 class CollectionBatch:
     def __init__(self, journal, watchlist, config, keys, source_states, clock,
                  should_stop, fetch=fetch_request):
         self.journal, self.watchlist, self.config, self.keys = journal, watchlist, config, keys
         self.clock, self.should_stop, self.fetch = clock, should_stop, fetch
-        self.sources = {p: dict(s) for p, s in source_states.items()}
+        self.sources = normalize_sources(source_states)
         self.results, self.deferred, self.seen = [], [], set()
         self.failed = set()
         self.count, self.steam_count = 0, 0
@@ -69,8 +109,8 @@ class CollectionBatch:
         return self.prior_total + self.count >= self.allowances["total"]
 
     def _failure(self, request, result):
-        provider = request["provider"]
-        source_key = provider+":catalogue" if request["kind"] == "catalogue" else provider
+        scope = failure_scope(request, result)
+        source_key = scope_key(request, scope)
         self.failed.add(source_key)
         retry = self.sources.get(source_key, {}).get("retry_count", 0) + 1
         error, status = result.get("error"), result.get("status")
@@ -79,7 +119,7 @@ class CollectionBatch:
         delays = self.config["retry_seconds"]
         retry_at = (stamp(utc(self.clock()) + timedelta(seconds=delays[retry-1]))
                     if transient and retry <= len(delays) else None)
-        self.sources[source_key] = dict(request, status=status, error=error or "unexpected_http_status",
+        self.sources[source_key] = dict(request, scope=scope, status=status, error=error or "unexpected_http_status",
             state="retry_wait" if retry_at else "blocked", retry_count=retry, next_retry_at=retry_at)
 
     def ensure(self, requests):
@@ -94,9 +134,11 @@ class CollectionBatch:
                 return
             self.seen.add(key)
             provider = request["provider"]
-            source_key = provider+":catalogue" if request["kind"] == "catalogue" else provider
-            source = self.sources.get(source_key)
-            if source_key in self.failed or (source and (not source.get("next_retry_at") or utc(self.clock()) < utc(source["next_retry_at"]))):
+            applicable = [scope_key(request, scope) for scope in ('provider', 'endpoint', 'item')]
+            blocked = next((k for k in applicable if k in self.failed or
+                (k in self.sources and (not self.sources[k].get('next_retry_at')
+                 or utc(self.clock()) < utc(self.sources[k]['next_retry_at'])))), None)
+            if blocked is not None:
                 self.deferred.append(dict(request, reason="source_waiting"))
                 continue
             if self.exhausted or self.count >= self.config["request_budget"]:
@@ -127,7 +169,8 @@ class CollectionBatch:
             if result.get("error") or result.get("status") != 200:
                 self._failure(request, result)
             else:
-                self.sources.pop(source_key, None)
+                for key in applicable:
+                    self.sources.pop(key, None)
 
     def completed(self, requests):
         successful = {request_key(r) for r in self.results if r.get("status") == 200 and not r.get("error")}

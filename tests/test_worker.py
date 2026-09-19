@@ -68,14 +68,16 @@ class WorkerTests(unittest.TestCase):
         self.assertEqual(self.journal.get(self.pred_id), self.prediction)
         self.assertEqual(self.journal.records("outcome"), [])
 
-    def test_new_steam_failure_stops_sale_even_if_older_book_was_good(self):
+    def test_new_steam_failure_preserves_fresh_book_and_original_prediction(self):
         self.route()
         self.captures(bid_quantity=2)
         self.failures["steam_public"] = (403, "http_403")
         before = len(self.journal.records("route_event"))
         self.worker().tick(self.at)
-        self.assertEqual(len(self.journal.records("route_event")), before)
-        self.assertEqual(latest(self.journal, "worker_health")["paper_steps"][0]["status"], "waiting_for_evidence")
+        self.assertGreater(len(self.journal.records("route_event")), before)
+        self.assertEqual(latest(self.journal, "worker_health")["paper_steps"][0]["action"], "steam_sale")
+        self.assertEqual(self.journal.get(self.pred_id), self.prediction)
+        self.assertIn('steam_public:details', latest(self.journal, 'worker_health')['source_states'])
 
     def test_return_purchase_still_needs_every_frozen_basket_title(self):
         self.route()
@@ -162,7 +164,7 @@ class WorkerTests(unittest.TestCase):
             self.worker().tick(self.at)
         self.assertEqual(len([r for r in self.calls if r["provider"] == "steamapis"]), 1)
         self.assertEqual(len([r for r in self.calls if r["provider"] == "steam_public"]), 4)
-        self.assertEqual(latest(self.journal, "worker_health")["source_states"]["steamapis"]["status"], 403)
+        self.assertEqual(latest(self.journal, "worker_health")["source_states"]["steamapis:details"]["status"], 403)
 
     def test_unexpected_exception_consumes_command_and_never_exposes_its_text(self):
         calls = []
