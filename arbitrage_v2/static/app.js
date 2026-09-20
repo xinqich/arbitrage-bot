@@ -33,7 +33,7 @@ function render(s){
   $('overview-remainders').textContent=wallet.needs_reconciliation?'Check records':money(wallet.balance_cents);
   $('overview-invested').textContent=money(costs.confirmed?.cost_cents);
   const counts=empty($('overview-routes'));for(const [mode,label] of [['confirmed','real'],['paper','paper']])counts.append(navigationLink(`${open.filter(r=>r.mode===mode).length} ${label}`,mode));
-  $('allowance').textContent=Math.max(0,s.request_allowance-Object.values(s.requests).reduce((a,b)=>a+b,0)).toLocaleString();
+  $('allowance').textContent=Object.values(s.requests).reduce((a,b)=>a+b,0).toLocaleString();
   const attention=$('attention'),sourceProblems=Object.keys(s.health.source_states||{}).length;
   attention.hidden=!(s.health.status==='blocked'||sourceProblems||wallet.needs_reconciliation||!s.worker_alive);
   if(!attention.hidden){empty(attention).append(document.createTextNode(wallet.needs_reconciliation?'Steam wallet records need reconciliation. ':!s.worker_alive?'The worker is stopped. Reopen the launcher. ':'Some price collection needs attention. '));const link=el('a',wallet.needs_reconciliation?'Open Funds':'Open Debug');link.href=wallet.needs_reconciliation?'#funds':'#controls';link.addEventListener('click',()=>{$('debug-panel').open=true;});attention.append(link);}

@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from .collector import NoRedirect, sanitize
 from .evidence import stamp, utc
+from .collection_transport import prepare_request, retry_after, read_response
 from .identity import valid_title
 from .money import price_cents, exact_integer
 
@@ -65,13 +66,13 @@ def fetch(journal, job, keys, opener=None):
         'X-Api-Key':keys['DMARKET_PUBLIC_KEY'],'X-Sign-Date':ts,'X-Request-Sign':'dmar ed25519 '+sig}
     identifier = uuid4().hex
     started = stamp(datetime.now(timezone.utc))
-    journal.append('request_attempt',dict(provider='dmarket',kind='catalogue',app_id=730,
-        title=job['title'],started_at=started), 'attempt:'+identifier)
+    timeout = prepare_request(journal, dict(provider='dmarket', kind='catalogue', app_id=730, title=job['title']), identifier)
     status, error, payload = None, None, None
+    retry_after_value = None
     try:
         with (opener or build_opener(NoRedirect())).open(Request('https://api.dmarket.com'+PATH,
-                headers=headers,data=encoded),timeout=20) as response:
-            status=response.status; data=response.read(4_000_001)
+                headers=headers,data=encoded),timeout=timeout) as response:
+            status=response.status; data=read_response(response,4_000_001)
             if len(data)>4_000_000:
                 raise ValueError('catalogue_response_too_large')
             raw=sanitize(json.loads(data,parse_float=str))
@@ -80,15 +81,16 @@ def fetch(journal, job, keys, opener=None):
                            body_sha256=sha256(data).hexdigest())
     except HTTPError as exc:
         status,error=exc.code,'http_'+str(exc.code)
+        retry_after_value=retry_after(exc.headers)
     except (URLError,TimeoutError,OSError) as exc:
         error='network_'+type(exc).__name__
     except (ValueError,KeyError,TypeError,UnicodeError):
         error='invalid_catalogue_contract'
     record=dict(provider='dmarket',kind='catalogue',app_id=730,title=job['title'],started_at=started,
-        retrieved_at=stamp(datetime.now(timezone.utc)),status=status,error=error,payload=payload,
+        retrieved_at=stamp(datetime.now(timezone.utc)),status=status,error=error,retry_after=retry_after_value,payload=payload,
         input_kind='recorded',archive_format='catalogue-summary-v1')
     rid=journal.append('capture',record,'capture:'+identifier)
-    return dict(record_id=rid,provider='dmarket',kind='catalogue',title=job['title'],status=status,error=error)
+    return dict(record_id=rid,provider='dmarket',kind='catalogue',title=job['title'],status=status,error=error,retry_after=retry_after_value)
 
 
 def view(journal):
@@ -122,7 +124,7 @@ def view(journal):
     return result
 
 
-def research_roster(journal, seeds, capital, settings, slots, index, at):
+def research_roster(journal, seeds, capital, settings, slots, index, at, refresh_seconds=3600, exclude=()):
     """Four promising selections, then one oldest check; deterministic on restart."""
     state=view(journal);rows=dict(state['items'])
     for item in seeds:
@@ -147,6 +149,8 @@ def research_roster(journal, seeds, capital, settings, slots, index, at):
             except (ValueError,KeyError,TypeError):unknown_outward=True
     candidates=[]
     for title,row in rows.items():
+        if title in exclude:
+            continue
         ask=row.get('dmarket_ask_cents')
         levels=histogram(title).get('sellOrders',[])
         try:
@@ -168,7 +172,12 @@ def research_roster(journal, seeds, capital, settings, slots, index, at):
         # Avoid spending a research request to refresh already fresh complete books.
         captures=index.get(title,{})
         fresh=len(captures)==3 and all(not c.get('error') and c.get('status')==200
-            and 0<=(utc(at)-utc(c['retrieved_at'])).total_seconds()<=14400 for c in captures.values())
+            and 0<=(utc(at)-utc(c['retrieved_at'])).total_seconds()<refresh_seconds for c in captures.values())
+        if fresh:
+            try:
+                fresh=0 <= (utc(at)-utc(histogram(title)['date'])).total_seconds() < refresh_seconds
+            except (KeyError,ValueError,TypeError):
+                fresh=False
         if not fresh:
             candidates.append((title,score,checked or ''))
     count=state['progress']['selection_count'];selected=[]

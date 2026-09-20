@@ -18,9 +18,6 @@
     }
   ],
   "steam_source": "steam_public",
-  "steam_request_allowance": 100,
-  "steam_public_request_allowance": 1000,
-  "total_request_allowance": 1000,
   "exploration_items": [
     {
       "app_id": 730,

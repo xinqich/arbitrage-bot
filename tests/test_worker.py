@@ -52,7 +52,7 @@ class WorkerTests(unittest.TestCase):
                       fetch or self.fetch, self.clock)
 
     def schedule(self, **extra):
-        self.journal.append("worker_health", dict({"schema_version": 2, "status": "waiting", "fatal": False,
+        self.journal.append("worker_health", dict({"schema_version": 3, "collection_interval_seconds": 21600, "status": "waiting", "fatal": False,
             "last_attempt_at": T1, "next_research_at": stamp(utc(T2)+timedelta(hours=6)),
             "next_check_at": T2, "source_states": {}, "check_request": None, "resume_request": None}, **extra))
 
@@ -115,7 +115,7 @@ class WorkerTests(unittest.TestCase):
         self.worker().tick(self.at)  # Restart does not repeat the due check.
         self.assertEqual(len(self.calls), 1)
 
-    def test_research_uses_remaining_budget_after_route_and_deduplicates(self):
+    def test_active_requests_are_not_repeated_for_research(self):
         self.route()
         self.config.update(request_budget=4, steam_budget=2)
         self.worker().tick(self.at)
@@ -123,7 +123,7 @@ class WorkerTests(unittest.TestCase):
         self.assertEqual(len({tuple(sorted(r.items())) for r in self.calls}), 4)
         self.assertFalse(any(r["kind"] == "offers" for r in self.calls))
         self.assertEqual(_state(self.journal, "r1")[5], "return_item_locked")
-        self.assertTrue(latest(self.journal, "worker_health")["deferred_requests"])
+        self.assertFalse(latest(self.journal, "worker_health")["deferred_requests"])
 
     def test_dmarket_exit_needs_one_target_request_even_when_steam_is_blocked(self):
         self.route()
@@ -194,7 +194,7 @@ class WorkerTests(unittest.TestCase):
         self.assertEqual(len(self.journal.records("route_event")), before)
         self.assertEqual(latest(self.journal, "worker_health")["status"], "paused")
 
-    def test_batch_keeps_healthy_source_and_counts_shared_persistent_allowance(self):
+    def test_batch_keeps_healthy_source_and_persistent_cooldown(self):
         self.watch.update(total_request_allowance=3, steam_public_request_allowance=1)
         self.failures["dmarket"] = (429, "http_429")
         plan = [request_for(self.watch, 730, "Example Case", k) for k in ("offers", "details", "targets")]
@@ -202,10 +202,10 @@ class WorkerTests(unittest.TestCase):
         batch.ensure(plan + plan)
         self.assertEqual([r["provider"] for r in self.calls], ["dmarket", "steam_public"])
         self.failures.clear()
-        restarted = CollectionBatch(self.journal, self.watch, self.config, {}, {}, self.clock, lambda: False, self.fetch)
+        restarted = CollectionBatch(self.journal, self.watch, self.config, {}, batch.sources, self.clock, lambda: False, self.fetch)
         restarted.ensure(list(reversed(plan)))
         self.assertEqual(len(self.calls), 3)
-        self.assertTrue(restarted.exhausted)
+        self.assertFalse(restarted.exhausted)
         self.assertEqual(len(self.journal.records("request_attempt")), 3)
 
     def test_missing_credentials_stop_only_that_source_without_network_retries(self):
@@ -235,13 +235,13 @@ class WorkerTests(unittest.TestCase):
         self.assertEqual(health["next_research_at"], research_at)
         self.assertEqual(health["collection_kind"], "source_retry")
 
-    def test_provider_allowance_skip_leaves_other_provider_available(self):
+    def test_old_provider_allowance_is_ignored(self):
         self.watch["steam_public_request_allowance"] = 0
         plan = [request_for(self.watch, 730, "Example Case", k) for k in ("details", "targets")]
         batch = CollectionBatch(self.journal, self.watch, self.config, {}, {}, self.clock, lambda: False, self.fetch)
         batch.ensure(plan)
-        self.assertEqual([r["provider"] for r in self.calls], ["dmarket"])
-        self.assertEqual(batch.sources["steam_public"]["error"], "provider_allowance_exhausted")
+        self.assertEqual([r["provider"] for r in self.calls], ["steam_public", "dmarket"])
+        self.assertEqual(batch.sources, {})
 
     def test_new_resume_arriving_during_failed_request_is_not_swallowed(self):
         calls = []
@@ -259,7 +259,7 @@ class WorkerTests(unittest.TestCase):
         self.schedule(schema_version=1, last_success_at=T2)
         self.worker().tick(self.at)
         health = latest(self.journal, "worker_health")
-        self.assertEqual(health["schema_version"], 2)
+        self.assertEqual(health["schema_version"], 3)
         self.assertEqual(health["last_success_at"], T2)
         self.assertEqual(health["next_check_at"], stamp(utc(T2)+timedelta(hours=6)))
         self.assertEqual(self.calls, [])

@@ -301,6 +301,6 @@ def calculate(a,b,quantity,policy,steam_sale_mode="current_bids",dmarket_sale_mo
         "policy":policy,"entry_recommendation":False,
     }
 
-def screen(journal,watchlist,policy,as_of,capital_cents=1000,max_age_seconds=14400,mode="paper"):
+def screen(journal,watchlist,policy,as_of,capital_cents=1000,max_age_seconds=14400,mode="paper",should_stop=None):
     from .discovery import screen as discover
-    return discover(journal,watchlist,policy,as_of,capital_cents,max_age_seconds,mode)
+    return discover(journal,watchlist,policy,as_of,capital_cents,max_age_seconds,mode,should_stop=should_stop)

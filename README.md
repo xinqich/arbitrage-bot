@@ -14,7 +14,7 @@ From this directory:
 
 The launcher starts the worker if needed and opens the page. Closing the browser leaves collection running. The installed startup shortcut starts it after Windows sign-in. A deliberate **Pause** stays in place after restart. Your computer must remain on for collection; missed time is recorded as a gap.
 
-Use the page to see the next check, route holdings/unlock times, source errors, request allowance, final results, and reports. Controls include **Check prices now**, **Pause**, **Resume**, and per-route paper controls. A price check requested while paused waits for Resume.
+Use the page to see the next check, route holdings/unlock times, source errors, request totals, final results, and reports. Controls include **Check prices now**, **Pause**, **Resume**, and per-route paper controls. A price check requested while paused waits for Resume.
 
 ```powershell
 .\scripts\local.ps1 -Action Status
@@ -35,7 +35,7 @@ In **Controls**, **Create backup** saves and checks history, routes and public s
 
 ## What is implemented
 
-- Shared local history and request allowances. Six-hour research scans continue, with smaller checks at paper unlock times. Open routes get the first requests; repeated requests in the same check count only once.
+- Shared local history and request totals. Hourly research checks up to 300 distinct variants, with active-route and unlock checks first. Requests are spaced, cooldowns survive restart, and a run lasts at most one hour. See [request controls](docs/HOURLY_COLLECTION.md).
 - A failed market source pauses its own requests. Other sources and paper steps can continue when their required evidence is valid. Retries and source stops survive restart; the page shows the reason.
 - Full qualified price levels, whole-item quantities, per-item Steam/DMarket fees, exact-title matching and offer deduplication. SteamApis depth remains top-level only because its lower-level quantity contract is not qualified.
 - Review and open new paper growth routes from Search, with fresh evidence, available money and unique offers checked before entry. The selected pair is frozen for each new trial; the older trial keeps its original basket.

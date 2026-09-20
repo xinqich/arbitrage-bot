@@ -62,6 +62,7 @@ class LocalTests(unittest.TestCase):
         self.policy = dict(POLICY, minimum_return_delay_seconds=10)
         self.mandate = load_mandate(ROOT/"config/mandate.json")
         self.config = json.loads((ROOT/"config/local.json").read_text())
+        self.config.update(request_spacing_seconds={"steam_public":0,"dmarket":0,"steamapis":0}, collection_interval_seconds=21600)
         self.prediction = calculate(snapshot(), snapshot("Return Case"), 2, self.policy)
         self.prediction["predicted_at"] = T0
         self.pred_id = self.journal.append("prediction", self.prediction)

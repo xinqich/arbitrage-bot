@@ -249,7 +249,7 @@ class CatalogueTests(unittest.TestCase):
 class BroadWorkerTests(worker_fixture.WorkerTests):
     # Only new scenarios run here; inherited tests are loaded once in their module.
     def test_broad_worker_is_bounded_and_resume_keeps_pagination(self):
-        self.watch['catalogue']={'enabled':True};self.config['request_budget']=7;self.config['steam_budget']=2
+        self.watch['catalogue']={'enabled':True};self.config['research_batch_size']=2
         calls=[]
         original=self.fetch
         def fetch(j,req,keys):

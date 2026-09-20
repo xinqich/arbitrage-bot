@@ -120,10 +120,8 @@ def collect_loop(args,journal):
     source=args.steam_source or watchlist.get("steam_source","steamapis")
     cycle=0
     while True:
-        quota=quota_status(keys) if source=="steamapis" else {"status":"not_used","source":source}
-        budget=(min(args.steam_budget,max(0,quota.get("included_remaining",0)-25))
-                if source=="steamapis" else args.steam_budget)
-        captures=collect_once(journal,watchlist,keys,args.request_budget,budget,source)
+        quota={'status':'checked_by_collection' if source=='steamapis' else 'not_used','source':source}
+        captures=collect_once(journal,watchlist,keys,args.request_budget,args.steam_budget,source)
         result={"cycle":cycle+1,"captures":captures,"provider_quota":quota}
         if args.screen_policy:
             report=screen(journal,watchlist,read_json(args.screen_policy.read_bytes()),now())

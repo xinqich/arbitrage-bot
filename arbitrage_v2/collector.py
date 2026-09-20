@@ -10,6 +10,7 @@ from urllib.request import Request, build_opener, HTTPRedirectHandler
 from uuid import uuid4
 
 from .evidence import stamp
+from .collection_transport import prepare_request, retry_after, read_response
 
 GAME_IDS={730:"a8db",570:"9a92",440:"tf2",252490:"rust"}
 
@@ -83,20 +84,21 @@ def capture(journal,provider,kind,app_id,title,keys,opener=None):
     url,headers=request_spec(provider,kind,app_id,title,keys)
     identifier=str(uuid4())
     started=stamp(datetime.now(timezone.utc))
-    journal.append("request_attempt",{"provider":provider,"kind":kind,"app_id":app_id,
-                   "title":title,"started_at":started},identifier="attempt:"+identifier)
+    timeout = prepare_request(journal, dict(provider=provider, kind=kind, app_id=app_id, title=title), identifier)
     status=None
     error=None
     payload=None
+    retry_after_value=None
     try:
-        with (opener or build_opener(NoRedirect())).open(Request(url,headers=headers),timeout=20) as response:
+        with (opener or build_opener(NoRedirect())).open(Request(url,headers=headers),timeout=timeout) as response:
             status=response.status
-            body=response.read(4_000_001)
+            body=read_response(response,4_000_001)
             if len(body)>4_000_000:
                 raise ValueError("response too large")
             payload=sanitize(json.loads(body,parse_float=str))
     except HTTPError as exc:
         status=exc.code
+        retry_after_value=retry_after(exc.headers)
         error="http_"+str(exc.code)  # No response bodies, request headers, or secret-bearing URLs.
     except (URLError,TimeoutError,OSError) as exc:
         error="network_"+type(exc).__name__
@@ -104,64 +106,72 @@ def capture(journal,provider,kind,app_id,title,keys,opener=None):
         error="invalid_json_or_size"
     record={"provider":provider,"kind":kind,"app_id":app_id,"title":title,
             "started_at":started,"retrieved_at":stamp(datetime.now(timezone.utc)),
-            "status":status,"error":error,"payload":payload,"input_kind":"recorded",
+            "status":status,"error":error,"retry_after":retry_after_value,"payload":payload,"input_kind":"recorded",
             "archive_format":"sanitized_json_decimal_strings_v1"}
     record_id=journal.append("capture",record,identifier="capture:"+identifier)
-    return dict(record_id=record_id,provider=provider,kind=kind,title=title,status=status,error=error)
+    return dict(record_id=record_id,provider=provider,kind=kind,title=title,status=status,error=error,retry_after=retry_after_value)
 
-def collect_once(journal,watchlist,keys,request_budget=12,steam_budget=4,steam_source=None,should_stop=None):
+def collect_once(journal,watchlist,keys,request_budget=12,steam_budget=4,steam_source=None,should_stop=None,
+                 config=None,clock=None,wait=None):
+    """Explicit one-shot CLI caps are optional invocation bounds, not lifetime stops.
+
+    Use the worker's pacing, deadline and persistent cooldowns. The local desk
+    owns the same OS collection lock as the CLI.
+    """
+    from .collection_batch import CollectionBatch, request_for, saved_state
     if type(request_budget) is not int or not 1<=request_budget<=100:
-        raise ValueError("request_budget must be 1-100")
+        raise ValueError('request_budget must be 1-100')
     if type(steam_budget) is not int or not 0<=steam_budget<=request_budget:
-        raise ValueError("invalid Steam request budget")
-    steam_source=steam_source or watchlist.get("steam_source","steamapis")
-    if steam_source not in {"steamapis","steam_public"}:
-        raise ValueError("unsupported Steam evidence source")
-    rows=watchlist.get("items")
+        raise ValueError('invalid Steam request budget')
+    rows=watchlist.get('items')
     if not isinstance(rows,list) or not 1<=len(rows)<=30:
-        raise ValueError("watchlist must contain 1-30 exact items")
+        raise ValueError('watchlist must contain 1-30 exact items')
+    watchlist=dict(watchlist,steam_source=steam_source or watchlist.get('steam_source','steamapis'))
+    plan=[];steam_used=0
     for item in rows:
-        if set(item)!={"app_id","title"} or type(item["app_id"]) is not int or item["app_id"] not in GAME_IDS:
-            raise ValueError("invalid watchlist item")
-        if not isinstance(item["title"],str) or not item["title"].strip():
-            raise ValueError("empty watchlist title")
-    # Independent provider limits prevent using the old broad-scan budget.
-    results=[]
-    steam_used=0
-    allowance=(watchlist.get("steam_public_request_allowance",1000) if steam_source=="steam_public"
-               else watchlist.get("steam_request_allowance",100))
-    total_allowance=watchlist.get("total_request_allowance",1000)
-    if (type(allowance) is not int or allowance<0 or type(total_allowance) is not int
-            or total_allowance<0):
-        raise ValueError("request allowances must be nonnegative integers")
-    attempted=journal.records("request_attempt")
-    steam_prior={source:sum(r["provider"]==source for r in attempted) for source in ("steam_public","steamapis")}
-    steam_cycle={"steam_public":0,"steamapis":0}
-    total_prior=len(attempted)
-    for item in rows:
-        item_source=watchlist.get("item_sources",{}).get(item["title"],steam_source)
-        if item_source not in {"steam_public","steamapis"}:
-            raise ValueError("unsupported item evidence source")
-        for provider,kind in [(item_source,"details"),("dmarket","offers"),("dmarket","targets")]:
-            if should_stop and should_stop():
-                return results
-            if len(results)>=request_budget or total_prior+len(results)>=total_allowance:
-                return results
-            if provider in steam_cycle:
-                provider_allowance=watchlist.get("steam_public_request_allowance",1000) if provider=="steam_public" else watchlist.get("steam_request_allowance",100)
-                if steam_used>=steam_budget or steam_prior[provider]+steam_cycle[provider]>=provider_allowance:
+        if set(item)!={'app_id','title'}:
+            raise ValueError('invalid watchlist item')
+        for kind in ('details','offers','targets'):
+            request=request_for(watchlist,item['app_id'],item['title'],kind)
+            if kind=='details':
+                if steam_used>=steam_budget:
                     continue
                 steam_used+=1
-                steam_cycle[provider]+=1
-            if provider=="steam_public":
-                from .steam_public import capture_public
-                result=capture_public(journal,item["app_id"],item["title"])
-            else:
-                result=capture(journal,provider,kind,item["app_id"],item["title"],keys)
-            results.append(result)
-            if result["status"] in {401,403,429} or (provider=="steam_public" and result.get("error")):
-                return results
-    return results
+            if len(plan)<request_budget:
+                plan.append(request)
+    batch=CollectionBatch(journal,watchlist,config or {},keys,
+        saved_state(journal).get('source_states',{}),
+        clock or (lambda: stamp(datetime.now(timezone.utc))),should_stop or (lambda:False),wait=wait)
+    batch.ensure(plan)
+    return batch.results
+
+
+def free_access(journal, keys):
+    """Verify overage is off before increasing use of the optional keyed service.
+
+    No inferred monthly allowance, paid-plan activation or account changes.
+    The account response itself is never stored.
+    """
+    if not keys.get('STEAMAPIS_KEY'):
+        raise ValueError('missing STEAMAPIS_KEY')
+    timeout=prepare_request(journal,dict(provider='steamapis',kind='account',app_id=730,title='Account access check'))
+    try:
+        request=Request('https://api.steamapis.com/v2/account',headers={
+            'x-api-key':keys['STEAMAPIS_KEY'],'Accept':'application/json'})
+        with build_opener(NoRedirect()).open(request,timeout=timeout) as response:
+            body=read_response(response,200001)
+            if len(body)>200000:
+                raise ValueError('oversize account response')
+            result=json.loads(body).get('result',{})
+        return dict(status=200,no_overage=result.get('overageEnabled') is False,
+                    error=None if result.get('overageEnabled') is False else 'free_usage_not_verified')
+    except HTTPError as exc:
+        return dict(status=exc.code,error='http_'+str(exc.code),retry_after=retry_after(exc.headers))
+    except (URLError,TimeoutError,OSError) as exc:
+        return dict(status=None,error='network_'+type(exc).__name__)
+    except (ValueError,TypeError,AttributeError):
+        return dict(status=200,error='free_usage_not_verified')
+
 
 def quota_status(keys):
     """Small provider account check; retain only quota facts, never account payloads."""
@@ -170,7 +180,7 @@ def quota_status(keys):
     try:
         with build_opener(NoRedirect()).open(Request("https://api.steamapis.com/v2/account",
                                                      headers=headers),timeout=20) as response:
-            body=response.read(200001)
+            body=read_response(response,200001)
             if len(body)>200000:
                 return {"status":"unknown"}
             data=json.loads(body).get("result",{})

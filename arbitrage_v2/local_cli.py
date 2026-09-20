@@ -4,6 +4,7 @@ from pathlib import Path
 
 from .collector import credentials
 from .collection_lock import collection_lock
+from .collection_settings import settings as collection_settings
 from .evidence import read_json
 from .journal import Journal
 from .mandate import load_mandate, convert_legacy
@@ -49,12 +50,11 @@ def register(commands):
 
 
 def load_config(path):
-    value = read_json(path.read_bytes())
+    value = collection_settings(read_json(path.read_bytes()))
     if value.get("schema_version") != 1 or value.get("host") != "127.0.0.1":
         raise ValueError("local configuration must use schema 1 and 127.0.0.1")
     bounds = {"port": (1, 65535), "collection_interval_seconds": (60, 86400),
-              "freshness_seconds": (1, 14400), "request_budget": (1, 100),
-              "steam_budget": (0, 30), "ui_refresh_seconds": (5, 5)}
+              "freshness_seconds": (1, 14400), "ui_refresh_seconds": (5, 5)}
     for field, (low, high) in bounds.items():
         if type(value.get(field)) is not int or not low <= value[field] <= high:
             raise ValueError("invalid local setting: "+field)
@@ -62,8 +62,6 @@ def load_config(path):
     if (not isinstance(retries, list) or not 1 <= len(retries) <= 3
             or any(type(r) is not int or not 60 <= r <= 3600 for r in retries)):
         raise ValueError("one to three bounded retry delays required")
-    if value["steam_budget"] > value["request_budget"]:
-        raise ValueError("Steam budget exceeds total budget")
     return value
 
 
@@ -103,7 +101,7 @@ def run(args):
     if args.command=="csfloat-collect":
         from .csfloat import capture_listings
         with collection_lock(journal.path):
-            return capture_listings(journal,args.title,credentials(args.env_file),watchlist["total_request_allowance"])
+            return capture_listings(journal,args.title,credentials(args.env_file),watchlist.get("csfloat_request_allowance", 1000))
     if args.command == "paper-control":
         return configure(journal, args.route_id, args.action == "enable", watchlist, policy, now())
     if args.command == "paper-step":

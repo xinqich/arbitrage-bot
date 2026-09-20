@@ -9,6 +9,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from .evidence import read_json, utc
 from . import search_rules, catalogue
+from .collection_batch import saved_state
 from .paper import configure, settings
 from .paper_entry import preview as preview_paper, enter as enter_paper
 from .recovery import open_recovery
@@ -19,7 +20,7 @@ from .worker import controls, control, latest, now, search, available_capital
 ASSETS = {"/": ("index.html", "text/html; charset=utf-8"),
           "/app.js": ("app.js", "text/javascript; charset=utf-8"),
           "/style.css": ("style.css", "text/css; charset=utf-8")}
-REPORTS = {"COLLECTION_RELIABILITY.md", "DEVELOPMENT_PLAN.md", "IMPLEMENTATION_STATUS.md", "APPROVED_DESIGN.md",
+REPORTS = {"HOURLY_COLLECTION.md", "COLLECTION_RELIABILITY.md", "DEVELOPMENT_PLAN.md", "IMPLEMENTATION_STATUS.md", "APPROVED_DESIGN.md",
            "CSFLOAT_FEASIBILITY_2026-09-14.md", "STEAM_FEE_AUDIT.md", "LOCAL_DESK.md",
            "NONCASE_QUALIFICATION_2026-09-14.md", "RELEASE_0_5_CHECKS.md", "RELEASE_0_6_CHECKS.md", "RELEASE_0_7_CHECKS.md", "DISCOVERY_FILTER_AUDIT.md", "RELEASE_0_8_CHECKS.md", "REAL_GROWTH_WORKFLOW.md", "RELEASE_0_9_CHECKS.md", "BACKUP_RESTORE.md", "RELEASE_1_0_CHECKS.md", "UI_REWORK.md", "CS2_SEARCH_EXPANSION.md"}
 
@@ -39,6 +40,8 @@ def overview(worker):
     gaps = [{"from": a.isoformat(), "to": b.isoformat(), "hours": round((b-a).total_seconds()/3600, 2)}
             for a, b in zip(times, times[1:]) if (b-a).total_seconds() > 7*3600]
     health = latest(journal, "worker_health") or {}
+    if worker.busy:
+        health = dict(health, source_states=saved_state(journal).get("source_states", health.get("source_states", {})))
     eligible = [r["next_eligible_at"] for r in routes if r["paper_settings"] and r["paper_settings"]["enabled"]
                 and r["next_eligible_at"] and utc(r["next_eligible_at"]) > utc(at)]
     due = ([health["next_check_at"]] if health.get("next_check_at") else [])+eligible
@@ -58,8 +61,8 @@ def overview(worker):
         "coverage": "Observation gaps remain gaps; price charts are not verified individual sales.",
         "gaps": gaps[-10:], "recent_errors": [dict(at=a, error=e, provider=p, title=t)
                                                for a, e, p, t in captures[-60:] if e],
-        "requests": requests, "request_allowance": worker.watchlist["total_request_allowance"],
-        "steam_public_allowance": worker.watchlist.get("steam_public_request_allowance", 1000),
+        "collection_settings": {k: worker.config[k] for k in ("collection_interval_seconds", "research_batch_size", "research_refresh_seconds", "freshness_seconds", "max_run_seconds", "request_spacing_seconds")}, "requests": requests, "request_allowance": None,
+        "steam_public_allowance": None,
         "routes": routes, "outcomes": journal.records("outcome"),
         "events": [e for r in routes for e in _state(journal,r["route_id"])[2]],
         "paper_decisions": journal.records("paper_decision")[-20:],
@@ -192,7 +195,7 @@ def create_server(worker, root, port=8765):
                     if worker.busy:
                         return self.reply(409, {"error": "A market check is running. Try again when it finishes."})
                     result = search(worker.journal, data["purpose"], worker.watchlist,
-                                    worker.policy, worker.mandate, now(), data.get("mode", "paper"))
+                                    worker.policy, worker.mandate, now(), data.get("mode", "paper"), max_age_seconds=worker.config["freshness_seconds"])
                     worker.journal.append("search_report", dict(result, at=now()))
                 elif action == "preview_paper" and set(data) == {"action", "prediction_id"}:
                     result = preview_paper(worker.journal, data["prediction_id"], worker.mandate, worker.policy, now())

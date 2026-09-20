@@ -178,21 +178,14 @@ class SteamPublicTests(unittest.TestCase):
         self.assertEqual(result['error'],'invalid_or_unsupported_steam_page')
         self.assertIsNone(self.journal.get(result['record_id'])['payload'])
 
-    def test_public_allowance_is_persistent_and_independent_of_paid_source(self):
+    def test_old_public_allowance_is_ignored(self):
         self.journal.append('request_attempt',{'provider':'steam_public'})
-        watch = {'items':[{'app_id':730,'title':'Fracture Case'}], 'steam_source':'steam_public',
-                 'steam_public_request_allowance':1,'total_request_allowance':10}
+        watch={'items':[{'app_id':730,'title':'Fracture Case'}], 'steam_source':'steam_public',
+               'steam_public_request_allowance':1,'total_request_allowance':1}
         with patch('arbitrage_v2.steam_public.capture_public') as public,patch('arbitrage_v2.collector.capture') as other:
-            other.return_value = {'status':200,'error':None}
-            self.assertEqual(len(collect_once(self.journal,watch,{})),2)
-            public.assert_not_called()
-        watch['steam_public_request_allowance']=2
-        self.journal.append('request_attempt',{'provider':'steamapis'})
-        with patch('arbitrage_v2.steam_public.capture_public') as public,patch('arbitrage_v2.collector.capture') as other:
-            public.return_value = other.return_value = {'status':200,'error':None}
+            public.return_value=other.return_value={'status':200,'error':None}
             self.assertEqual(len(collect_once(self.journal,watch,{})),3)
             public.assert_called_once()
-
     def test_public_collection_never_looks_up_paid_provider_quota(self):
         watch = Path(self.tmp.name)/'watch.json'
         watch.write_text(json.dumps({'items':[{'app_id':730,'title':'Fracture Case'}],

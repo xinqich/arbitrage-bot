@@ -13,6 +13,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 from uuid import uuid4
 
 from .evidence import stamp, utc
+from .collection_transport import prepare_request, prepare_redirect, retry_after, read_response
 from .money import MAX_INTEGER, exact_integer
 
 LIMIT = 4_000_000
@@ -37,6 +38,7 @@ class ListingRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         if req.get_method() != 'GET' or not allowed_url(newurl):
             return None
+        prepare_redirect(req)
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
@@ -204,18 +206,18 @@ def capture_public(journal, app_id, title, opener=None):
     url = listing_url(app_id, title)
     identifier = str(uuid4())
     started = stamp(datetime.now(timezone.utc))
-    journal.append('request_attempt', {'provider': 'steam_public', 'kind': 'details',
-        'app_id': app_id, 'title': title, 'started_at': started}, 'attempt:' + identifier)
+    timeout = prepare_request(journal, dict(provider='steam_public', kind='details', app_id=app_id, title=title), identifier)
     status, error, payload = None, None, None
+    retry_after_value = None
     provenance = {'requested_url': url}
     try:
         request = Request(url, headers={'User-Agent': 'arbitrage-v2-research/0.4',
                           'Accept': 'text/html', 'Accept-Language': 'en-US,en;q=0.9'})
-        with (opener or build_opener(ListingRedirect())).open(request, timeout=20) as response:
+        with (opener or build_opener(ListingRedirect())).open(request, timeout=timeout) as response:
             status = response.status
             if not allowed_url(response.url):
                 raise ValueError('unexpected_steam_redirect')
-            body = response.read(LIMIT+1)
+            body = read_response(response,LIMIT+1)
             if len(body) > LIMIT:
                 raise ValueError('steam_page_too_large')
             if body[:2] == b'\x1f\x8b':
@@ -231,14 +233,15 @@ def capture_public(journal, app_id, title, opener=None):
         payload['source_fields'] = fields
     except HTTPError as exc:
         status, error = exc.code, 'http_' + str(exc.code)
+        retry_after_value = retry_after(exc.headers)
     except (URLError, TimeoutError, OSError) as exc:
         error = 'network_' + type(exc).__name__
     except (ValueError, UnicodeError, KeyError, TypeError, AttributeError, OverflowError, InvalidOperation, EOFError):
         error = 'invalid_or_unsupported_steam_page'
     record = {'provider': 'steam_public', 'kind': 'details', 'app_id': app_id, 'title': title,
         'started_at': started, 'retrieved_at': stamp(datetime.now(timezone.utc)),
-        'status': status, 'error': error, 'payload': payload, 'input_kind': 'recorded',
+        'status': status, 'error': error, 'retry_after': retry_after_value, 'payload': payload, 'input_kind': 'recorded',
         'archive_format': 'steam_ssr_market_fields_v1', 'source_provenance': provenance}
     record_id = journal.append('capture', record, 'capture:' + identifier)
     return {'record_id': record_id, 'provider': 'steam_public', 'kind': 'details',
-            'title': title, 'status': status, 'error': error}
+            'title': title, 'status': status, 'error': error, 'retry_after': retry_after_value}

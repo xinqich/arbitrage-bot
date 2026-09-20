@@ -104,7 +104,12 @@ def route_inputs(journal, pred, at, max_age_seconds=14400, db=None):
     return _inputs(a, names_a), _inputs(b, names_b)
 
 
-def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_seconds=14400, mode="paper", settings=None):
+def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_seconds=14400, mode="paper", settings=None, should_stop=None):
+    def check_time():
+        if should_stop and should_stop():
+            from .collection_transport import CollectionStopped
+            raise CollectionStopped()
+    check_time()
     cents(capital_cents)
     if type(max_age_seconds) is not int or max_age_seconds < 0:
         raise ValueError("invalid freshness bound")
@@ -119,6 +124,7 @@ def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_second
     quote_cache = {}
     seen = set()
     for item in watchlist["items"]:
+        check_time()
         key = (item["app_id"], item["title"])
         if key in seen:
             continue
@@ -142,6 +148,7 @@ def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_second
             if str(exc) != "no resolved outcomes for this family and evidence mode":
                 raise
     for source_a in snapshots:
+        check_time()
         for steam_mode, steam_books in SALE_BOOKS["steam"].items():
             if not {"dmarket_ask", *steam_books} <= source_a["books"].keys():
                 continue
@@ -190,6 +197,7 @@ def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_second
                         if 0 < narrow < total(bids):
                             return_limits.append(narrow)
                 for quantity, return_limit in product(range(1, upper + 1), return_limits):
+                    check_time()
                     try:
                         pred = calculate(a, b, quantity, policy, steam_mode, dmarket_mode, return_limit, quote_cache)
                         if pred["entry_cost_cents"] > capital_cents:
@@ -222,7 +230,11 @@ def screen(journal, watchlist, policy, as_of, capital_cents=1000, max_age_second
                         pred["uncertainty"]["sale_time"] = "estimated_from_resolved_routes"
                     predictions.append(pred)
     with journal.connect(True) as db:
-        predictions = [dict(p,prediction_id=journal.append('prediction',p,db=db)) for p in predictions]
+        saved=[]
+        for p in predictions:
+            check_time()
+            saved.append(dict(p,prediction_id=journal.append('prediction',p,db=db)))
+        predictions=saved
     predictions.sort(key=search_rules.sort_key)
     return {"family": FAMILY, "discovery_version": DISCOVERY_VERSION, "ranking_version":search_rules.VERSION, "search_settings":settings, "snapshots": snapshots,
         "excluded": issues, "predictions": predictions, "unsupported_scenarios": sum(limits.values()),

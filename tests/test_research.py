@@ -191,13 +191,14 @@ class JournalTests(unittest.TestCase):
         with self.journal.connect(True) as db:
             with self.assertRaises(sqlite3.IntegrityError):
                 db.execute("DELETE FROM records")
-    def test_collector_allowance_persists_across_restarts(self):
-        self.journal.append("request_attempt",{"provider":"steamapis"})
-        watch={"items":[{"app_id":730,"title":"Example Case"}],
-               "steam_request_allowance":1,"total_request_allowance":1}
-        with patch("arbitrage_v2.collector.capture") as capture:
-            self.assertEqual(collect_once(self.journal,watch,{},3,1),[])
-            capture.assert_not_called()
+    def test_old_collector_allowance_does_not_stop_collection(self):
+        self.journal.append('request_attempt',{'provider':'steamapis'})
+        watch={'items':[{'app_id':730,'title':'Example Case'}],
+               'steam_request_allowance':1,'total_request_allowance':1}
+        with patch('arbitrage_v2.collector.capture',return_value={'status':200,'error':None}) as capture, \
+             patch('arbitrage_v2.collector.free_access',return_value={'no_overage':True}):
+            self.assertEqual(len(collect_once(self.journal,watch,{},3,1)),3)
+            self.assertEqual(capture.call_count,3)
     def test_live_payload_shapes_preserve_identity_depth_and_synthetic_partition(self):
         title="Example Case"
         steam={"result":{"item":{"appId":730,"marketName":title},

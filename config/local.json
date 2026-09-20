@@ -2,14 +2,21 @@
   "schema_version": 1,
   "host": "127.0.0.1",
   "port": 8765,
-  "collection_interval_seconds": 21600,
+  "collection_interval_seconds": 3600,
   "retry_seconds": [
     60,
     300,
     900
   ],
   "freshness_seconds": 14400,
-  "request_budget": 15,
-  "steam_budget": 5,
-  "ui_refresh_seconds": 5
+  "ui_refresh_seconds": 5,
+  "research_batch_size": 300,
+  "research_refresh_seconds": 3600,
+  "max_run_seconds": 3600,
+  "request_spacing_seconds": {
+    "steam_public": 5,
+    "dmarket": 2,
+    "steamapis": 30
+  },
+  "rate_limit_cooldown_seconds": 900
 }
