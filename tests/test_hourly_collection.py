@@ -233,10 +233,10 @@ class HourlyTests(unittest.TestCase):
                 return dict(status=403,error='http_403')
             return self.fetch(j,r,k)
         self.worker(fetch).tick(self.f.at)
-        self.assertEqual(len(self.calls),6)
+        self.assertEqual(sum(r['provider']!='csgotrader' for r in self.calls),6)
         self.f.at=self.health()['next_research_at']
         self.worker(fetch).tick(self.f.at)
-        self.assertEqual(len(self.calls),12)
+        self.assertEqual(sum(r['provider']!='csgotrader' for r in self.calls),12)
 
     def test_unlock_during_research_is_checked_first_without_shifting_hour(self):
         self.f.route()
@@ -277,6 +277,7 @@ class HourlyTests(unittest.TestCase):
         for row in index.values():
             for c in row.values():
                 c['retrieved_at']=self.f.at
+                c['input_kind']='recorded'
                 if c['kind']=='details':c['payload']['result']['histogram']['date']=self.f.at
         seeds=self.f.watch['items']
         rows,_=catalogue.research_roster(self.f.journal,seeds,1000,search_rules.DEFAULTS,300,index,self.f.at)

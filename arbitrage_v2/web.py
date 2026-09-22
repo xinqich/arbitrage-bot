@@ -8,7 +8,7 @@ from uuid import uuid4
 from urllib.parse import parse_qs, urlsplit
 
 from .evidence import read_json, utc
-from . import search_rules, catalogue
+from . import search_rules, catalogue, csgotrader
 from .collection_batch import saved_state
 from .paper import configure, settings
 from .paper_entry import preview as preview_paper, enter as enter_paper
@@ -22,7 +22,7 @@ ASSETS = {"/": ("index.html", "text/html; charset=utf-8"),
           "/style.css": ("style.css", "text/css; charset=utf-8")}
 REPORTS = {"HOURLY_COLLECTION.md", "COLLECTION_RELIABILITY.md", "DEVELOPMENT_PLAN.md", "IMPLEMENTATION_STATUS.md", "APPROVED_DESIGN.md",
            "CSFLOAT_FEASIBILITY_2026-09-14.md", "STEAM_FEE_AUDIT.md", "LOCAL_DESK.md",
-           "NONCASE_QUALIFICATION_2026-09-14.md", "RELEASE_0_5_CHECKS.md", "RELEASE_0_6_CHECKS.md", "RELEASE_0_7_CHECKS.md", "DISCOVERY_FILTER_AUDIT.md", "RELEASE_0_8_CHECKS.md", "REAL_GROWTH_WORKFLOW.md", "RELEASE_0_9_CHECKS.md", "BACKUP_RESTORE.md", "RELEASE_1_0_CHECKS.md", "UI_REWORK.md", "CS2_SEARCH_EXPANSION.md"}
+           "NONCASE_QUALIFICATION_2026-09-14.md", "RELEASE_0_5_CHECKS.md", "RELEASE_0_6_CHECKS.md", "RELEASE_0_7_CHECKS.md", "DISCOVERY_FILTER_AUDIT.md", "RELEASE_0_8_CHECKS.md", "REAL_GROWTH_WORKFLOW.md", "RELEASE_0_9_CHECKS.md", "BACKUP_RESTORE.md", "RELEASE_1_0_CHECKS.md", "UI_REWORK.md", "CS2_SEARCH_EXPANSION.md", "CSGOTRADER_SCREENING.md"}
 
 
 def overview(worker):
@@ -53,7 +53,7 @@ def overview(worker):
             row=db.execute("SELECT id,payload FROM records WHERE category='search_report' AND "
                            "coalesce(json_extract(payload,'$.mode'),'paper')=? ORDER BY seq DESC LIMIT 1",(mode,)).fetchone()
             searches[mode]=dict(json.loads(row[1]),record_id=row[0]) if row else None
-    return {"search_settings":search_rules.current(journal), "catalogue_coverage":catalogue.coverage(journal,[]), "searches":searches, "holding_costs":holding_costs.summary(journal),
+    return {"search_settings":search_rules.current(journal), "catalogue_coverage":catalogue.coverage(journal,[],at=at,config=worker.config), "searches":searches, "holding_costs":holding_costs.summary(journal),
         "steam_wallet":steam_wallet.status(journal), "version": __version__, "at": at, "controls": controls(journal), "busy": worker.busy,
         "worker_alive": bool(worker.thread and worker.thread.is_alive()), "health": health,
         "next_action_at": min(due, key=utc) if due else None,
@@ -61,7 +61,7 @@ def overview(worker):
         "coverage": "Observation gaps remain gaps; price charts are not verified individual sales.",
         "gaps": gaps[-10:], "recent_errors": [dict(at=a, error=e, provider=p, title=t)
                                                for a, e, p, t in captures[-60:] if e],
-        "collection_settings": {k: worker.config[k] for k in ("collection_interval_seconds", "research_batch_size", "research_refresh_seconds", "freshness_seconds", "max_run_seconds", "request_spacing_seconds")}, "requests": requests, "request_allowance": None,
+        "collection_settings": {k: worker.config[k] for k in ("collection_interval_seconds", "research_batch_size", "research_refresh_seconds", "freshness_seconds", "max_run_seconds", "request_spacing_seconds", "csgotrader_enabled", "screening_refresh_seconds", "screening_max_age_seconds", "catalogue_pages_per_run", "catalogue_page_size", "screening_selection_pattern")}, "requests": requests, "request_allowance": None,
         "steam_public_allowance": None,
         "routes": routes, "outcomes": journal.records("outcome"),
         "events": [e for r in routes for e in _state(journal,r["route_id"])[2]],
@@ -126,11 +126,12 @@ def create_server(worker, root, port=8765):
                     offset=int(query.get('offset',['0'])[0])
                     if offset < 0:
                         raise ValueError('Invalid catalogue offset')
-                    state=catalogue.view(worker.journal);titles=sorted(state['items'])
+                    state={'items':catalogue.combined_items(worker.journal,worker.watchlist['items']+worker.watchlist.get('exploration_items',[]))};titles=sorted(state['items'])
                     from .discovery import capture_index, snapshot
                     at=now();index=capture_index(worker.journal,at);items=[]
                     for title in titles[offset:offset+100]:
                         item=dict(state['items'][title])
+                        item['screening_dmarket_fresh']=csgotrader.fresh(at,item.get('observed_at'),worker.config['screening_max_age_seconds'])
                         if title not in index:
                             item.update(detail_status='pending_first_check',detail_issues=[])
                         else:
@@ -195,7 +196,7 @@ def create_server(worker, root, port=8765):
                     if worker.busy:
                         return self.reply(409, {"error": "A market check is running. Try again when it finishes."})
                     result = search(worker.journal, data["purpose"], worker.watchlist,
-                                    worker.policy, worker.mandate, now(), data.get("mode", "paper"), max_age_seconds=worker.config["freshness_seconds"])
+                                    worker.policy, worker.mandate, now(), data.get("mode", "paper"), max_age_seconds=worker.config["freshness_seconds"], collection_config=worker.config)
                     worker.journal.append("search_report", dict(result, at=now()))
                 elif action == "preview_paper" and set(data) == {"action", "prediction_id"}:
                     result = preview_paper(worker.journal, data["prediction_id"], worker.mandate, worker.policy, now())

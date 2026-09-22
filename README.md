@@ -78,3 +78,6 @@ The [v1.0 acceptance record](docs/RELEASE_1_0_CHECKS.md) explains the completed 
 Version 1.0.1 simplifies the local page, merges Routes and Search, adds midpoint comparisons, full Steam wallet records and held-item purchase costs. See [UI changes and checks](docs/UI_REWORK.md). Real/paper modes stay separate.
 
 Version 1.0.2 expands item types and adds configurable spread/price ranking. SteamApis catalogue access is denied on the current account; the working DMarket catalogue fallback is gradual, with coverage shown explicitly.
+
+
+Broad screening (1.0.5): the hourly worker reads up to ten DMarket catalogue pages and checks the public CSGO Trader Steam file. It aims for 120 outward, 120 return and 60 exploration candidates in a full batch. Steam summary prices remain disabled until their fee meaning is verified; item names are available for exploration. Detailed coverage is still partial. See [screening settings and limits](docs/CSGOTRADER_SCREENING.md).

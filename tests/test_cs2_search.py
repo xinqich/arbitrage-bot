@@ -249,13 +249,13 @@ class CatalogueTests(unittest.TestCase):
 class BroadWorkerTests(worker_fixture.WorkerTests):
     # Only new scenarios run here; inherited tests are loaded once in their module.
     def test_broad_worker_is_bounded_and_resume_keeps_pagination(self):
-        self.watch['catalogue']={'enabled':True};self.config['research_batch_size']=2
+        self.watch['catalogue']={'enabled':True};self.config.update(research_batch_size=2,catalogue_pages_per_run=1,csgotrader_enabled=False)
         calls=[]
         original=self.fetch
         def fetch(j,req,keys):
             calls.append(req)
             if req['kind']!='catalogue':return original(j,req,keys)
-            data=catalogue.parse({'aggregatedPrices':[{'title':'Agent | Test','offerBestPrice':{'Currency':'USD','Amount':'100'},'offerCount':'1','orderCount':'0'}],'nextCursor':'cursor-two'},self.at)
+            data=catalogue.parse({'aggregatedPrices':[{'title':'Agent | Test','offerBestPrice':{'Currency':'USD','Amount':'100'},'offerCount':'1','orderCount':'0'}],'nextCursor':('cursor-two' if not req.get('cursor') else '')},self.at)
             data['requested_titles']=None
             j.append('request_attempt',dict(req,started_at=self.at))
             rid=j.append('capture',dict(req,payload=data,status=200,error=None,input_kind='recorded',retrieved_at=self.at))

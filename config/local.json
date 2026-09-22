@@ -16,7 +16,21 @@
   "request_spacing_seconds": {
     "steam_public": 5,
     "dmarket": 2,
-    "steamapis": 30
+    "steamapis": 30,
+    "csgotrader": 5
   },
-  "rate_limit_cooldown_seconds": 900
+  "rate_limit_cooldown_seconds": 900,
+  "csgotrader_enabled": true,
+  "screening_refresh_seconds": 3600,
+  "screening_max_age_seconds": 86400,
+  "screening_max_bytes": 16000000,
+  "catalogue_pages_per_run": 10,
+  "catalogue_page_size": 100,
+  "screening_selection_pattern": [
+    "outward",
+    "outward",
+    "returning",
+    "returning",
+    "exploration"
+  ]
 }

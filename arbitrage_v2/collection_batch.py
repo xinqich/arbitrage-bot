@@ -12,7 +12,7 @@ from .collection_transport import CollectionStopped, SourceDeferred, RequestSati
 from hashlib import sha256
 
 from .collector import GAME_IDS
-from . import catalogue
+from . import catalogue, csgotrader
 from .evidence import stamp, utc
 
 
@@ -32,7 +32,7 @@ def request_key(request):
     provider, kind, app_id, title = (request[k] for k in ("provider", "kind", "app_id", "title"))
     if (type(app_id) is not int or app_id not in GAME_IDS or not isinstance(title, str) or not title.strip()
             or (provider, kind) not in {("steam_public", "details"), ("steamapis", "details"),
-                                        ("dmarket", "offers"), ("dmarket", "targets"), ("dmarket", "catalogue")}):
+                                        ("dmarket", "offers"), ("dmarket", "targets"), ("dmarket", "catalogue"), ("csgotrader", "screening")}):
         raise ValueError("unsupported read-only collection request")
     if kind == 'catalogue':
         return provider, kind, app_id, title, request.get('cursor',''), tuple(request.get('titles') or [])
@@ -42,11 +42,17 @@ def request_key(request):
 def fetch_request(journal, request, keys):
     from .collector import capture
     from .steam_public import capture_public
+    if request["provider"] == "csgotrader":
+        return csgotrader.fetch(journal,request,keys)
     if request["kind"] == "catalogue":
         return catalogue.fetch(journal,request,keys)
     if request["provider"] == "steam_public":
         return capture_public(journal, request["app_id"], request["title"])
     return capture(journal, request["provider"], request["kind"], request["app_id"], request["title"], keys)
+
+
+def successful(result):
+    return result.get('status') == 200 or (result.get('provider') == 'csgotrader' and result.get('status') == 304)
 
 
 def server_failure(status):
@@ -60,7 +66,7 @@ def failure_scope(request, result):
                   'invalid_source_configuration', 'provider_allowance_exhausted'}
             or status in {401, 429} or server_failure(status) or error.startswith('network_')):
         return 'provider'
-    if request.get('kind') == 'catalogue' or status == 403:
+    if request.get('kind') in {'catalogue', 'screening'} or status == 403:
         return 'endpoint'
     if (status in {400, 404, 422} or error in {'invalid_json_or_size',
             'invalid_or_unsupported_steam_page'}):
@@ -256,7 +262,7 @@ class CollectionBatch:
                 continue
             result = dict(result, **request)
             self.results.append(result)
-            if result.get('error') or result.get('status') != 200:
+            if result.get('error') or not successful(result):
                 self._failure(request, result)
             else:
                 for source_key in applicable:
@@ -264,5 +270,5 @@ class CollectionBatch:
                 self._save()
 
     def completed(self, requests):
-        successful = {request_key(r) for r in self.results if r.get('status') == 200 and not r.get('error')}
-        return all(request_key(r) in successful for r in requests)
+        succeeded = {request_key(r) for r in self.results if successful(r) and not r.get('error')}
+        return all(request_key(r) in succeeded for r in requests)

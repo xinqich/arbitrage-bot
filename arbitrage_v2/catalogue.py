@@ -16,10 +16,10 @@ from .money import price_cents, exact_integer
 PATH = '/marketplace-api/v1/aggregated-prices'
 
 
-def request(cursor='', titles=None):
+def request(cursor='', titles=None, page_size=100):
     return dict(provider='dmarket', kind='catalogue', app_id=730,
                 title='CS2 catalogue' if titles is None else 'CS2 price refresh',
-                cursor=cursor, titles=titles)
+                cursor=cursor, titles=titles, page_size=page_size)
 
 
 def parse(payload, at):
@@ -55,7 +55,10 @@ def fetch(journal, job, keys, opener=None):
     if (titles is not None and (not isinstance(titles,list) or not 1 <= len(titles) <= 100
             or not all(valid_title(t) for t in titles))) or not isinstance(cursor,str) or len(cursor)>4096:
         raise ValueError('invalid catalogue request')
-    body = {'filter': {'game': 'a8db'}, 'limit': '100', 'cursor': cursor}
+    size = job.get('page_size',100)
+    if type(size) is not int or not 1 <= size <= 100:
+        raise ValueError('invalid catalogue page size')
+    body = {'filter': {'game': 'a8db'}, 'limit': str(size), 'cursor': cursor}
     if titles is not None:
         body['filter']['titles'] = titles
     encoded = json.dumps(body,separators=(',',':')).encode()
@@ -94,108 +97,106 @@ def fetch(journal, job, keys, opener=None):
 
 
 def view(journal):
-    """Rebuild a compact projection once per call, caching by journal sequence."""
+    """Incremental DMarket projection, invalidated only by relevant records."""
     with journal.connect() as db:
+        condition="((category='capture' AND json_extract(payload,'$.kind')='catalogue' AND json_extract(payload,'$.provider')='dmarket') OR category IN ('catalogue_navigation','catalogue_progress'))"
         end=db.execute('SELECT coalesce(max(seq),0) FROM records').fetchone()[0]
         cached=getattr(journal,'_catalogue_cache',None)
         if cached and cached[0]==end:
             return cached[1]
-        rows=db.execute("SELECT id,payload FROM records WHERE category='capture' "
-            "AND json_extract(payload,'$.kind')='catalogue' ORDER BY seq")
-        items,cursor,completed,latest_error={},'',None,None
-        for identifier,encoded in rows:
+        old=cached[1] if cached else {}
+        items=dict(old.get('items',{}));cursor=old.get('cursor','')
+        completed=old.get('last_complete_pass');latest_error=old.get('error')
+        visited=set(old.get('visited_cursors',[]))
+        progress=old.get('progress',{'selection_count':0,'checked':{}})
+        rows=db.execute('SELECT id,category,payload FROM records WHERE '+condition+' AND seq>? ORDER BY seq',
+                        (cached[0] if cached else 0,))
+        changed=False
+        for identifier,category,encoded in rows:
+            changed=True
             c=json.loads(encoded)
+            if category=='catalogue_progress':
+                progress=c;continue
+            if category=='catalogue_navigation':
+                cursor=c['cursor'];visited=set();latest_error=c.get('error');continue
             if c.get('input_kind')!='recorded':
                 continue
             if c.get('status')!=200 or c.get('error') or not c.get('payload'):
-                latest_error=c.get('error') or 'catalogue_unavailable'
-                continue
+                latest_error=c.get('error') or 'catalogue_unavailable';continue
             latest_error=None;p=c['payload']
             for item in p['items']:
                 items[item['title']]=dict(item,evidence_id=identifier)
             if p.get('requested_titles') is None:
+                visited.add(p.get('request_cursor',cursor))
                 cursor=p['next_cursor']
                 if not cursor:
-                    completed=c['retrieved_at']
-        row=db.execute("SELECT payload FROM records WHERE category='catalogue_progress' ORDER BY seq DESC LIMIT 1").fetchone()
-        progress=json.loads(row[0]) if row else {'selection_count':0,'checked':{}}
-    result=dict(items=items,cursor=cursor,last_complete_pass=completed,error=latest_error,progress=progress)
+                    completed=c['retrieved_at'];visited=set()
+    if cached and not changed:
+        journal._catalogue_cache=(end,old)
+        return old
+    result=dict(items=items,cursor=cursor,visited_cursors=sorted(visited),
+                last_complete_pass=completed,error=latest_error,progress=progress)
     journal._catalogue_cache=(end,result)
     return result
 
 
-def research_roster(journal, seeds, capital, settings, slots, index, at, refresh_seconds=3600, exclude=()):
-    """Four promising selections, then one oldest check; deterministic on restart."""
-    state=view(journal);rows=dict(state['items'])
-    for item in seeds:
-        rows.setdefault(item['title'],dict(item,dmarket_ask_cents=None,dmarket_bid_cents=None))
-    def histogram(title):
-        payload=index.get(title,{}).get('details',{}).get('payload')
-        if not isinstance(payload,dict):return {}
-        result=payload.get('result')
-        if not isinstance(result,dict):return {}
-        value=result.get('histogram')
-        return value if isinstance(value,dict) else {}
-    steam_ceiling=0;unknown_outward=False
-    for title,row in rows.items():
-        ask=row.get('dmarket_ask_cents')
-        if ask is None or settings['minimum_purchase_cents']<=ask<=capital:
-            hist=histogram(title)
-            try:
-                prices=[price_cents(r['price'],currency='USD',unit='usd') for side in ('buyOrders','sellOrders') for r in hist.get(side,[])]
-                if ask and prices:
-                    steam_ceiling=max(steam_ceiling,(capital//ask)*max(prices))
-                else:unknown_outward=True
-            except (ValueError,KeyError,TypeError):unknown_outward=True
-    candidates=[]
-    for title,row in rows.items():
-        if title in exclude:
-            continue
-        ask=row.get('dmarket_ask_cents')
-        levels=histogram(title).get('sellOrders',[])
-        try:
-            steam_ask=min((price_cents(r['price'],currency='USD',unit='usd') for r in levels),default=None)
-        except (ValueError,KeyError,TypeError):
-            steam_ask=None
-        # Unknown Steam affordability stays eligible for exploration. A DMarket
-        # price cannot rule out the return leg's Steam affordability.
-        outward=ask is None or settings['minimum_purchase_cents']<=ask<=capital
-        returning=steam_ask is None or (steam_ask>=settings['minimum_purchase_cents'] and (unknown_outward or steam_ask<=steam_ceiling))
-        if not outward and not returning:
-            continue
-        score=0
-        if ask and steam_ask:
-            score=max(steam_ask/ask,(row.get('dmarket_bid_cents') or 0)/steam_ask)
-        elif ask and ask<=capital:
-            score=1
-        checked=state['progress'].get('checked',{}).get(title)
-        # Avoid spending a research request to refresh already fresh complete books.
-        captures=index.get(title,{})
-        fresh=len(captures)==3 and all(not c.get('error') and c.get('status')==200
-            and 0<=(utc(at)-utc(c['retrieved_at'])).total_seconds()<refresh_seconds for c in captures.values())
-        if fresh:
-            try:
-                fresh=0 <= (utc(at)-utc(histogram(title)['date'])).total_seconds() < refresh_seconds
-            except (KeyError,ValueError,TypeError):
-                fresh=False
-        if not fresh:
-            candidates.append((title,score,checked or ''))
-    count=state['progress']['selection_count'];selected=[]
-    for _ in range(min(slots,len(candidates))):
-        count+=1
-        choice=min(candidates,key=(lambda r:(r[2],r[0])) if count%5==0 else (lambda r:(-r[1],r[2],r[0])))
-        selected.append({'app_id':730,'title':choice[0]});candidates.remove(choice)
-    return selected,count
+def collect_pages(journal,batch,config):
+    """One bounded pass segment. Never restart an ended pass in the same run."""
+    requests=[]
+    already=sum(r['provider']=='dmarket' and r['kind']=='catalogue' for r in batch.results)
+    for _ in range(max(0,config['catalogue_pages_per_run']-already)):
+        if batch.stopped():break
+        state=view(journal);cursor=state['cursor']
+        if cursor in state['visited_cursors']:
+            journal.append('catalogue_navigation',dict(at=batch.clock(),cursor='',error='repeated_catalogue_cursor'))
+            break
+        job=request(cursor,page_size=config['catalogue_page_size']);requests.append(job)
+        before=state
+        batch.ensure([job])
+        if not batch.completed([job]):break
+        after=view(journal)
+        if after is before:
+            # A custom/failed transport did not save a usable page.
+            break
+        if not after['cursor']:break
+        if after['cursor'] in after['visited_cursors']:
+            journal.append('catalogue_navigation',dict(at=batch.clock(),cursor='',error='repeated_catalogue_cursor'))
+            break
+    return requests
 
 
-def coverage(journal, snapshots, eligible_titles=None):
-    state=view(journal)
+def research_roster(journal, seeds, capital, settings, slots, index, at, refresh_seconds=3600, exclude=(),
+                    config=None, policy=None, with_audit=False, should_stop=None):
+    from .screening import select
+    chosen,count,audit=select(journal,view(journal),seeds,capital,settings,slots,index,at,
+                             refresh_seconds,exclude,config,policy,should_stop)
+    return (chosen,count,audit) if with_audit else (chosen,count)
+
+
+def combined_items(journal, seeds=()):
+    from . import csgotrader
+    items=dict(view(journal)['items'])
+    for title in csgotrader.view(journal)['names'] | {r['title'] for r in seeds}:
+        items.setdefault(title,dict(app_id=730,title=title,dmarket_ask_cents=None,dmarket_bid_cents=None))
+    return items
+
+
+def coverage(journal, snapshots, eligible_titles=None, at=None, config=None):
+    from . import csgotrader
+    from .collection_settings import settings
+    cfg=settings(config);at=at or stamp(datetime.now(timezone.utc))
+    state=view(journal);steam=csgotrader.hints(journal,at,cfg['screening_max_age_seconds'])['status']
+    names=set(state['items'])|csgotrader.view(journal)['names']|set(eligible_titles or [])
     checked=sum(bool(s['books'].get('dmarket_ask') and (s['books'].get('steam_bid') or s['books'].get('steam_ask')))
                 or bool(s['books'].get('steam_ask') and (s['books'].get('dmarket_bid') or s['books'].get('dmarket_ask')))
                 for s in snapshots)
-    return dict(catalogue_size=len(state['items']),checked_items=checked,
-        pending_items=max(0,len(set(state['items'])|set(eligible_titles or []))-checked),
+    dm_fresh=sum(csgotrader.fresh(at,r.get('observed_at'),cfg['screening_max_age_seconds']) for r in state['items'].values())
+    return dict(catalogue_size=len(set(state['items'])|csgotrader.view(journal)['names']),checked_items=checked,
+        pending_items=max(0,len(names)-checked),
         last_complete_catalogue_pass=state['last_complete_pass'],catalogue_error=state['error'],
         coverage='partial',note='Best among freshly checked items; the entire market is not checked at once.',
-        steam_bulk_access='denied_in_2026_09_17_qualification',catalogue_source='dmarket',
+        steam_bulk_access='public_screening_names_only' if not steam['prices_usable'] else 'public_screening_hints',
+        catalogue_source='dmarket_and_csgotrader',screening=dict(steam=steam,
+            dmarket=dict(names=len(state['items']),fresh_items=dm_fresh,stale_items=len(state['items'])-dm_fresh),
+            max_age_seconds=cfg['screening_max_age_seconds']),
         latest_bulk_at=max((r['observed_at'] for r in state['items'].values()),default=None))

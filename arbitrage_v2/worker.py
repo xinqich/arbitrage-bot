@@ -10,7 +10,7 @@ from .evidence import stamp, utc
 from .funds import available_capital
 from .paper import required_evidence, settings, step
 from .prediction import screen
-from . import catalogue, search_rules
+from . import catalogue, csgotrader, search_rules
 from .discovery import capture_index
 from .routes import route_status, _state
 
@@ -47,7 +47,7 @@ def controls(journal):
     return {"paused": paused, "check_request": check, "resume_request": resume}
 
 
-def search(journal, purpose, watchlist, policy, mandate, at, mode="paper", max_age_seconds=14400, should_stop=None):
+def search(journal, purpose, watchlist, policy, mandate, at, mode="paper", max_age_seconds=14400, should_stop=None, collection_config=None):
     if mode not in {"paper", "confirmed"}:
         raise ValueError("Choose paper or real funds.")
     if purpose not in {"start", "grow", "withdraw"}:
@@ -61,7 +61,7 @@ def search(journal, purpose, watchlist, policy, mandate, at, mode="paper", max_a
     if not capital:
         return {"purpose": purpose, "status": "no_available_funds", "capital_cents": 0, "predictions": [], "mode": mode,
             "ranking_version":search_rules.VERSION,"search_settings":search_rules.current(journal),
-            "catalogue_coverage":catalogue.coverage(journal,[]),
+            "catalogue_coverage":catalogue.coverage(journal,[],at=at,config=collection_config),
             "note": "Record real DMarket funds first." if mode=="confirmed" and not journal.records("real_funding") else "No uncommitted money is available in this funding pool."}
     scan_watch=dict(watchlist,items=list(watchlist["items"]))
     known={(r["app_id"],r["title"]) for r in scan_watch["items"]}
@@ -73,7 +73,7 @@ def search(journal, purpose, watchlist, policy, mandate, at, mode="paper", max_a
         known={r['title'] for r in scan_watch['items']}
         scan_watch['items'].extend({'app_id':730,'title':title} for title in index if title not in known)
     result = screen(journal, scan_watch, policy, at, capital_cents=capital, mode=mode, max_age_seconds=max_age_seconds, should_stop=should_stop)
-    result['catalogue_coverage']=catalogue.coverage(journal,result['snapshots'],[r['title'] for r in scan_watch['items']])
+    result['catalogue_coverage']=catalogue.coverage(journal,result['snapshots'],[r['title'] for r in scan_watch['items']],at=at,config=collection_config)
     return dict(result, purpose=purpose, status="conditional_estimates", capital_cents=capital, mode=mode,
                 predictions=result["predictions"], prediction_count=len(result["predictions"]),
                 note="These alternatives share the same funds. Existing route funds are excluded.")
@@ -245,7 +245,7 @@ class Worker:
             sources = {k: v for k, v in sources.items() if not (
                 not v.get('next_retry_at') and (server_failure(v.get('status'))
                     or (v.get('error') or '').startswith('network_')))}
-        retry_requests = [{k: s[k] for k in ("provider", "kind", "app_id", "title", "cursor", "titles") if k in s}
+        retry_requests = [{k: s[k] for k in ("provider", "kind", "app_id", "title", "cursor", "titles", "page_size", "max_bytes") if k in s}
                           for s in sources.values() if s.get("next_retry_at") and utc(s["next_retry_at"]) <= utc(at)]
         batch = CollectionBatch(self.journal, self.watchlist, self.config, self.keys, sources,
                                 self.clock, self.cancelled, self.fetch, wait=self.wait or self.stop.wait)
@@ -307,10 +307,12 @@ class Worker:
         roster = list(self.watchlist["items"])
         rotation = health.get("rotation_index", 0)
         if research_due and self.watchlist.get('catalogue',{}).get('enabled'):
-            # One catalogue page per cycle; pagination survives restarts.
-            catalogue_state=catalogue.view(self.journal)
-            catalogue_requests=[catalogue.request(catalogue_state['cursor'])]
-            batch.ensure(catalogue_requests)
+            catalogue_requests=catalogue.collect_pages(self.journal,batch,self.config)
+            bulk_due=(regular_due and self.config['screening_refresh_seconds'] <= self.config['collection_interval_seconds'])
+            if self.config['csgotrader_enabled'] and (bulk_due or csgotrader.due(self.journal,self.clock(),self.config['screening_refresh_seconds'])):
+                job=csgotrader.request(self.config)
+                catalogue_requests.append(job)
+                batch.ensure([job])
             catalogue_state=catalogue.view(self.journal)
             index=capture_index(self.journal,self.clock())
             mode='confirmed' if self.journal.records('real_funding') else 'paper'
@@ -322,7 +324,8 @@ class Worker:
             # second hourly scan merely because they are a few seconds young.
             refresh_age=max(0,self.config['research_refresh_seconds'] -
                 (self.config['collection_interval_seconds'] if regular_due else 0))
-            roster,count=catalogue.research_roster(self.journal,seeds,capital,search_rules.current(self.journal),slots,index,self.clock(),refresh_age,exclude=active_titles)
+            roster,count,selection=catalogue.research_roster(self.journal,seeds,capital,search_rules.current(self.journal),slots,index,self.clock(),refresh_age,exclude=active_titles,config=self.config,policy=self.policy,with_audit=True,should_stop=batch.calculation_stopped)
+            self.journal.append('screening_selection',selection)
             research_requests=self._requests([dict(item,kind=kind) for item in roster for kind in ('details','offers','targets')])
             batch.ensure(research_requests)
             checked=dict(catalogue_state['progress'].get('checked',{}))
@@ -348,7 +351,7 @@ class Worker:
             try:
                 report = search(self.journal, "grow", self.watchlist, self.policy, self.mandate, finished,
                             mode="confirmed" if self.journal.records("real_funding") else "paper",
-                            max_age_seconds=self.config["freshness_seconds"], should_stop=batch.calculation_stopped)
+                            max_age_seconds=self.config["freshness_seconds"], should_stop=batch.calculation_stopped, collection_config=self.config)
             except CollectionStopped:
                 complete = False
             else:
