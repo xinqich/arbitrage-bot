@@ -17,7 +17,7 @@ from .evidence import stamp, utc
 from .collection_transport import prepare_request, prepare_redirect, retry_after, read_response
 from .money import MAX_INTEGER, exact_integer
 
-LIMIT = 8_000_000
+LIMIT = 8 * 1024 * 1024  # 8 MiB, matching the qualification record's headroom over the observed ~4.2 MB maximum.
 EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 # Steam accepts only ordinary marketable skins on the grouped path. StatTrak (Quality
@@ -214,10 +214,11 @@ def _parse_orderbook_endpoint(body):
     """Decode the standalone /market/orderbook response into the same field set the
     page's own SSR order-book query carries, so both paths validate identically."""
     try:
-        data = json.loads(body, parse_float=str)['data']['data']
+        envelope = json.loads(body, parse_float=str)['data']
+        success, data = envelope['success'], envelope['data']
     except (json.JSONDecodeError, KeyError, TypeError):
         raise ValueError('malformed_orderbook_endpoint_response')
-    if not isinstance(data, dict):
+    if success is not True or not isinstance(data, dict):
         raise ValueError('malformed_orderbook_endpoint_response')
     try:
         return {key: data[key] for key in _ORDERBOOK_FIELDS}

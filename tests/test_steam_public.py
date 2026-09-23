@@ -1,4 +1,7 @@
 from copy import deepcopy
+from datetime import datetime, timedelta, timezone
+from email.utils import format_datetime
+import gzip
 from io import BytesIO
 import json
 from pathlib import Path
@@ -8,13 +11,17 @@ import unittest
 from unittest.mock import patch
 from urllib.request import Request
 
+from arbitrage_v2.collection_batch import failure_scope
 from arbitrage_v2.collector import collect_once, history_points, history_summary
 from arbitrage_v2.collection_lock import collection_lock
+from arbitrage_v2.evidence import stamp, utc
 from arbitrage_v2.journal import Journal
-from arbitrage_v2.prediction import _steam_observation
+from arbitrage_v2.prediction import _steam_book, _steam_observation
 from arbitrage_v2.research_cli import run
-from arbitrage_v2.steam_public import (ListingRedirect, capture_public, listing_url,
-                                     normalize_fields, page_fields)
+from arbitrage_v2.steam_public import (LIMIT, ListingRedirect, _NAMED_PARSE_ERRORS,
+                                     _endpoint_orderbook_timestamp, _parse_orderbook_endpoint,
+                                     allowed_url, capture_public, listing_url,
+                                     normalize_fields, orderbook_url, page_fields)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -33,6 +40,36 @@ def page(fields, history_status='success'):
                 'state': {'data': row['data'], 'dataUpdatedAt': row['data_updated_at_ms'],
                           'status': history_status if kind == 'pricehistory' else 'success',
                           'error': None}} for kind, row in fields['queries'].items()]
+    context = json.dumps({'queryData': json.dumps({'queries': queries})})
+    return ('<html><script>window.SSR.loaderData = '+json.dumps(loaders)+';'
+            'window.SSR.renderContext=JSON.parse('+json.dumps(context)+');'
+            'throw new Error("MUST_NOT_EXECUTE");</script></html>').encode()
+
+
+def group_page(spec, history_status='success'):
+    # Reduced grouped-listing SSR page built from a fixture spec (buckets plus each
+    # bucket's description/pricehistory/orderbook queries). Carries the same
+    # DO_NOT_ARCHIVE/MUST_NOT_EXECUTE hygiene sentinels as page() above.
+    app_id = spec['app_id']
+    loaders = [
+        json.dumps({'steamid': '0', 'sessionid': 'DO_NOT_ARCHIVE'}),
+        json.dumps({'filterConfig': {'currency': {'eCurrency': spec['page_currency']}}}),
+        json.dumps({'success': True, 'appid': app_id, 'bCommodity': False,
+                    'initialFallbackBucketID': spec['fallback_title'], 'buckets': spec['buckets']}),
+    ]
+    queries = []
+    for title, description in spec['descriptions'].items():
+        queries.append({'queryKey': ['market', 'description', app_id, title],
+            'state': {'status': 'success', 'error': None, 'dataUpdatedAt': 1, 'data': description}})
+    for title, history in spec.get('pricehistory', {}).items():
+        queries.append({'queryKey': ['market', 'pricehistory', app_id, title],
+            'state': {'status': history_status, 'error': None,
+                      'dataUpdatedAt': history['data_updated_at_ms'], 'data': history['data']}})
+    if 'fallback_orderbook' in spec:
+        queries.append({'queryKey': ['market', 'orderbook', app_id, spec['fallback_title']],
+            'state': {'status': 'success', 'error': None,
+                      'dataUpdatedAt': spec['fallback_orderbook']['data_updated_at_ms'],
+                      'data': spec['fallback_orderbook']['data']}})
     context = json.dumps({'queryData': json.dumps({'queries': queries})})
     return ('<html><script>window.SSR.loaderData = '+json.dumps(loaders)+';'
             'window.SSR.renderContext=JSON.parse('+json.dumps(context)+');'
@@ -153,9 +190,16 @@ class SteamPublicTests(unittest.TestCase):
         request = Request(listing_url(730,'Fracture Case'))
         for target in ('https://example.com/market/listings/730/x',
                        'https://steamcommunity.com/login',
-                       'http://steamcommunity.com/market/listings/730/x'):
+                       'http://steamcommunity.com/market/listings/730/x',
+                       'https://steamcommunity.com/market/orderbookX',
+                       'https://steamcommunity.com/market/orderbook/anything',
+                       'https://steamcommunity.com/market/orderbook?q=Load#frag',
+                       'http://steamcommunity.com/market/orderbook',
+                       'https://evil.example.com/market/orderbook'):
             self.assertIsNone(redirect.redirect_request(request,None,302,'',{},target))
         self.assertIsNotNone(redirect.redirect_request(request,None,302,'',{},Response.url))
+        self.assertTrue(allowed_url('https://steamcommunity.com/market/orderbook?q=Load&qp=x'))
+        self.assertFalse(allowed_url('https://steamcommunity.com/market/orderbook#frag'))
 
     def test_anonymous_capture_archives_market_fields_and_fingerprint_only(self):
         calls = []
@@ -223,3 +267,376 @@ class SteamPublicTests(unittest.TestCase):
                 raise RuntimeError('simulated exit')
         with collection_lock(self.journal.path):
             pass
+
+
+class SteamPublicGroupedParserTests(unittest.TestCase):
+    """Stage 1's grouped-page branch: bucket resolution, variant selection, and the
+    explicit failures required for out-of-scope buckets (D2)."""
+
+    def setUp(self):
+        self.spec = fixture('slate_group')
+        self.endpoint = fixture('slate_orderbook_endpoint')
+        self.at = self.spec['source']['retrieved_at']
+        self.app_id = self.spec['app_id']
+        self.fallback_title = self.spec['fallback_title']
+        self.target_title = self.spec['target_title']
+        self.stattrak_title = self.spec['stattrak_title']
+
+    def followup_fields(self, spec=None, title=None):
+        spec = spec or self.spec
+        fields = page_fields(group_page(spec), self.app_id, title or self.target_title)
+        fields['queries']['orderbook'] = {'data': _parse_orderbook_endpoint(json.dumps(self.endpoint).encode()),
+            'response_date_header': format_datetime(utc(self.at) - timedelta(seconds=1)), 'response_age_header': None}
+        return fields
+
+    def test_non_fallback_bucket_uses_followup_book_not_the_embedded_fallback(self):
+        result = normalize_fields(self.followup_fields(), self.at)
+        histogram = result['result']['histogram']
+        self.assertEqual(histogram['buyOrders'][0], {'price': '1.05', 'quantity': 2})
+        self.assertEqual(histogram['sellOrders'][0], {'price': '1.11', 'quantity': 1})
+        self.assertEqual(result['provenance']['book_timestamp_source'], 'http_date_header')
+
+    def test_fallback_bucket_uses_embedded_book_and_page_fields_requests_no_followup(self):
+        fields = page_fields(group_page(self.spec), self.app_id, self.fallback_title)
+        self.assertIsNotNone(fields['queries']['orderbook'])
+        result = normalize_fields(fields, self.at)
+        histogram = result['result']['histogram']
+        self.assertEqual(histogram['buyOrders'][0], {'price': '1.50', 'quantity': 3})
+        self.assertEqual(histogram['sellOrders'][0], {'price': '1.60', 'quantity': 4})
+        self.assertEqual(result['provenance']['book_timestamp_source'], 'ssr_query_dataUpdatedAt')
+
+    def test_non_fallback_bucket_sentinels_orderbook_for_capture_public_to_fetch(self):
+        fields = page_fields(group_page(self.spec), self.app_id, self.target_title)
+        self.assertIsNone(fields['queries']['orderbook'])
+
+    def test_followup_url_is_built_from_title_alone_never_bucket_filter_pairs(self):
+        url = orderbook_url(self.app_id, self.target_title)
+        for value in ('Quality', 'normal', 'Exterior', 'WearCategory2'):
+            self.assertNotIn(value, url)
+
+    def test_title_not_in_listing_group_fails_item_scoped_not_a_neighbouring_bucket(self):
+        with self.assertRaisesRegex(ValueError, 'title_not_in_listing_group'):
+            page_fields(group_page(self.spec), self.app_id, 'Not A Real Bucket')
+        request = {'provider': 'steam_public', 'kind': 'details', 'app_id': self.app_id, 'title': 'Not A Real Bucket'}
+        self.assertEqual(failure_scope(request, {'error': 'title_not_in_listing_group', 'status': None}), 'item')
+
+    def test_stattrak_and_souvenir_quality_fail_before_the_marketable_check(self):
+        for quality in ('strange', 'tournament'):
+            with self.subTest(quality=quality):
+                spec = deepcopy(self.spec)
+                bucket = next(b for b in spec['buckets'] if b['bucket_id'] == self.stattrak_title)
+                bucket['filters'] = [['Quality', quality], ['Exterior', 'WearCategory2']]
+                # The description for this bucket is already marketable: False; if the
+                # Quality check did not fire first, normalize_fields's marketable check
+                # would raise a different ('identity mismatch') error instead.
+                with self.assertRaisesRegex(ValueError, 'unsupported_item_quality'):
+                    page_fields(group_page(spec), self.app_id, self.stattrak_title)
+        request = {'provider': 'steam_public', 'kind': 'details', 'app_id': self.app_id, 'title': self.stattrak_title}
+        self.assertEqual(failure_scope(request, {'error': 'unsupported_item_quality', 'status': None}), 'item')
+
+    def test_quality_normal_but_not_marketable_fails_as_identity_mismatch(self):
+        spec = deepcopy(self.spec)
+        bucket = next(b for b in spec['buckets'] if b['bucket_id'] == self.stattrak_title)
+        bucket['filters'] = [['Quality', 'normal'], ['Exterior', 'WearCategory2']]
+        fields = self.followup_fields(spec, self.stattrak_title)
+        with self.assertRaisesRegex(ValueError, 'identity'):
+            normalize_fields(fields, self.at)
+        request = {'provider': 'steam_public', 'kind': 'details', 'app_id': self.app_id, 'title': self.stattrak_title}
+        self.assertEqual(failure_scope(request, {'error': 'invalid_or_unsupported_steam_page', 'status': None}), 'item')
+
+    def test_duplicate_bucket_id_fails_rather_than_silently_picking_the_first(self):
+        spec = deepcopy(self.spec)
+        spec['buckets'].append(dict(spec['buckets'][1], min_price='1'))
+        with self.assertRaisesRegex(ValueError, 'title_not_in_listing_group'):
+            page_fields(group_page(spec), self.app_id, self.target_title)
+
+
+class SteamPublicFollowupResponseTests(unittest.TestCase):
+    """Validation of the standalone /market/orderbook response body, including the
+    data.success check missing before this stage (see summary for the fix)."""
+
+    def setUp(self):
+        self.good = fixture('slate_orderbook_endpoint')['data']['data']
+
+    def test_malformed_followup_bodies_fail_closed(self):
+        cases = {
+            'not_json': b'not json',
+            'outer_data_missing': json.dumps({'nope': True}).encode(),
+            'inner_data_missing': json.dumps({'data': {'success': True}}).encode(),
+            'inner_data_not_a_dict': json.dumps({'data': {'success': True, 'data': 'nope'}}).encode(),
+            'success_missing': json.dumps({'data': {'data': self.good}}).encode(),
+            'success_false': json.dumps({'data': {'success': False, 'data': self.good}}).encode(),
+        }
+        for key in self.good:
+            trimmed = {k: v for k, v in self.good.items() if k != key}
+            cases['missing_' + key] = json.dumps({'data': {'success': True, 'data': trimmed}}).encode()
+        for name, body in cases.items():
+            with self.subTest(case=name):
+                with self.assertRaisesRegex(ValueError, 'malformed_orderbook_endpoint_response'):
+                    _parse_orderbook_endpoint(body)
+
+    def test_valid_followup_body_parses(self):
+        body = json.dumps({'data': {'success': True, 'data': self.good}}).encode()
+        self.assertEqual(_parse_orderbook_endpoint(body), self.good)
+
+
+class SteamPublicGroupedBookValidationTests(unittest.TestCase):
+    """A follow-up book must fail closed exactly like the commodity path's own book."""
+
+    def setUp(self):
+        self.spec = fixture('slate_group')
+        self.endpoint = fixture('slate_orderbook_endpoint')
+        self.at = self.spec['source']['retrieved_at']
+        fields = page_fields(group_page(self.spec), self.spec['app_id'], self.spec['target_title'])
+        fields['queries']['orderbook'] = {'data': _parse_orderbook_endpoint(json.dumps(self.endpoint).encode()),
+            'response_date_header': format_datetime(utc(self.at) - timedelta(seconds=1)), 'response_age_header': None}
+        self.fields = fields
+
+    def test_followup_book_boundaries_and_totals_fail_closed(self):
+        alterations = [lambda b: b['rgCompactBuyOrders'].pop(),
+                       lambda b: b['rgCompactBuyOrders'].__setitem__(1, -1),
+                       lambda b: b['rgCompactBuyOrders'].__setitem__(0, 1.05),
+                       lambda b: b.__setitem__('cBuyOrders', 1),
+                       lambda b: b.__setitem__('amtMaxBuyOrder', 999),
+                       lambda b: b['rgCompactBuyOrders'].__setitem__(2, 999)]
+        for number, alter in enumerate(alterations):
+            bad = deepcopy(self.fields)
+            alter(bad['queries']['orderbook']['data'])
+            with self.subTest(case=number), self.assertRaises(ValueError):
+                normalize_fields(bad, self.at)
+
+    def test_followup_currency_mismatch_is_rejected(self):
+        bad = deepcopy(self.fields)
+        bad['queries']['orderbook']['data']['eCurrency'] = 3
+        with self.assertRaisesRegex(ValueError, 'USD'):
+            normalize_fields(bad, self.at)
+
+
+class SteamPublicOrderbookTimestampTests(unittest.TestCase):
+    """D4: every outcome of the follow-up book's HTTP-Date-based freshness check."""
+
+    def setUp(self):
+        self.retrieved_dt = datetime(2026, 9, 23, 12, 0, 5, tzinfo=timezone.utc)
+        self.retrieved = stamp(self.retrieved_dt)
+
+    def result(self, header, age):
+        return _endpoint_orderbook_timestamp(
+            {'response_date_header': header, 'response_age_header': age}, self.retrieved)
+
+    def test_plausible_date_with_no_age_uses_http_date_header(self):
+        observed, source = self.result(format_datetime(self.retrieved_dt - timedelta(seconds=5)), None)
+        self.assertEqual(observed, self.retrieved_dt - timedelta(seconds=5))
+        self.assertEqual(source, 'http_date_header')
+
+    def test_missing_date_falls_back_to_retrieval_time(self):
+        observed, source = self.result(None, None)
+        self.assertEqual(observed, self.retrieved_dt)
+        self.assertEqual(source, 'retrieval_time_fallback')
+
+    def test_unparseable_date_falls_back_to_retrieval_time(self):
+        observed, source = self.result('not a date', None)
+        self.assertEqual(observed, self.retrieved_dt)
+        self.assertEqual(source, 'retrieval_time_fallback')
+
+    def test_nonzero_age_header_is_rejected_as_stale(self):
+        with self.assertRaisesRegex(ValueError, 'stale_orderbook_endpoint_cache'):
+            self.result(format_datetime(self.retrieved_dt), '5')
+
+    def test_zero_age_header_is_accepted(self):
+        observed, source = self.result(format_datetime(self.retrieved_dt), '0')
+        self.assertEqual(source, 'http_date_header')
+
+    def test_date_after_retrieval_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'unreliable_orderbook_date_header'):
+            self.result(format_datetime(self.retrieved_dt + timedelta(seconds=1)), None)
+
+    def test_date_more_than_120_seconds_before_retrieval_is_rejected_at_the_boundary(self):
+        observed, source = self.result(format_datetime(self.retrieved_dt - timedelta(seconds=120)), None)
+        self.assertEqual(source, 'http_date_header')
+        with self.assertRaisesRegex(ValueError, 'unreliable_orderbook_date_header'):
+            self.result(format_datetime(self.retrieved_dt - timedelta(seconds=121)), None)
+
+    def test_naive_date_header_is_treated_as_utc(self):
+        observed, source = self.result('Wed, 23 Sep 2026 12:00:00', None)
+        self.assertEqual(observed, datetime(2026, 9, 23, 12, 0, tzinfo=timezone.utc))
+        self.assertEqual(source, 'http_date_header')
+
+
+class SteamPublicGroupedParityTests(unittest.TestCase):
+    """D4's parity claim and provenance parity: both paths must look equally strong,
+    and a grouped capture must behave identically to a commodity one downstream."""
+
+    def setUp(self):
+        self.spec = fixture('slate_group')
+        self.endpoint = fixture('slate_orderbook_endpoint')
+        self.commodity = fixture('fracture_case')
+
+    def _fields(self, title):
+        fields = page_fields(group_page(self.spec), self.spec['app_id'], title)
+        if fields['queries']['orderbook'] is None:
+            at = utc(self.spec['source']['retrieved_at'])
+            fields['queries']['orderbook'] = {'data': _parse_orderbook_endpoint(json.dumps(self.endpoint).encode()),
+                'response_date_header': format_datetime(at - timedelta(seconds=1)), 'response_age_header': None}
+        return fields
+
+    def test_book_timestamp_kind_and_cache_age_labels_match_across_all_paths(self):
+        commodity_result = normalize_fields(self.commodity['fields'], self.commodity['source']['retrieved_at'])
+        fallback_result = normalize_fields(self._fields(self.spec['fallback_title']), self.spec['source']['retrieved_at'])
+        target_result = normalize_fields(self._fields(self.spec['target_title']), self.spec['source']['retrieved_at'])
+        for result, expected_source in ((commodity_result, 'ssr_query_dataUpdatedAt'),
+                                        (fallback_result, 'ssr_query_dataUpdatedAt'),
+                                        (target_result, 'http_date_header')):
+            self.assertEqual(result['provenance']['book_timestamp_kind'], 'steam_server_query_observed_at')
+            self.assertEqual(result['provenance']['underlying_market_cache_age'], 'not_exposed')
+            self.assertEqual(result['provenance']['book_timestamp_source'], expected_source)
+
+    def test_commodity_path_behaviour_is_unchanged_by_the_grouped_path(self):
+        result = normalize_fields(self.commodity['fields'], self.commodity['source']['retrieved_at'])
+        self.assertEqual(result['provenance']['book_timestamp_source'], 'ssr_query_dataUpdatedAt')
+
+    def test_grouped_capture_preserves_multilevel_depth_for_prediction(self):
+        result = normalize_fields(self._fields(self.spec['target_title']), self.spec['source']['retrieved_at'])
+        self.assertEqual(result['provenance']['book_quantity_semantics'], 'incremental')
+        capture = {'payload': result}
+        steam, _ = _steam_observation(capture, self.spec['target_title'], self.spec['source']['retrieved_at'], 14400)
+        bid = _steam_book(capture, steam, 'bid')
+        self.assertGreater(len(bid['levels']), 1)
+
+    def test_grouped_capture_survives_independent_prediction_revalidation_and_can_go_stale(self):
+        result = normalize_fields(self._fields(self.spec['target_title']), self.spec['source']['retrieved_at'])
+        capture = {'payload': result}
+        _steam_observation(capture, self.spec['target_title'], self.spec['source']['retrieved_at'], 14400)
+        far_future = stamp(utc(self.spec['source']['retrieved_at']) + timedelta(hours=10))
+        with self.assertRaisesRegex(ValueError, 'stale_steam_book'):
+            _steam_observation(capture, self.spec['target_title'], far_future, 14400)
+
+
+class SteamPublicBoundsTests(unittest.TestCase):
+    """LIMIT and the SSR-block-uniqueness guard, deliberately asserted rather than assumed."""
+
+    def test_limit_is_a_deliberate_8_mebibyte_bound(self):
+        self.assertEqual(LIMIT, 8 * 1024 * 1024)
+
+    def test_oversized_decoded_page_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'steam_page_too_large'):
+            page_fields(b'x' * (LIMIT + 1), 730, 'Fracture Case')
+
+    def test_oversized_body_is_rejected_when_not_compressed(self):
+        from arbitrage_v2.steam_public import _read_body
+
+        class Resp:
+            def __init__(self, body):
+                self._remaining = body
+
+            def read1(self, n):
+                chunk, self._remaining = self._remaining[:n], self._remaining[n:]
+                return chunk
+
+        with self.assertRaisesRegex(ValueError, 'steam_page_too_large'):
+            _read_body(Resp(b'x' * (LIMIT + 1)))
+
+    def test_oversized_body_is_rejected_after_gzip_decompression(self):
+        from arbitrage_v2.steam_public import _read_body
+
+        class Resp:
+            def __init__(self, body):
+                self._remaining = body
+
+            def read1(self, n):
+                chunk, self._remaining = self._remaining[:n], self._remaining[n:]
+                return chunk
+
+        compressed = gzip.compress(b'y' * (LIMIT + 1))
+        self.assertLess(len(compressed), LIMIT)  # the encoded body alone is well under LIMIT
+        with self.assertRaisesRegex(ValueError, 'steam_page_too_large'):
+            _read_body(Resp(compressed))
+
+    def test_ambiguous_ssr_loader_data_is_rejected(self):
+        spec = fixture('slate_group')
+        body = group_page(spec)
+        doubled = body.replace(b'window.SSR.renderContext',
+                                b'window.SSR.loaderData = [];window.SSR.renderContext')
+        with self.assertRaisesRegex(ValueError, 'missing_or_ambiguous_steam_page_data'):
+            page_fields(doubled, spec['app_id'], spec['target_title'])
+
+
+class GroupCaptureResponse(BytesIO):
+    status = 200
+
+    def __init__(self, body, url, extra_headers=None):
+        super().__init__(body)
+        self.url = url
+        # capture_public's retrieved_at is real wall-clock time, not a fixture clock,
+        # so the Date header must track it rather than a fixed string.
+        self.headers = dict({'Date': format_datetime(datetime.now(timezone.utc)),
+                             'Set-Cookie': 'DO_NOT_ARCHIVE'}, **(extra_headers or {}))
+
+
+class SteamPublicGroupedCaptureTests(unittest.TestCase):
+    """End-to-end capture_public over a grouped page: request counts, the follow-up's
+    own redirect guard, and archive hygiene, exercised the same way the commodity
+    path already is in SteamPublicTests."""
+
+    def setUp(self):
+        self.spec = fixture('slate_group')
+        self.endpoint = fixture('slate_orderbook_endpoint')
+        self.app_id = self.spec['app_id']
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.journal = Journal(Path(self.tmp.name)/'journal.sqlite3')
+        self.journal.initialize()
+
+    def opener(self, followup_url_override=None, followup_body=None):
+        calls = []
+        def fetch(request, timeout=None):
+            calls.append(request.full_url)
+            if '/market/orderbook' in request.full_url:
+                body = followup_body if followup_body is not None else json.dumps(self.endpoint).encode()
+                return GroupCaptureResponse(body, followup_url_override or request.full_url)
+            return GroupCaptureResponse(group_page(self.spec), listing_url(self.app_id, self.spec['target_title']))
+        return SimpleNamespace(open=fetch), calls
+
+    def test_non_fallback_capture_issues_exactly_one_followup_and_uses_its_book(self):
+        opener, calls = self.opener()
+        result = capture_public(self.journal, self.app_id, self.spec['target_title'], opener)
+        self.assertIsNone(result['error'])
+        attempts = self.journal.records('request_attempt')
+        self.assertEqual([a['kind'] for a in attempts], ['details', 'details_followup'])
+        record = self.journal.get(result['record_id'], 'capture')
+        book = record['payload']['result']['histogram']
+        self.assertEqual(book['buyOrders'][0], {'price': '1.05', 'quantity': 2})
+        self.assertEqual(book['sellOrders'][0], {'price': '1.11', 'quantity': 1})
+        followup_calls = [u for u in calls if '/market/orderbook' in u]
+        self.assertEqual(len(followup_calls), 1)
+        self.assertEqual(followup_calls[0], orderbook_url(self.app_id, self.spec['target_title']))
+
+    def test_fallback_capture_uses_embedded_book_and_issues_no_followup(self):
+        opener, calls = self.opener()
+        result = capture_public(self.journal, self.app_id, self.spec['fallback_title'], opener)
+        self.assertIsNone(result['error'])
+        attempts = self.journal.records('request_attempt')
+        self.assertEqual([a['kind'] for a in attempts], ['details'])
+        record = self.journal.get(result['record_id'], 'capture')
+        book = record['payload']['result']['histogram']
+        self.assertEqual(book['buyOrders'][0], {'price': '1.50', 'quantity': 3})
+        self.assertEqual(record['payload']['provenance']['book_timestamp_source'], 'ssr_query_dataUpdatedAt')
+        self.assertEqual([u for u in calls if '/market/orderbook' in u], [])
+
+    def test_followup_response_redirected_off_surface_is_rejected(self):
+        # unexpected_steam_redirect is not one of the five named parser errors, so it
+        # collapses to the generic string exactly as the listing page's own redirect
+        # guard already does; that string is still item-scoped (see failure_scope).
+        opener, calls = self.opener(followup_url_override='https://evil.example.com/market/orderbook')
+        result = capture_public(self.journal, self.app_id, self.spec['target_title'], opener)
+        self.assertEqual(result['error'], 'invalid_or_unsupported_steam_page')
+        request = {'provider': 'steam_public', 'kind': 'details', 'app_id': self.app_id, 'title': self.spec['target_title']}
+        self.assertEqual(failure_scope(request, {'error': result['error'], 'status': None}), 'item')
+
+    def test_grouped_capture_archives_only_market_fields_plus_fingerprint(self):
+        opener, calls = self.opener()
+        result = capture_public(self.journal, self.app_id, self.spec['target_title'], opener)
+        record = self.journal.get(result['record_id'], 'capture')
+        dumped = json.dumps(record)
+        self.assertNotIn('DO_NOT_ARCHIVE', dumped)
+        self.assertEqual(len(record['source_provenance']['decoded_body_sha256']), 64)
+        self.assertNotIn('cookie', {k.lower() for k in record['source_provenance']})

@@ -163,7 +163,7 @@ class GroupedFollowupTests(unittest.TestCase):
     def fake_open(self, request, timeout=None):
         url = request.full_url
         if '/market/orderbook' in url:
-            body = json.dumps({'data': {'data': ORDERBOOK_ENDPOINT_BOOK}}).encode()
+            body = json.dumps({'data': {'success': True, 'data': ORDERBOOK_ENDPOINT_BOOK}}).encode()
         else:
             body = group_page_body(730, self.fallback_title, self.target_title)
         return FakeSteamResponse(body, url)
