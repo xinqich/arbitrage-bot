@@ -1,15 +1,23 @@
 """Failure isolation and evidence replay, using only isolated fixture journals."""
 from copy import deepcopy
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
+from email.utils import format_datetime
+from io import BytesIO
+import json
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
 import test_paper_entry as entry_fixture
 import test_worker as worker_fixture
-from arbitrage_v2.collection_batch import CollectionBatch, request_for, scope_key
+from arbitrage_v2.collection_batch import CollectionBatch, failure_scope, request_for, scope_key
 from arbitrage_v2.discovery import capture_index, snapshot
 from arbitrage_v2.evidence import stamp, utc
+from arbitrage_v2.journal import Journal
 from arbitrage_v2.prediction import market_snapshot
 from arbitrage_v2.paper import step
+from arbitrage_v2.steam_public import _NAMED_PARSE_ERRORS
 from arbitrage_v2.worker import latest
 
 
@@ -17,6 +25,20 @@ class FailureScopeTests(unittest.TestCase):
     def setUp(self):
         self.f = worker_fixture.WorkerTests()
         self.f.setUp();self.addCleanup(self.f.doCleanups)
+
+    def test_named_steam_public_parse_errors_are_item_scoped_and_stay_in_sync(self):
+        import arbitrage_v2.steam_public as steam_public
+        self.assertIs(_NAMED_PARSE_ERRORS, steam_public._NAMED_PARSE_ERRORS)
+        request = {'provider': 'steam_public', 'kind': 'details', 'app_id': 730, 'title': 'x'}
+        for error in _NAMED_PARSE_ERRORS:
+            with self.subTest(error=error):
+                self.assertEqual(failure_scope(request, {'error': error, 'status': None}), 'item')
+
+    def test_details_followup_failures_are_item_scoped_but_provider_failures_still_defer(self):
+        followup = {'provider': 'steam_public', 'kind': 'details_followup', 'app_id': 730, 'title': 'x'}
+        self.assertEqual(failure_scope(followup, {'error': 'malformed_orderbook_endpoint_response', 'status': None}), 'item')
+        self.assertEqual(failure_scope(followup, {'error': 'http_503', 'status': 503}), 'provider')
+        self.assertEqual(failure_scope(followup, {'error': 'http_429', 'status': 429}), 'provider')
 
     def batch(self, fetch, states=None):
         f=self.f
@@ -86,6 +108,95 @@ class FailureScopeTests(unittest.TestCase):
         self.assertIsNotNone(latest(f.journal,'worker_health')['next_check_at'])
         self.assertEqual(f.journal.records('route_event'),before)
         self.assertEqual(f.journal.get(f.pred_id),prediction)
+
+
+class FakeSteamResponse(BytesIO):
+    status = 200
+
+    def __init__(self, body, url):
+        super().__init__(body)
+        self.url = url
+        # capture_public's retrieved_at is real wall-clock time (datetime.now), not the
+        # batch's fixture clock, so the Date header must track it, not a fixed string.
+        self.headers = {'Date': format_datetime(datetime.now(timezone.utc))}
+
+
+def group_page_body(app_id, fallback_title, target_title):
+    """A minimal grouped-listing SSR page: target_title is a real, in-scope bucket that
+    is NOT the fallback, so its order book is absent and must come from the follow-up."""
+    loaders = [
+        json.dumps({'filterConfig': {'currency': {'eCurrency': 1}}}),
+        json.dumps({'success': True, 'appid': app_id, 'bCommodity': False,
+                    'initialFallbackBucketID': fallback_title,
+                    'buckets': [
+                        {'bucket_id': target_title, 'filters': [['Quality', 'normal'], ['Exterior', 'WearCategory2']]},
+                        {'bucket_id': fallback_title, 'filters': [['Quality', 'normal'], ['Exterior', 'WearCategory0']]},
+                    ]}),
+    ]
+    queries = [{'queryKey': ['market', 'description', app_id, target_title],
+                'state': {'status': 'success', 'error': None, 'dataUpdatedAt': 1,
+                          'data': {'appid': app_id, 'market_hash_name': target_title,
+                                   'commodity': False, 'marketable': True}}}]
+    context = json.dumps({'queryData': json.dumps({'queries': queries})})
+    return ('<html><script>window.SSR.loaderData = '+json.dumps(loaders)+';'
+            'window.SSR.renderContext=JSON.parse('+json.dumps(context)+');'
+            '</script></html>').encode()
+
+
+ORDERBOOK_ENDPOINT_BOOK = {'eCurrency': 1, 'amtMaxBuyOrder': 100, 'amtMinSellOrder': 110,
+    'cBuyOrders': 5, 'cSellOrders': 3, 'rgCompactBuyOrders': [100, 5], 'rgCompactSellOrders': [110, 3]}
+
+
+class GroupedFollowupTests(unittest.TestCase):
+    """2B: the standalone order-book request for a grouped, non-fallback title is a
+    second, visibly registered request kind, distinct from its parent 'details' request."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.journal = Journal(Path(self.tmp.name)/'journal.sqlite3')
+        self.journal.initialize()
+        self.target_title = 'AK-47 | Slate (Field-Tested)'
+        self.fallback_title = 'AK-47 | Slate (Factory New)'
+        self.watch = {'steam_source': 'steam_public', 'items': [{'app_id': 730, 'title': self.target_title}]}
+
+    def fake_open(self, request, timeout=None):
+        url = request.full_url
+        if '/market/orderbook' in url:
+            body = json.dumps({'data': {'data': ORDERBOOK_ENDPOINT_BOOK}}).encode()
+        else:
+            body = group_page_body(730, self.fallback_title, self.target_title)
+        return FakeSteamResponse(body, url)
+
+    def test_unlock_hook_result_during_followup_does_not_abandon_or_misclassify_the_capture(self):
+        request = request_for(self.watch, 730, self.target_title, 'details')
+        hook_calls = []
+
+        def before_request():
+            hook_calls.append(1)
+            # Simulates check_unlocks (worker.py:305) appending an unrelated result while
+            # the follow-up request is inside begin_request; before the 2B fix this made
+            # request_key(followup) raise, which capture_public then swallowed as a
+            # generic invalid_or_unsupported_steam_page.
+            batch.results.append({'provider': 'dmarket', 'kind': 'offers', 'app_id': 730,
+                                   'title': 'Unrelated Item', 'status': 200, 'error': None})
+
+        batch = CollectionBatch(self.journal, self.watch,
+            {'request_spacing_seconds': {'steam_public': 0}}, {}, {}, lambda: '2026-09-08T13:21:17Z',
+            lambda: False, wait=lambda seconds: None)
+        batch.before_request = before_request
+        with patch('arbitrage_v2.steam_public.build_opener', return_value=type('O', (), {'open': self.fake_open})()):
+            batch.ensure([request])
+        self.assertGreaterEqual(len(hook_calls), 2)  # fired for both the outer and follow-up requests
+        self.assertEqual(len(batch.results), 1 + len(hook_calls))
+        result = next(r for r in batch.results if r.get('provider') == 'steam_public')
+        self.assertIsNone(result['error'])
+        self.assertEqual(result['status'], 200)
+        record = self.journal.get(result['record_id'], 'capture')
+        book = record['payload']['result']['histogram']
+        self.assertEqual(book['buyOrders'][0], {'price': '1.00', 'quantity': 5})
+        self.assertEqual(book['sellOrders'][0], {'price': '1.10', 'quantity': 3})
+        self.assertEqual(record['payload']['provenance']['book_timestamp_source'], 'http_date_header')
 
 
 class CaptureFallbackTests(unittest.TestCase):

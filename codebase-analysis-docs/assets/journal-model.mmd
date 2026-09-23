@@ -1,0 +1,68 @@
+%% Logical record model over the single append-only records table (arbitrage_v2/journal.py)
+%% There are no foreign keys: relationships are payload fields and deterministic record ids.
+
+erDiagram
+    RECORDS ||--o{ CAPTURE : "category='capture'"
+    RECORDS ||--o{ PREDICTION : "category='prediction'"
+    RECORDS ||--o{ ROUTE : "category='route', id='route:<route_id>'"
+    RECORDS ||--o{ ROUTE_EVENT : "category='route_event', id='event:<event_id>'"
+    RECORDS ||--o{ OUTCOME : "category='outcome', id='outcome:<route_id>'"
+
+    CAPTURE {
+        string provider "steam_public|steamapis|dmarket|csgotrader|csfloat"
+        string kind "details|offers|targets|catalogue"
+        int    app_id "730"
+        string title
+        string started_at
+        string retrieved_at
+        int    status
+        string error
+        json   payload "sanitized"
+        string input_kind "recorded|synthetic"
+    }
+    PREDICTION {
+        string family "cs2_standard_case_cycle_v1 | cs2_standard_item_cycle_v2 | linked_recovery_v1"
+        string item_a
+        string item_b
+        int    quantity_a
+        int    quantity_b
+        int    entry_cost_cents
+        int    steam_proceeds_cents
+        int    return_purchase_cents
+        int    predicted_dmarket_receipts_cents
+        int    base_net_cents "pre-model"
+        int    predicted_net_cents "post-model"
+        string engine_version "observed-depth-v2 | listing-... | midpoint-..."
+        json   evidence_ids "capture record ids"
+        json   quote_legs
+        json   policy
+        string purpose "grow|start|withdraw|recovery"
+    }
+    ROUTE {
+        string route_id PK
+        string prediction_id FK
+        string mode "paper|confirmed"
+        string entered_at
+    }
+    ROUTE_EVENT {
+        string event_id PK
+        string route_id FK
+        string at
+        string kind "progress|movement|asset|resolve|cancel"
+        string reference "unique per mode"
+    }
+    OUTCOME {
+        string route_id FK
+        string prediction_id FK
+        int    actual_net_cents
+        int    net_error_cents
+        int    actual_duration_seconds
+        json   balance_changes
+        string engine_version
+    }
+    ROUTE_EVENT ||--o{ EVENT_CORRECTION : "target_event_id (replacement overlay)"
+    ROUTE ||--o| PAPER_SETTINGS : "route_id (frozen basket + policy)"
+    ROUTE ||--o| PAPER_ENTRY : "id='paper-entry:<route_id>'"
+    ROUTE ||--o| CONFIRMED_ENTRY : "id='confirmed-entry:<route_id>'"
+    ROUTE ||--o{ REAL_STEP : "id='real-step:<action_id>'"
+    OUTCOME ||--o{ RECOVERY_LINK : "parent_route_id"

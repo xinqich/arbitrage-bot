@@ -14,6 +14,7 @@ from hashlib import sha256
 from .collector import GAME_IDS
 from . import catalogue, csgotrader
 from .evidence import stamp, utc
+from .steam_public import _NAMED_PARSE_ERRORS
 
 
 def request_for(watchlist, app_id, title, kind):
@@ -31,8 +32,9 @@ def request_for(watchlist, app_id, title, kind):
 def request_key(request):
     provider, kind, app_id, title = (request[k] for k in ("provider", "kind", "app_id", "title"))
     if (type(app_id) is not int or app_id not in GAME_IDS or not isinstance(title, str) or not title.strip()
-            or (provider, kind) not in {("steam_public", "details"), ("steamapis", "details"),
-                                        ("dmarket", "offers"), ("dmarket", "targets"), ("dmarket", "catalogue"), ("csgotrader", "screening")}):
+            or (provider, kind) not in {("steam_public", "details"), ("steam_public", "details_followup"),
+                                        ("steamapis", "details"), ("dmarket", "offers"), ("dmarket", "targets"),
+                                        ("dmarket", "catalogue"), ("csgotrader", "screening")}):
         raise ValueError("unsupported read-only collection request")
     if kind == 'catalogue':
         return provider, kind, app_id, title, request.get('cursor',''), tuple(request.get('titles') or [])
@@ -60,7 +62,15 @@ def server_failure(status):
 
 
 def failure_scope(request, result):
-    """Keep connection/quota failures broad, but isolate unsupported item data."""
+    """Keep connection/quota failures broad, but isolate unsupported item data.
+
+    A grouped-item parse error (steam_public._NAMED_PARSE_ERRORS) or a details_followup
+    failure is always a fact about one item or its follow-up response, never about the
+    provider or endpoint being down: reaching one of them already proves the provider was
+    reachable and the endpoint worked. Both are item-scoped for that reason, checked after
+    the provider-level conditions above so 429/5xx/network failures on a follow-up request
+    still defer the whole provider, not just that one item.
+    """
     error, status = result.get('error') or '', result.get('status')
     if (error in {'missing_STEAMAPIS_KEY', 'missing_DMarket_credentials',
                   'invalid_source_configuration', 'provider_allowance_exhausted'}
@@ -68,8 +78,9 @@ def failure_scope(request, result):
         return 'provider'
     if request.get('kind') in {'catalogue', 'screening'} or status == 403:
         return 'endpoint'
-    if (status in {400, 404, 422} or error in {'invalid_json_or_size',
-            'invalid_or_unsupported_steam_page'}):
+    if (request.get('kind') == 'details_followup' or status in {400, 404, 422}
+            or error in {'invalid_json_or_size', 'invalid_or_unsupported_steam_page'}
+            or error in _NAMED_PARSE_ERRORS):
         return 'item'
     return 'provider'
 

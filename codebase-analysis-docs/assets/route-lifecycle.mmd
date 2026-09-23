@@ -1,0 +1,33 @@
+%% Route stage machine — arbitrage_v2/routes.py STAGES, paper.py step(), real_routes.py record_step()
+
+stateDiagram-v2
+    [*] --> entered : open_route() + funding debit + asset credit
+    entered --> awaiting_transfer : buy_a (real) / n.a. (paper enters at steam_locked)
+    entered --> steam_locked : paper_entry.enter() progress event
+    awaiting_transfer --> awaiting_transfer : finish_entry
+    awaiting_transfer --> steam_locked : transfer_a (sets next_eligible_at)
+    steam_locked --> awaiting_steam_sale : partial sell_a / paper partial fill
+    steam_locked --> steam_wallet : full sell_a / paper full fill
+    awaiting_steam_sale --> steam_wallet : remaining quantity sold
+    steam_wallet --> return_item_locked : buy_b (spends steam_wallet, sets return unlock)
+    return_item_locked --> awaiting_dmarket_sale : transfer_b (real) / paper waits then sells
+    awaiting_dmarket_sale --> awaiting_dmarket_sale : partial sell_b
+    awaiting_dmarket_sale --> awaiting_settlement : final sell_b credits dmarket_*
+    awaiting_settlement --> [*] : resolve (completed / liquidated / write_off) -> outcome record
+    entered --> [*] : cancel (real, unused plan only)
+
+    note right of awaiting_settlement
+      resolve requires: confirmed=true,
+      pending_operations==0, no held assets,
+      steam_wallet==0 (or residual written_off),
+      a recorded source-market debit, and
+      for "completed" both Steam conversions
+      plus destination proceeds.
+    end note
+
+    note left of steam_wallet
+      CSFloat-only stages exist in STAGES but
+      are unreachable from the grow flow:
+      awaiting_csfloat_sale, csfloat_pending,
+      awaiting_payout.
+    end note

@@ -1,0 +1,26 @@
+%% One worker tick — arbitrage_v2/worker.py Worker._tick()
+
+flowchart TD
+    A["tick(at)"] --> B{"mutex free?"}
+    B -->|no| Z1["discard tick (no catch-up queue)"]
+    B -->|yes| C["controls(journal): paused?"]
+    C -->|paused| Z2["return"]
+    C -->|running| D["load latest worker_health"]
+    D --> E{"fatal blocked and no manual request?"}
+    E -->|yes| Z3["return (needs Pause/Resume or Check prices)"]
+    E -->|no| F["_initial_research_at(health, at)<br/>anchor preserved across interval changes"]
+    F --> G["normalize_sources(saved collection_state)<br/>apply 429 cooldowns / retry deadlines"]
+    G --> H{"at >= next due?<br/>_next_due(research, sources, route unlocks)"}
+    H -->|no| I["append worker_health status=waiting"] --> Z4["return"]
+    H -->|yes| J["busy = True; append status=collecting checkpoint"]
+    J --> K["check_routes(): active route evidence first<br/>paper.step() loop up to 4 transitions"]
+    K --> L["batch.ensure(retry_requests)"]
+    L --> M{"research_due and catalogue.enabled?"}
+    M -->|yes| N["catalogue.collect_pages() up to 10 DMarket pages<br/>+ csgotrader.request() hourly screening file"]
+    N --> O["catalogue.research_roster() -> screening.select()<br/>pattern outward,outward,returning,returning,exploration<br/>slots = research_batch_size (300)"]
+    O --> P["batch.ensure(details+offers+targets per selected item)"]
+    M -->|no, plain research| Q["watchlist items + one rotating exploration item"] --> P
+    P --> R["worker.search('grow', ...) -> discovery.screen()"]
+    R --> S["append search_report"]
+    S --> T["_advance_schedule; append worker_health<br/>status waiting / retry_wait / paused"]
+    K -.->|"batch.before_request = check_unlocks"| P

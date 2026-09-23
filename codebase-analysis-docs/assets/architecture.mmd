@@ -1,0 +1,45 @@
+%% Component and process architecture — arbitrage-bot v1.0.5
+%% Source of truth: arbitrage_v2/local_cli.py, web.py, worker.py, collection_batch.py
+
+flowchart TB
+    subgraph OS["Windows host"]
+        PS["scripts/local.ps1<br/>launcher + startup shortcut"]
+        LOCK[("data/research.collector.lock<br/>OS exclusive lock<br/>collection_lock.py")]
+    end
+
+    subgraph PROC["Single python process — python -m arbitrage_v2 web"]
+        direction TB
+        HTTP["web.py<br/>ThreadingHTTPServer on 127.0.0.1:8765<br/>GET /api/status, POST /api/action"]
+        WRK["worker.py :: Worker thread<br/>tick() every 2s, acts when due"]
+        BATCH["collection_batch.py :: CollectionBatch<br/>pacing, deadline, scoped backoff"]
+    end
+
+    subgraph BROWSER["Browser (remote control only)"]
+        UI["static/index.html + app.js<br/>polls /api/status every 5s"]
+    end
+
+    subgraph STORE["Local SQLite"]
+        J[("data/research.sqlite3<br/>Journal — append-only<br/>journal.py")]
+        E[("data/evidence.sqlite3<br/>EvidenceStore — immutable<br/>store.py (offline only)")]
+    end
+
+    subgraph EXT["Read-only external providers"]
+        SP["steamcommunity.com<br/>market listing SSR page"]
+        SA["api.steamapis.com<br/>item details + account"]
+        DM["api.dmarket.com<br/>offers / targets / aggregated-prices"]
+        CT["prices.csgotrader.app<br/>steam.json name+price file"]
+        CF["csfloat.com/api/v1/listings<br/>CLI only, deferred"]
+    end
+
+    PS -->|starts hidden| PROC
+    UI <-->|"fetch, X-Local-Token"| HTTP
+    PROC --- LOCK
+    HTTP -->|"control / enter / record"| J
+    HTTP -->|"wake.set()"| WRK
+    WRK --> BATCH
+    BATCH --> SP & SA & DM & CT
+    BATCH -->|"capture / screening_* records"| J
+    WRK -->|"paper steps, search_report, worker_health"| J
+    HTTP -->|"reads projections"| J
+    CF -.->|"arbitrage-v2 csfloat-collect"| J
+    E -.->|"separate legacy CLI: init/ingest/status/inspect"| PROC
