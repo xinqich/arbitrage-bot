@@ -1,0 +1,2 @@
+add an interface that allows for easy configuration changes
+Limitation: CSGO Trader’s item names are usable, but its prices remain excluded from scoring because their treatment of Steam fees couldn’t be verified. Direct Steam parser expansion remains Task 4.

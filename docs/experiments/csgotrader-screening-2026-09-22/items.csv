@@ -1,0 +1,197 @@
+﻿title,family,split,cost,period,summary_cents,dm_ask_hint,dm_sale_hint,steam_ask,steam_bid,outward_bid,returning_bid,outward_any,returning_any
+AK-47 | Slate (Field-Tested),AK-47 | Slate,holdout,5,last_24h,610,,,503,494,820,-141,1132,-117
+G3SG1 | Desert Storm (Factory New),G3SG1 | Desert Storm,holdout,3,last_24h,101,138,44,94,60,-66,-67,154,339
+G3SG1 | Digital Mesh (Battle-Scarred),G3SG1 | Digital Mesh,holdout,5,last_7d,70,58,36,62,61,63,-74,93,-54
+G3SG1 | Digital Mesh (Factory New),G3SG1 | Digital Mesh,holdout,3,last_24h,409,498,215,308,273,-66,-125,179,390
+G3SG1 | Digital Mesh (Field-Tested),G3SG1 | Digital Mesh,holdout,3,last_24h,117,199,61,99,87,-55,-51,-20,836
+G3SG1 | Digital Mesh (Minimal Wear),G3SG1 | Digital Mesh,holdout,3,last_24h,176,103,93,231,128,344,-128,1664,-120
+G3SG1 | Digital Mesh (Well-Worn),G3SG1 | Digital Mesh,holdout,3,last_24h,81,,40,85,73,,-70,,-70
+G3SG1 | Dream Glade (Battle-Scarred),G3SG1 | Dream Glade,training,5,last_24h,75,54,49,76,74,540,-63,762,-50
+G3SG1 | Dream Glade (Factory New),G3SG1 | Dream Glade,training,3,last_24h,577,306,298,414,411,1040,-183,1376,-149
+G3SG1 | Dream Glade (Field-Tested),G3SG1 | Dream Glade,training,3,last_24h,90,62,56,81,80,,-56,,-56
+G3SG1 | Dream Glade (Minimal Wear),G3SG1 | Dream Glade,training,3,last_24h,137,86,76,130,129,1201,-90,1597,-84
+G3SG1 | Dream Glade (Well-Worn),G3SG1 | Dream Glade,training,3,last_24h,84,56,52,80,78,400,-60,616,-51
+G3SG1 | Flux (Battle-Scarred),G3SG1 | Flux,training,5,last_24h,805,,539,805,767,,-257,,-257
+G3SG1 | Flux (Field-Tested),G3SG1 | Flux,training,3,last_24h,1021,620,583,845,842,749,-269,977,-238
+G3SG1 | Flux (Well-Worn),G3SG1 | Flux,training,3,last_24h,887,614,558,784,696,504,-240,858,-192
+G3SG1 | Green Apple (Factory New),G3SG1 | Green Apple,holdout,4,last_24h,41,48,38,21,19,-53,508,-6,938
+G3SG1 | Green Apple (Field-Tested),G3SG1 | Green Apple,holdout,3,last_24h,15,10,8,12,10,47,-25,144,-17
+G3SG1 | Green Apple (Minimal Wear),G3SG1 | Green Apple,holdout,3,last_24h,14,977,9,11,10,,-21,,74640
+G3SG1 | Green Cell (Factory New),G3SG1 | Green Cell,training,3,last_24h,6,15,4,5,4,,,-616,
+G3SG1 | High Seas (Battle-Scarred),G3SG1 | High Seas,training,5,last_24h,104,102,3,100,89,83,-57,173,-7
+G3SG1 | High Seas (Factory New),G3SG1 | High Seas,training,3,last_24h,1482,828,768,1100,1066,900,,1272,
+G3SG1 | High Seas (Field-Tested),G3SG1 | High Seas,training,3,last_24h,122,68,58,99,98,776,-52,1112,-44
+G3SG1 | High Seas (Minimal Wear),G3SG1 | High Seas,training,3,last_24h,444,707,199,345,338,-199,-137,-109,1041
+G3SG1 | High Seas (Well-Worn),G3SG1 | High Seas,training,3,last_24h,101,115,68,116,97,29,-45,95,-3
+G3SG1 | Hunter (Battle-Scarred),G3SG1 | Hunter,training,5,last_24h,19,11,5,23,16,90,-43,240,-35
+G3SG1 | Hunter (Factory New),G3SG1 | Hunter,training,3,last_24h,186,118,71,147,141,307,-96,463,-53
+G3SG1 | Hunter (Field-Tested),G3SG1 | Hunter,training,3,last_24h,32,35,18,39,35,103,-38,225,-30
+G3SG1 | Hunter (Minimal Wear),G3SG1 | Hunter,training,3,last_24h,40,26,22,48,39,-55,-34,-15,915
+G3SG1 | Hunter (Well-Worn),G3SG1 | Hunter,training,3,last_24h,21,12,10,34,18,322,-44,1031,-43
+G3SG1 | Jungle Dashed (Factory New),G3SG1 | Jungle Dashed,holdout,3,last_24h,164,72,38,95,78,130,-62,340,-42
+G3SG1 | Keeping Tabs (Battle-Scarred),G3SG1 | Keeping Tabs,holdout,5,last_7d,108,84,51,83,75,24,-61,42,-9
+G3SG1 | Keeping Tabs (Factory New),G3SG1 | Keeping Tabs,holdout,3,last_24h,388,494,223,406,342,127,-171,565,146
+G3SG1 | Keeping Tabs (Field-Tested),G3SG1 | Keeping Tabs,holdout,3,last_24h,126,83,70,121,110,143,-96,320,-62
+G3SG1 | Keeping Tabs (Minimal Wear),G3SG1 | Keeping Tabs,holdout,3,last_24h,220,150,31,210,203,452,-178,752,-77
+G3SG1 | Keeping Tabs (Well-Worn),G3SG1 | Keeping Tabs,holdout,3,last_7d,126,,2,119,96,,-158,,-158
+G3SG1 | Murky (Factory New),G3SG1 | Murky,training,4,last_24h,546,300,220,335,331,651,-120,963,-48
+G3SG1 | Murky (Field-Tested),G3SG1 | Murky,training,3,last_24h,101,107,53,92,77,37,-59,121,36
+G3SG1 | Murky (Minimal Wear),G3SG1 | Murky,training,3,last_24h,129,106,63,104,87,76,-49,166,-11
+G3SG1 | New Roots (Battle-Scarred),G3SG1 | New Roots,training,5,last_7d,307,,223,715,526,,-489,,-489
+G3SG1 | New Roots (Factory New),G3SG1 | New Roots,training,3,last_7d,811,1264,899,1265,1197,,,,
+G3SG1 | New Roots (Field-Tested),G3SG1 | New Roots,training,3,last_24h,433,713,605,800,524,,-195,,-195
+G3SG1 | New Roots (Minimal Wear),G3SG1 | New Roots,training,3,last_24h,662,1597,745,1150,931,,,,
+G3SG1 | Orange Crash (Battle-Scarred),G3SG1 | Orange Crash,training,5,last_24h,38,26,18,54,40,83,-37,197,-30
+G3SG1 | Orange Crash (Factory New),G3SG1 | Orange Crash,training,3,last_24h,104,52,45,77,76,259,-66,431,-60
+G3SG1 | Orange Crash (Field-Tested),G3SG1 | Orange Crash,training,3,last_24h,46,28,21,51,47,217,-34,417,-17
+G3SG1 | Orange Crash (Minimal Wear),G3SG1 | Orange Crash,training,3,last_24h,49,45,25,47,46,117,-31,177,-11
+G3SG1 | Orange Crash (Well-Worn),G3SG1 | Orange Crash,training,3,last_7d,39,29,18,69,39,68,-89,446,-67
+G3SG1 | Orange Kimono (Battle-Scarred),G3SG1 | Orange Kimono,training,5,last_24h,907,603,344,674,652,441,-276,657,-94
+G3SG1 | Orange Kimono (Field-Tested),G3SG1 | Orange Kimono,training,3,last_24h,1458,686,588,857,825,646,-264,952,-178
+G3SG1 | Orange Kimono (Minimal Wear),G3SG1 | Orange Kimono,training,3,last_24h,1545,772,636,868,774,397,-218,775,-19
+G3SG1 | Polar Camo (Factory New),G3SG1 | Polar Camo,training,3,last_24h,142,108,57,115,109,,-57,,-57
+G3SG1 | Polar Camo (Minimal Wear),G3SG1 | Polar Camo,training,3,last_24h,9,80,3,10,7,-253,-43,-148,-7
+G3SG1 | Red Jasper (Factory New),G3SG1 | Red Jasper,holdout,3,last_24h,5,100,18,4,3,,,,
+G3SG1 | Safari Mesh (Battle-Scarred),G3SG1 | Safari Mesh,holdout,5,last_7d,200,346,3,230,200,-22,-211,189,396
+G3SG1 | Safari Mesh (Field-Tested),G3SG1 | Safari Mesh,holdout,3,last_24h,227,298,175,219,190,-10,-55,365,224
+G3SG1 | Safari Mesh (Minimal Wear),G3SG1 | Safari Mesh,holdout,3,last_7d,184,286,135,287,198,38,-134,260,-8
+G3SG1 | Safari Mesh (Well-Worn),G3SG1 | Safari Mesh,holdout,3,last_7d,322,,2,236,200,,-264,,-211
+G3SG1 | Scavenger (Battle-Scarred),G3SG1 | Scavenger,training,5,last_24h,63,43,39,66,64,259,-71,367,-67
+G3SG1 | Scavenger (Factory New),G3SG1 | Scavenger,training,3,last_24h,316,238,160,315,267,816,-174,1446,-105
+G3SG1 | Scavenger (Field-Tested),G3SG1 | Scavenger,training,3,last_24h,74,47,35,64,63,385,-72,619,-58
+G3SG1 | Scavenger (Minimal Wear),G3SG1 | Scavenger,training,3,last_24h,118,125,63,109,94,72,-41,420,54
+G3SG1 | Scavenger (Well-Worn),G3SG1 | Scavenger,training,3,last_24h,52,73,38,66,60,33,-72,105,7
+G3SG1 | Stinger (Battle-Scarred),G3SG1 | Stinger,training,5,last_7d,422,326,272,420,388,578,-180,914,-131
+G3SG1 | Stinger (Factory New),G3SG1 | Stinger,training,3,last_24h,1570,789,731,1151,1105,1011,,1395,
+G3SG1 | Stinger (Field-Tested),G3SG1 | Stinger,training,3,last_24h,584,364,300,444,411,607,-164,955,-99
+G3SG1 | Stinger (Minimal Wear),G3SG1 | Stinger,training,3,last_24h,937,887,549,887,848,481,-353,793,-50
+G3SG1 | Stinger (Well-Worn),G3SG1 | Stinger,training,3,last_24h,459,392,272,425,362,184,-176,406,-72
+G3SG1 | The Executioner (Battle-Scarred),G3SG1 | The Executioner,training,5,last_24h,945,770,707,1021,994,850,-324,1162,-261
+G3SG1 | The Executioner (Field-Tested),G3SG1 | The Executioner,training,3,last_24h,1223,898,811,1136,1124,938,,1286,
+G3SG1 | The Executioner (Well-Worn),G3SG1 | The Executioner,training,3,last_24h,1047,788,726,1054,1007,866,,1226,-243
+G3SG1 | VariCamo (Factory New),G3SG1 | VariCamo,training,3,last_24h,28,21,11,20,18,88,-35,268,-12
+G3SG1 | VariCamo (Field-Tested),G3SG1 | VariCamo,training,3,last_24h,5,11,6,6,5,,,-57,
+G3SG1 | VariCamo (Minimal Wear),G3SG1 | VariCamo,training,3,last_24h,10,10,6,8,7,-9,,-1,
+G3SG1 | Ventilator (Factory New),G3SG1 | Ventilator,holdout,4,last_24h,127,52,47,85,82,261,-64,392,-57
+G3SG1 | Ventilator (Field-Tested),G3SG1 | Ventilator,holdout,3,last_24h,42,44,22,51,49,177,-33,381,-14
+G3SG1 | Ventilator (Minimal Wear),G3SG1 | Ventilator,holdout,3,last_24h,42,38,24,50,49,150,-31,212,-19
+G3SG1 | Ventilator (Well-Worn),G3SG1 | Ventilator,holdout,3,last_24h,38,79,12,81,32,-35,-96,203,-15
+Galil AR | Acid Dart (Factory New),Galil AR | Acid Dart,training,3,last_24h,27,17,15,19,18,178,-27,316,-8
+Galil AR | Acid Dart (Field-Tested),Galil AR | Acid Dart,training,3,last_24h,5,12,4,,,,,,
+Galil AR | Acid Dart (Minimal Wear),Galil AR | Acid Dart,training,3,last_24h,12,16,10,8,7,-30,,-24,
+Galil AR | Acid Dart (Well-Worn),Galil AR | Acid Dart,training,3,last_24h,5,15,15,,,,,,
+Galil AR | Akoben (Battle-Scarred),Galil AR | Akoben,training,5,last_24h,40,22,14,34,31,43,-40,69,-34
+Galil AR | Akoben (Factory New),Galil AR | Akoben,training,3,last_24h,668,256,205,300,288,604,-134,922,-88
+Galil AR | Akoben (Field-Tested),Galil AR | Akoben,training,3,last_24h,40,24,19,39,34,290,-36,518,-32
+Galil AR | Akoben (Minimal Wear),Galil AR | Akoben,training,3,last_24h,80,52,43,71,73,418,-70,640,-59
+Galil AR | Akoben (Well-Worn),Galil AR | Akoben,training,3,last_24h,35,51,14,43,38,24,-41,96,43
+Galil AR | Amber Fade (Field-Tested),Galil AR | Amber Fade,training,3,last_24h,474,794,679,1089,1088,931,,1225,
+Galil AR | Amber Fade (Minimal Wear),Galil AR | Amber Fade,training,3,last_24h,617,803,733,1104,1090,888,,1224,
+Galil AR | Amber Fade (Well-Worn),Galil AR | Amber Fade,training,3,last_7d,428,,9,2569,472,,,,
+Galil AR | Black Sand (Battle-Scarred),Galil AR | Black Sand,holdout,5,last_24h,82,38,23,54,49,182,-33,355,-19
+Galil AR | Black Sand (Field-Tested),Galil AR | Black Sand,holdout,3,last_24h,143,499,70,134,133,,-96,,-96
+Galil AR | Black Sand (Minimal Wear),Galil AR | Black Sand,holdout,3,last_24h,651,775,364,569,556,124,-174,316,168
+Galil AR | Black Sand (Well-Worn),Galil AR | Black Sand,holdout,3,last_24h,92,53,31,61,55,89,-79,173,-59
+Galil AR | Chromatic Aberration (Battle-Scarred),Galil AR | Chromatic Aberration,training,5,last_24h,474,321,280,420,402,941,-172,1427,-136
+Galil AR | Chromatic Aberration (Field-Tested),Galil AR | Chromatic Aberration,training,3,last_24h,542,373,319,462,455,728,-135,1016,-89
+Galil AR | Chromatic Aberration (Minimal Wear),Galil AR | Chromatic Aberration,training,3,last_24h,1009,631,612,868,830,743,-266,1013,-233
+Galil AR | Chromatic Aberration (Well-Worn),Galil AR | Chromatic Aberration,training,3,last_24h,458,309,279,439,399,970,-164,1546,-141
+Galil AR | Cold Fusion (Battle-Scarred),Galil AR | Cold Fusion,holdout,5,last_24h,6,40,7,7,4,,,-258,
+Galil AR | Cold Fusion (Factory New),Galil AR | Cold Fusion,holdout,3,last_24h,157,200,87,77,76,-92,10,-74,1206
+Galil AR | Cold Fusion (Field-Tested),Galil AR | Cold Fusion,holdout,3,last_24h,7,99,4,6,5,,,,
+Galil AR | Cold Fusion (Minimal Wear),Galil AR | Cold Fusion,holdout,3,last_24h,35,23,15,27,24,-163,-27,-157,5848
+Galil AR | Cold Fusion (Well-Worn),Galil AR | Cold Fusion,holdout,3,last_24h,6,80,6,7,6,-383,,-278,
+Galil AR | Connexion (Battle-Scarred),Galil AR | Connexion,holdout,5,last_24h,56,34,27,51,46,506,-30,860,-23
+Galil AR | Connexion (Factory New),Galil AR | Connexion,holdout,3,last_24h,589,288,265,329,328,704,-80,974,-58
+Galil AR | Connexion (Field-Tested),Galil AR | Connexion,holdout,3,last_24h,59,70,41,50,47,,-19,,-19
+Galil AR | Connexion (Minimal Wear),Galil AR | Connexion,holdout,3,last_24h,118,70,62,99,93,854,-51,1286,-44
+Galil AR | Connexion (Well-Worn),Galil AR | Connexion,holdout,3,last_24h,58,42,31,57,55,372,-26,633,-16
+Galil AR | Control (Battle-Scarred),Galil AR | Control,training,5,last_24h,58,36,34,53,49,797,-23,1223,-21
+Galil AR | Control (Factory New),Galil AR | Control,training,3,last_24h,813,302,250,377,354,833,-146,1247,-146
+Galil AR | Control (Field-Tested),Galil AR | Control,training,3,last_24h,64,54,39,62,55,323,-71,707,-58
+Galil AR | Control (Minimal Wear),Galil AR | Control,training,3,last_24h,135,82,70,118,101,572,-96,1076,-16
+Galil AR | Control (Well-Worn),Galil AR | Control,training,3,last_24h,60,50,34,61,52,77,-76,301,-60
+Galil AR | Crimson Tsunami (Battle-Scarred),Galil AR | Crimson Tsunami,training,5,last_24h,240,235,135,221,204,89,-79,185,-1
+Galil AR | Crimson Tsunami (Factory New),Galil AR | Crimson Tsunami,training,3,last_24h,1930,650,627,874,836,552,-284,864,-61
+Galil AR | Crimson Tsunami (Field-Tested),Galil AR | Crimson Tsunami,training,3,last_24h,267,188,171,231,221,830,-74,1214,-59
+Galil AR | Crimson Tsunami (Minimal Wear),Galil AR | Crimson Tsunami,training,3,last_24h,515,279,268,399,368,809,-130,1277,-74
+Galil AR | Crimson Tsunami (Well-Worn),Galil AR | Crimson Tsunami,training,3,last_24h,265,263,167,264,204,61,-115,241,-5
+Galil AR | Destroyer (Battle-Scarred),Galil AR | Destroyer,training,5,last_24h,10,9,3,11,8,,-43,,-13
+Galil AR | Destroyer (Factory New),Galil AR | Destroyer,training,3,last_24h,97,45,36,39,43,260,-21,428,-14
+Galil AR | Destroyer (Field-Tested),Galil AR | Destroyer,training,3,last_24h,11,9,4,11,9,,-38,,-13
+Galil AR | Destroyer (Minimal Wear),Galil AR | Destroyer,training,3,last_24h,22,13,10,19,17,240,-26,402,-20
+Galil AR | Destroyer (Well-Worn),Galil AR | Destroyer,training,3,last_24h,10,9,6,11,10,,-28,,-13
+Galil AR | Dusk Ruins (Field-Tested),Galil AR | Dusk Ruins,holdout,3,last_24h,782,602,427,626,580,,-195,,13192
+Galil AR | Firefight (Battle-Scarred),Galil AR | Firefight,holdout,5,last_24h,139,164,100,165,149,52,-70,130,-12
+Galil AR | Firefight (Field-Tested),Galil AR | Firefight,holdout,3,last_24h,158,119,113,170,166,516,-57,786,-19
+Galil AR | Firefight (Minimal Wear),Galil AR | Firefight,holdout,3,last_24h,312,294,246,279,250,324,-44,696,15
+Galil AR | Firefight (Well-Worn),Galil AR | Firefight,holdout,3,last_24h,139,136,113,164,155,435,-58,687,-37
+Galil AR | Galigator (Battle-Scarred),Galil AR | Galigator,holdout,5,last_24h,87,54,43,71,66,225,-69,357,-58
+Galil AR | Galigator (Factory New),Galil AR | Galigator,holdout,3,last_24h,678,461,393,472,460,574,-122,868,-2
+Galil AR | Galigator (Field-Tested),Galil AR | Galigator,holdout,3,last_24h,123,97,78,133,106,453,-87,1107,-72
+Galil AR | Galigator (Minimal Wear),Galil AR | Galigator,holdout,3,last_24h,234,152,127,219,201,685,-95,1129,-80
+Galil AR | Galigator (Well-Worn),Galil AR | Galigator,holdout,3,last_24h,104,60,52,95,84,140,-60,452,114
+Galil AR | Green Apple (Factory New),Galil AR | Green Apple,holdout,4,last_24h,55,90,55,32,28,-54,612,-37,1719
+Galil AR | Green Apple (Field-Tested),Galil AR | Green Apple,holdout,3,last_24h,9,15,4,9,7,-24,,-2,
+Galil AR | Green Apple (Minimal Wear),Galil AR | Green Apple,holdout,3,last_24h,11,13,10,9,8,-16,,47,
+Galil AR | Grey Smoke (Battle-Scarred),Galil AR | Grey Smoke,holdout,5,last_24h,3,30,30,,,,,,
+Galil AR | Grey Smoke (Factory New),Galil AR | Grey Smoke,holdout,3,last_24h,6,500,8,5,4,,,,
+Galil AR | Grey Smoke (Field-Tested),Galil AR | Grey Smoke,holdout,3,last_24h,3,200,3,,,,,,
+Galil AR | Hunting Blind (Factory New),Galil AR | Hunting Blind,training,3,last_7d,1050,545,460,640,627,327,-222,537,29
+Galil AR | Hunting Blind (Field-Tested),Galil AR | Hunting Blind,training,3,last_7d,182,213,112,248,180,150,-146,498,-74
+Galil AR | Hunting Blind (Minimal Wear),Galil AR | Hunting Blind,training,3,last_7d,321,280,128,261,210,124,-150,448,27
+Galil AR | Kami (Battle-Scarred),Galil AR | Kami,training,5,last_24h,150,135,115,170,161,581,-56,923,-38
+Galil AR | Kami (Field-Tested),Galil AR | Kami,training,3,last_24h,178,134,119,177,170,553,-104,829,-39
+Galil AR | Kami (Minimal Wear),Galil AR | Kami,training,3,last_24h,387,271,220,368,342,446,-188,716,-128
+Galil AR | Kami (Well-Worn),Galil AR | Kami,training,3,last_7d,194,2647,94,196,166,,-128,,10956
+Galil AR | Metallic Squeezer (Battle-Scarred),Galil AR | Metallic Squeezer,training,5,last_24h,27,28,20,25,20,97,-17,383,61
+Galil AR | Metallic Squeezer (Factory New),Galil AR | Metallic Squeezer,training,3,last_24h,169,94,80,94,89,357,-34,573,-22
+Galil AR | Metallic Squeezer (Field-Tested),Galil AR | Metallic Squeezer,training,3,last_24h,31,41,32,28,24,-5,82,47,378
+Galil AR | Metallic Squeezer (Minimal Wear),Galil AR | Metallic Squeezer,training,3,last_24h,67,77,67,43,42,-5,306,26,495
+Galil AR | Metallic Squeezer (Well-Worn),Galil AR | Metallic Squeezer,training,3,last_24h,28,33,20,24,20,-23,-23,17,50
+Galil AR | NV (Battle-Scarred),Galil AR | NV,holdout,5,last_7d,50,49,29,60,59,285,-84,399,-62
+Galil AR | NV (Factory New),Galil AR | NV,holdout,3,last_24h,104,68,67,61,58,105,31,362,127
+Galil AR | NV (Field-Tested),Galil AR | NV,holdout,3,last_24h,25,16,14,20,19,104,-29,320,53
+Galil AR | NV (Minimal Wear),Galil AR | NV,holdout,3,last_24h,41,33,16,29,28,3,-25,14,21
+Galil AR | NV (Well-Worn),Galil AR | NV,holdout,3,last_24h,27,21,15,25,24,19,-28,35,-15
+Galil AR | O-Ranger (Battle-Scarred),Galil AR | O-Ranger,holdout,5,last_24h,4,10,2,,,,,,
+Galil AR | O-Ranger (Factory New),Galil AR | O-Ranger,holdout,3,last_24h,41,27,25,29,28,294,-9,486,-3
+Galil AR | O-Ranger (Field-Tested),Galil AR | O-Ranger,holdout,3,last_24h,4,13,3,,,,,,
+Galil AR | O-Ranger (Minimal Wear),Galil AR | O-Ranger,holdout,3,last_24h,11,13,5,8,7,-16,,5,
+Galil AR | O-Ranger (Well-Worn),Galil AR | O-Ranger,holdout,3,last_24h,4,13,2,5,3,,,-71,
+Galil AR | Robin's Egg (Battle-Scarred),Galil AR | Robin's Egg,holdout,5,last_24h,5,14,4,,,,,,
+Galil AR | Robin's Egg (Factory New),Galil AR | Robin's Egg,holdout,3,last_24h,35,20,19,26,25,,-19,,-19
+Galil AR | Robin's Egg (Field-Tested),Galil AR | Robin's Egg,holdout,3,last_24h,5,13,4,,,,,,
+Galil AR | Robin's Egg (Minimal Wear),Galil AR | Robin's Egg,holdout,3,last_24h,11,16,12,10,7,-30,79,15,530
+Galil AR | Robin's Egg (Well-Worn),Galil AR | Robin's Egg,holdout,3,last_24h,5,17,5,5,3,,,,
+Galil AR | Rocket Pop (Battle-Scarred),Galil AR | Rocket Pop,training,5,last_24h,89,89,57,96,84,259,-55,541,-25
+Galil AR | Rocket Pop (Factory New),Galil AR | Rocket Pop,training,3,last_24h,2190,928,832,1234,1170,,,,
+Galil AR | Rocket Pop (Field-Tested),Galil AR | Rocket Pop,training,3,last_24h,172,121,101,157,142,510,-68,912,-33
+Galil AR | Rocket Pop (Minimal Wear),Galil AR | Rocket Pop,training,3,last_24h,428,285,258,368,354,873,-139,1245,-138
+Galil AR | Rocket Pop (Well-Worn),Galil AR | Rocket Pop,training,3,last_24h,102,97,74,106,89,-5,-39,79,305
+Galil AR | Sage Spray (Factory New),Galil AR | Sage Spray,training,3,last_24h,767,266,129,235,222,167,-148,329,112
+Galil AR | Sandstorm (Battle-Scarred),Galil AR | Sandstorm,holdout,5,last_7d,200,197,113,218,204,253,-110,445,-35
+Galil AR | Sandstorm (Field-Tested),Galil AR | Sandstorm,holdout,3,last_24h,245,220,159,247,244,587,-119,893,-67
+Galil AR | Sandstorm (Well-Worn),Galil AR | Sandstorm,holdout,3,last_24h,194,221,110,248,196,338,-167,968,-67
+Galil AR | Shattered (Battle-Scarred),Galil AR | Shattered,training,5,last_7d,683,638,367,536,523,226,-205,370,44
+Galil AR | Shattered (Field-Tested),Galil AR | Shattered,training,3,last_24h,757,478,344,540,484,314,-221,530,-100
+Galil AR | Shattered (Well-Worn),Galil AR | Shattered,training,3,last_7d,682,739,321,661,518,89,-348,521,29
+Galil AR | Signal (Battle-Scarred),Galil AR | Signal,holdout,5,last_24h,108,59,51,80,74,234,-61,438,-53
+Galil AR | Signal (Factory New),Galil AR | Signal,holdout,3,last_24h,765,278,228,311,304,289,-113,493,64
+Galil AR | Signal (Field-Tested),Galil AR | Signal,holdout,3,last_24h,96,68,56,75,70,522,-55,936,-33
+Galil AR | Signal (Minimal Wear),Galil AR | Signal,holdout,3,last_24h,151,96,87,135,128,985,-80,1429,-78
+Galil AR | Signal (Well-Worn),Galil AR | Signal,holdout,3,last_24h,95,62,52,83,78,563,-60,947,-49
+Galil AR | Sky Mandala (Battle-Scarred),Galil AR | Sky Mandala,training,5,last_24h,32,16,11,27,21,80,-35,329,-25
+Galil AR | Sky Mandala (Factory New),Galil AR | Sky Mandala,training,3,last_24h,241,179,156,196,193,457,-72,709,-47
+Galil AR | Sky Mandala (Field-Tested),Galil AR | Sky Mandala,training,3,last_24h,42,53,16,35,31,-18,-39,56,246
+Galil AR | Sky Mandala (Minimal Wear),Galil AR | Sky Mandala,training,3,last_24h,117,75,58,115,85,51,-55,229,-45
+Galil AR | Sky Mandala (Well-Worn),Galil AR | Sky Mandala,training,3,last_24h,40,34,12,40,34,38,-36,152,-23
+Galil AR | Stone Cold (Battle-Scarred),Galil AR | Stone Cold,training,5,last_24h,259,199,162,262,239,2,-116,110,462
+Galil AR | Stone Cold (Field-Tested),Galil AR | Stone Cold,training,3,last_24h,363,246,220,311,302,633,-120,921,-66
+Galil AR | Stone Cold (Minimal Wear),Galil AR | Stone Cold,training,3,last_24h,796,521,495,607,602,419,-138,581,-86
+Galil AR | Stone Cold (Well-Worn),Galil AR | Stone Cold,training,3,last_24h,308,280,178,290,288,285,-105,513,-14
+Galil AR | Tornado (Battle-Scarred),Galil AR | Tornado,training,5,last_24h,913,546,400,640,549,354,-272,672,-92
+Galil AR | Tornado (Field-Tested),Galil AR | Tornado,training,3,last_24h,985,799,520,730,694,317,-221,587,30
+Galil AR | Tornado (Well-Worn),Galil AR | Tornado,training,3,last_7d,938,699,480,790,590,273,-310,813,-113
+"Music Kit | Denzel Curry, ULTIMATE","Music Kit | Denzel Curry, ULTIMATE",training,4,last_24h,377,323,312,456,454,709,-144,1027,-127
+Paris 2023 Legends Sticker Capsule,Paris 2023 Legends Sticker Capsule,holdout,4,last_24h,14,15,14,13,10,3,-15,177,100

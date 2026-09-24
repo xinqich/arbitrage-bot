@@ -1,0 +1,17 @@
+{
+  "checks": [
+    "All hints predate the evaluation window and satisfy age limits.",
+    "All detailed captures fall inside the evaluation window.",
+    "Steam and DMarket fees match independent integer arithmetic for 1..1000 cents.",
+    "Ten strongest buy-order route estimates match independent unit-by-unit depth and budget arithmetic."
+  ],
+  "module_sha256": {
+    "prediction.py": "75681c245e98567611e1028eb7fe4c5cf1af5710aa2aa1cdc75bc1fb0bf06c1b",
+    "discovery.py": "a092ec6da9fcbba575f01cdbb29f4c9649386e023ea2d12d85f1ca69dd2fecef",
+    "depth.py": "19b41b1647bc9ed4d4c504b29ad949c0799790a3a81f855ccf816bbb57301c63",
+    "capture_selection.py": "7c6acea2106f8699efbd7403b9e037226e7684cd11ab03a0bb600667d7b13211",
+    "identity.py": "bca58e7fdd1b323c014961de0fadd2ecc88d6d974f2dee04f11326513f532e13",
+    "money.py": "e432b1d7bd78722133d339790c1f91687b568c35eb9eb2a7ada1cca91c7b9a01"
+  },
+  "evidence_sha256": "f7838e78da1bffa31aa8623629c6a3c49f13903346088faf85bb8c279996fee1"
+}

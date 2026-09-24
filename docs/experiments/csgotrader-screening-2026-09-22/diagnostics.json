@@ -1,0 +1,219 @@
+{
+  "training": {
+    "outward": {
+      "count": 114,
+      "spearman_score_vs_route_net": 0.4569,
+      "profitable_below_zero": 21,
+      "profitable_total": 90,
+      "buckets": [
+        {
+          "low": null,
+          "high": 0,
+          "items": 40,
+          "priceable": 30,
+          "useful": 21
+        },
+        {
+          "low": 0,
+          "high": 10,
+          "items": 9,
+          "priceable": 8,
+          "useful": 8
+        },
+        {
+          "low": 10,
+          "high": 20,
+          "items": 10,
+          "priceable": 9,
+          "useful": 9
+        },
+        {
+          "low": 20,
+          "high": 30,
+          "items": 11,
+          "priceable": 10,
+          "useful": 10
+        },
+        {
+          "low": 30,
+          "high": 50,
+          "items": 22,
+          "priceable": 22,
+          "useful": 21
+        },
+        {
+          "low": 50,
+          "high": null,
+          "items": 22,
+          "priceable": 21,
+          "useful": 21
+        }
+      ]
+    },
+    "returning": {
+      "count": 117,
+      "spearman_score_vs_route_net": -0.0976,
+      "profitable_below_zero": 2,
+      "profitable_total": 2,
+      "buckets": [
+        {
+          "low": null,
+          "high": 0,
+          "items": 111,
+          "priceable": 100,
+          "useful": 2
+        },
+        {
+          "low": 0,
+          "high": 10,
+          "items": 3,
+          "priceable": 0,
+          "useful": 0
+        },
+        {
+          "low": 10,
+          "high": 20,
+          "items": 0,
+          "priceable": 0,
+          "useful": 0
+        },
+        {
+          "low": 20,
+          "high": 30,
+          "items": 2,
+          "priceable": 1,
+          "useful": 0
+        },
+        {
+          "low": 30,
+          "high": 50,
+          "items": 0,
+          "priceable": 0,
+          "useful": 0
+        },
+        {
+          "low": 50,
+          "high": null,
+          "items": 1,
+          "priceable": 0,
+          "useful": 0
+        }
+      ]
+    },
+    "summary_over_current_bid": {
+      "count": 115,
+      "median": 1.2113,
+      "within_10_percent": 27,
+      "more_than_25_percent_higher": 51
+    }
+  },
+  "holdout": {
+    "outward": {
+      "count": 75,
+      "spearman_score_vs_route_net": 0.61,
+      "profitable_below_zero": 12,
+      "profitable_total": 43,
+      "buckets": [
+        {
+          "low": null,
+          "high": 0,
+          "items": 41,
+          "priceable": 26,
+          "useful": 12
+        },
+        {
+          "low": 0,
+          "high": 10,
+          "items": 2,
+          "priceable": 2,
+          "useful": 2
+        },
+        {
+          "low": 10,
+          "high": 20,
+          "items": 6,
+          "priceable": 5,
+          "useful": 5
+        },
+        {
+          "low": 20,
+          "high": 30,
+          "items": 4,
+          "priceable": 4,
+          "useful": 4
+        },
+        {
+          "low": 30,
+          "high": 50,
+          "items": 13,
+          "priceable": 13,
+          "useful": 12
+        },
+        {
+          "low": 50,
+          "high": null,
+          "items": 9,
+          "priceable": 8,
+          "useful": 8
+        }
+      ]
+    },
+    "returning": {
+      "count": 78,
+      "spearman_score_vs_route_net": 0.3203,
+      "profitable_below_zero": 5,
+      "profitable_total": 5,
+      "buckets": [
+        {
+          "low": null,
+          "high": 0,
+          "items": 74,
+          "priceable": 62,
+          "useful": 5
+        },
+        {
+          "low": 0,
+          "high": 10,
+          "items": 1,
+          "priceable": 0,
+          "useful": 0
+        },
+        {
+          "low": 10,
+          "high": 20,
+          "items": 1,
+          "priceable": 0,
+          "useful": 0
+        },
+        {
+          "low": 20,
+          "high": 30,
+          "items": 0,
+          "priceable": 0,
+          "useful": 0
+        },
+        {
+          "low": 30,
+          "high": 50,
+          "items": 0,
+          "priceable": 0,
+          "useful": 0
+        },
+        {
+          "low": 50,
+          "high": null,
+          "items": 2,
+          "priceable": 0,
+          "useful": 0
+        }
+      ]
+    },
+    "summary_over_current_bid": {
+      "count": 73,
+      "median": 1.3182,
+      "within_10_percent": 11,
+      "more_than_25_percent_higher": 42
+    }
+  },
+  "validation": "Unique candidates, disjoint finish-family split, bounded equal request budgets checked."
+}

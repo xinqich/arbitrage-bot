@@ -1,0 +1,43 @@
+{
+  "freeze_at": "2026-09-20T14:45:00Z",
+  "outcome_end": "2026-09-20T18:45:00Z",
+  "capital_cents": 1000,
+  "minimum_purchase_cents": 10,
+  "bulk_max_age_seconds": 86400,
+  "detail_max_age_seconds": 14400,
+  "pair_max_skew_seconds": 900,
+  "candidate_http_budget": 60,
+  "training_repeats": 100,
+  "holdout_repeats": 500,
+  "threshold_percent": [
+    -50,
+    -25,
+    0,
+    10,
+    20,
+    30,
+    50,
+    75,
+    100
+  ],
+  "fixed_partner_names": [
+    "Fracture Case",
+    "Kilowatt Case",
+    "Recoil Case",
+    "Revolution Case"
+  ],
+  "split": "sha256(normalized finish family) modulo 5: 0,1 holdout; 2,3,4 training",
+  "primary": "candidate participates in positive net DMarket route with a fixed partner using fully covered bids at both selling legs",
+  "secondary": "same with any of nine existing sale assumptions",
+  "primary_fee_hypothesis": "CSGO Trader summary is Steam buyer gross; test-only assumption",
+  "sensitivity_fee_hypothesis": "CSGO Trader summary is Steam seller net; reconstruct buyer gross for return scoring",
+  "selection": "outward,outward,return,return,random exploration, deduplicated; below-threshold/unknown candidates remain in exploration",
+  "control": "uniform shuffle of same eligible cohort, same total candidate HTTP budget; common partner cost charged equally",
+  "eligibility": "pre-freeze DMarket ask or Steam summary price in [10,1000] cents; no future price used for selection",
+  "limitations": [
+    "Historical cohort was not randomly collected and includes observations from the subsequently reverted Task 4 reader.",
+    "Fixed partner test does not search the whole market.",
+    "No claims about actual realized profits, future sellability or holding-period price movement.",
+    "No production fee qualification or threshold will be changed by this test."
+  ]
+}
