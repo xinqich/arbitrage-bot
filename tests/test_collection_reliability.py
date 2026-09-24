@@ -147,6 +147,36 @@ ORDERBOOK_ENDPOINT_BOOK = {'eCurrency': 1, 'amtMaxBuyOrder': 100, 'amtMinSellOrd
     'cBuyOrders': 5, 'cSellOrders': 3, 'rgCompactBuyOrders': [100, 5], 'rgCompactSellOrders': [110, 3]}
 
 
+def reuse_group_page_body(app_id, fallback_title, target_title):
+    """A grouped-listing SSR page carrying both bucket titles' own description
+    queries and the fallback's embedded order book, so either title's capture can
+    succeed independently -- needed to exercise Stage 3 reuse across two titles in
+    one batch, unlike group_page_body above which only supports target_title."""
+    loaders = [
+        json.dumps({'filterConfig': {'currency': {'eCurrency': 1}}}),
+        json.dumps({'success': True, 'appid': app_id, 'bCommodity': False,
+                    'initialFallbackBucketID': fallback_title,
+                    'buckets': [
+                        {'bucket_id': target_title, 'filters': [['Quality', 'normal'], ['Exterior', 'WearCategory2']]},
+                        {'bucket_id': fallback_title, 'filters': [['Quality', 'normal'], ['Exterior', 'WearCategory0']]},
+                    ]}),
+    ]
+    queries = [{'queryKey': ['market', 'description', app_id, title],
+                'state': {'status': 'success', 'error': None, 'dataUpdatedAt': 1,
+                          'data': {'appid': app_id, 'market_hash_name': title,
+                                   'commodity': False, 'marketable': True}}}
+               for title in (fallback_title, target_title)]
+    queries.append({'queryKey': ['market', 'orderbook', app_id, fallback_title],
+        'state': {'status': 'success', 'error': None, 'dataUpdatedAt': 1,
+                  'data': {'eCurrency': 1, 'amtMaxBuyOrder': 150, 'amtMinSellOrder': 160,
+                           'cBuyOrders': 3, 'cSellOrders': 3,
+                           'rgCompactBuyOrders': [150, 3], 'rgCompactSellOrders': [160, 3]}}})
+    context = json.dumps({'queryData': json.dumps({'queries': queries})})
+    return ('<html><script>window.SSR.loaderData = '+json.dumps(loaders)+';'
+            'window.SSR.renderContext=JSON.parse('+json.dumps(context)+');'
+            '</script></html>').encode()
+
+
 class GroupedFollowupTests(unittest.TestCase):
     """2B: the standalone order-book request for a grouped, non-fallback title is a
     second, visibly registered request kind, distinct from its parent 'details' request."""
@@ -197,6 +227,60 @@ class GroupedFollowupTests(unittest.TestCase):
         self.assertEqual(book['buyOrders'][0], {'price': '1.00', 'quantity': 5})
         self.assertEqual(book['sellOrders'][0], {'price': '1.10', 'quantity': 3})
         self.assertEqual(record['payload']['provenance']['book_timestamp_source'], 'http_date_header')
+
+
+class GroupPageReuseTests(unittest.TestCase):
+    """Stage 3: run-local reuse of one grouped page across every bucket title in its
+    family, exercised through CollectionBatch.ensure the same way GroupedFollowupTests
+    exercises the single-title follow-up path."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.journal = Journal(Path(self.tmp.name)/'journal.sqlite3')
+        self.journal.initialize()
+        self.target_title = 'AK-47 | Slate (Field-Tested)'
+        self.fallback_title = 'AK-47 | Slate (Factory New)'
+        self.watch = {'steam_source': 'steam_public', 'items': [
+            {'app_id': 730, 'title': self.target_title}, {'app_id': 730, 'title': self.fallback_title}]}
+
+    def fake_open(self, request, timeout=None):
+        url = request.full_url
+        if '/market/orderbook' in url:
+            body = json.dumps({'data': {'success': True, 'data': ORDERBOOK_ENDPOINT_BOOK}}).encode()
+        else:
+            body = reuse_group_page_body(730, self.fallback_title, self.target_title)
+        return FakeSteamResponse(body, url)
+
+    def batch(self):
+        return CollectionBatch(self.journal, self.watch,
+            {'request_spacing_seconds': {'steam_public': 0}}, {}, {}, lambda: '2026-09-08T13:21:17Z',
+            lambda: False, wait=lambda seconds: None)
+
+    def test_two_titles_in_one_family_cost_one_page_request_and_two_followups(self):
+        requests = [request_for(self.watch, 730, self.target_title, 'details'),
+                    request_for(self.watch, 730, self.fallback_title, 'details')]
+        batch = self.batch()
+        with patch('arbitrage_v2.steam_public.build_opener', return_value=type('O', (), {'open': self.fake_open})()):
+            batch.ensure(requests)
+        attempts = self.journal.records('request_attempt')
+        self.assertEqual([a['kind'] for a in attempts], ['details', 'details_followup', 'details_followup'])
+        self.assertTrue(all(r.get('error') is None for r in batch.results))
+        captures = [self.journal.get(r['record_id'], 'capture') for r in batch.results]
+        self.assertEqual({c['payload']['result']['item']['marketName'] for c in captures},
+                         {self.target_title, self.fallback_title})
+        derived = next(c for c in captures if c['title'] == self.fallback_title)
+        self.assertTrue(derived['source_provenance']['derived_from_cached_page'])
+
+    def test_a_fresh_batch_never_inherits_a_previous_batchs_cached_pages(self):
+        with patch('arbitrage_v2.steam_public.build_opener', return_value=type('O', (), {'open': self.fake_open})()):
+            self.batch().ensure([request_for(self.watch, 730, self.target_title, 'details')])
+            second = self.batch()
+            second.ensure([request_for(self.watch, 730, self.fallback_title, 'details')])
+        attempts = self.journal.records('request_attempt')
+        # If the second batch had reused the first batch's cache, the fallback title
+        # would have cost only a 'details_followup'; a fresh 'details' proves it did not.
+        self.assertEqual([a['kind'] for a in attempts].count('details'), 2)
 
 
 class CaptureFallbackTests(unittest.TestCase):

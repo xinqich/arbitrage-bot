@@ -12,16 +12,18 @@ from unittest.mock import patch
 from urllib.request import Request
 
 from arbitrage_v2.collection_batch import failure_scope
+from arbitrage_v2.collection_transport import request_context
 from arbitrage_v2.collector import collect_once, history_points, history_summary
 from arbitrage_v2.collection_lock import collection_lock
 from arbitrage_v2.evidence import stamp, utc
 from arbitrage_v2.journal import Journal
 from arbitrage_v2.prediction import _steam_book, _steam_observation
 from arbitrage_v2.research_cli import run
-from arbitrage_v2.steam_public import (LIMIT, ListingRedirect, _NAMED_PARSE_ERRORS,
+from arbitrage_v2.steam_public import (LIMIT, GroupPageCache, ListingRedirect, _NAMED_PARSE_ERRORS,
                                      _endpoint_orderbook_timestamp, _parse_orderbook_endpoint,
                                      allowed_url, capture_public, listing_url,
                                      normalize_fields, orderbook_url, page_fields)
+import arbitrage_v2.steam_public as steam_public_module
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -640,3 +642,207 @@ class SteamPublicGroupedCaptureTests(unittest.TestCase):
         self.assertNotIn('DO_NOT_ARCHIVE', dumped)
         self.assertEqual(len(record['source_provenance']['decoded_body_sha256']), 64)
         self.assertNotIn('cookie', {k.lower() for k in record['source_provenance']})
+
+
+class _ClockFollowingResponse(BytesIO):
+    """Like GroupCaptureResponse, but its Date header tracks whatever datetime.now()
+    steam_public itself currently resolves to -- including a patched, fake clock --
+    so a test can move time forward between two capture_public calls without the
+    follow-up's own D4 freshness check seeing a mismatched, unrelated 'now'."""
+    status = 200
+
+    def __init__(self, body, url):
+        super().__init__(body)
+        self.url = url
+        self.headers = {'Date': format_datetime(steam_public_module.datetime.now(timezone.utc)),
+                         'Set-Cookie': 'DO_NOT_ARCHIVE'}
+
+
+class SteamPublicGroupPageCacheTests(unittest.TestCase):
+    """Stage 3: run-local reuse of a decoded grouped page across every bucket title in
+    its family, through the GroupPageCache a CollectionBatch would own and thread in
+    via collection_transport.request_context."""
+
+    def setUp(self):
+        self.spec = fixture('slate_group')
+        self.endpoint = fixture('slate_orderbook_endpoint')
+        self.app_id = self.spec['app_id']
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.journal = Journal(Path(self.tmp.name)/'journal.sqlite3')
+        self.journal.initialize()
+        self.cache = GroupPageCache()
+
+    def _family_spec(self, n):
+        fallback, target = f'Family {n} Skin (Factory New)', f'Family {n} Skin (Field-Tested)'
+        description = lambda title: {'appid': self.app_id, 'market_hash_name': title,
+                                      'commodity': False, 'marketable': True}
+        return {'app_id': self.app_id, 'page_currency': 1, 'fallback_title': fallback, 'target_title': target,
+            'buckets': [{'bucket_id': fallback, 'filters': [['Quality', 'normal'], ['Exterior', 'WearCategory0']]},
+                        {'bucket_id': target, 'filters': [['Quality', 'normal'], ['Exterior', 'WearCategory2']]}],
+            'descriptions': {fallback: description(fallback), target: description(target)},
+            'fallback_orderbook': {'data_updated_at_ms': 1758628800000,
+                'data': {'eCurrency': 1, 'amtMaxBuyOrder': 150, 'amtMinSellOrder': 160,
+                         'cBuyOrders': 3, 'cSellOrders': 3, 'rgCompactBuyOrders': [150, 3], 'rgCompactSellOrders': [160, 3]}}}
+
+    def opener(self, spec=None, followup_body=None):
+        spec = spec or self.spec
+        calls = []
+        def fetch(request, timeout=None):
+            calls.append(request.full_url)
+            if '/market/orderbook' in request.full_url:
+                body = followup_body if followup_body is not None else json.dumps(self.endpoint).encode()
+                return _ClockFollowingResponse(body, request.full_url)
+            return _ClockFollowingResponse(group_page(spec), listing_url(self.app_id, spec['target_title']))
+        return SimpleNamespace(open=fetch), calls
+
+    def capture(self, title, spec=None, followup_body=None, use_cache=True):
+        opener, calls = self.opener(spec, followup_body)
+        if use_cache:
+            with request_context(lambda r: None, lambda: 999, cache=self.cache):
+                result = capture_public(self.journal, self.app_id, title, opener)
+        else:
+            result = capture_public(self.journal, self.app_id, title, opener)
+        return result, calls
+
+    def test_second_title_in_family_is_served_without_a_second_page_request(self):
+        first, first_calls = self.capture(self.spec['target_title'])
+        self.assertIsNone(first['error'])
+        self.assertTrue(any('/market/listings/' in u for u in first_calls))
+        second, second_calls = self.capture(self.spec['fallback_title'])
+        self.assertIsNone(second['error'])
+        self.assertFalse(any('/market/listings/' in u for u in second_calls))
+        attempts = self.journal.records('request_attempt')
+        self.assertEqual([a['kind'] for a in attempts], ['details', 'details_followup', 'details_followup'])
+
+    def test_second_titles_book_and_identity_are_its_own_not_the_firsts(self):
+        first, _ = self.capture(self.spec['target_title'])
+        second, _ = self.capture(self.spec['fallback_title'])
+        first_record = self.journal.get(first['record_id'], 'capture')
+        second_record = self.journal.get(second['record_id'], 'capture')
+        self.assertEqual(first_record['payload']['result']['item']['marketName'], self.spec['target_title'])
+        self.assertEqual(second_record['payload']['result']['item']['marketName'], self.spec['fallback_title'])
+        # A derived fallback-bucket capture must never fall back to the *embedded*
+        # fallback book (1.50/1.60 in this fixture) -- both here come from the fresh
+        # follow-up endpoint (1.05/1.11), proving reuse never mixes up whose book it is.
+        for record in (first_record, second_record):
+            self.assertEqual(record['payload']['result']['histogram']['buyOrders'][0], {'price': '1.05', 'quantity': 2})
+            self.assertEqual(record['payload']['provenance']['book_timestamp_source'], 'http_date_header')
+
+    def test_title_in_a_different_family_is_a_cache_miss_and_fetches_its_own_page(self):
+        other = self._family_spec(1)
+        first, first_calls = self.capture(self.spec['target_title'])
+        second, second_calls = self.capture(other['target_title'], other)
+        self.assertIsNone(first['error'])
+        self.assertIsNone(second['error'])
+        self.assertTrue(any('/market/listings/' in u for u in second_calls))
+        attempts = self.journal.records('request_attempt')
+        self.assertEqual([a['kind'] for a in attempts], ['details', 'details_followup', 'details', 'details_followup'])
+
+    def test_stattrak_bucket_fails_from_the_cache_path_with_the_same_reason_as_the_fresh_path(self):
+        first, _ = self.capture(self.spec['target_title'])
+        second, second_calls = self.capture(self.spec['stattrak_title'])
+        self.assertEqual(second['error'], 'unsupported_item_quality')
+        self.assertFalse(any('/market/listings/' in u for u in second_calls))
+        request = {'provider': 'steam_public', 'kind': 'details', 'app_id': self.app_id, 'title': self.spec['stattrak_title']}
+        self.assertEqual(failure_scope(request, {'error': second['error'], 'status': None}), 'item')
+
+    def test_title_present_in_cached_buckets_but_missing_its_own_description_fails_item_scoped_without_a_refetch(self):
+        spec = deepcopy(self.spec)
+        ghost_title = 'AK-47 | Slate (Well-Worn)'
+        spec['buckets'].append({'bucket_id': ghost_title, 'filters': [['Quality', 'normal'], ['Exterior', 'WearCategory4']]})
+        first, _ = self.capture(spec['target_title'], spec)
+        self.assertIsNone(first['error'])
+        second, second_calls = self.capture(ghost_title, spec)
+        # missing_or_failed_steam_market_query is not one of the five named parser
+        # errors, so -- like the redirect guard -- it collapses to the generic string,
+        # which is still item-scoped; see the equivalent assertion in
+        # SteamPublicGroupedCaptureTests.test_followup_response_redirected_off_surface_is_rejected.
+        self.assertEqual(second['error'], 'invalid_or_unsupported_steam_page')
+        self.assertFalse(any('/market/listings/' in u for u in second_calls))
+        request = {'provider': 'steam_public', 'kind': 'details', 'app_id': self.app_id, 'title': ghost_title}
+        self.assertEqual(failure_scope(request, {'error': second['error'], 'status': None}), 'item')
+
+    def test_derived_capture_keeps_the_original_pages_retrieval_time_even_after_the_wall_clock_moves_on(self):
+        class FakeDateTime(datetime):
+            fixed_now = datetime(2026, 9, 23, 12, 0, 5, tzinfo=timezone.utc)
+            @classmethod
+            def now(cls, tz=None):
+                return cls.fixed_now
+
+        with patch('arbitrage_v2.steam_public.datetime', FakeDateTime):
+            FakeDateTime.fixed_now = datetime(2026, 9, 23, 12, 0, 5, tzinfo=timezone.utc)
+            first, _ = self.capture(self.spec['target_title'])
+            FakeDateTime.fixed_now = datetime(2026, 9, 23, 13, 5, 5, tzinfo=timezone.utc)  # +1h5m
+            second, _ = self.capture(self.spec['fallback_title'])
+        first_record = self.journal.get(first['record_id'], 'capture')
+        second_record = self.journal.get(second['record_id'], 'capture')
+        self.assertTrue(second_record['source_provenance']['derived_from_cached_page'])
+        self.assertEqual(second_record['source_provenance']['page_retrieved_at'], first_record['retrieved_at'])
+        self.assertEqual(second_record['source_provenance']['decoded_body_sha256'],
+                          first_record['source_provenance']['decoded_body_sha256'])
+        self.assertEqual(second_record['source_provenance']['final_url'], first_record['source_provenance']['final_url'])
+        # The capture record's own retrieved_at reflects the moment of reuse, not a
+        # copy of the page's original retrieval time -- the two must differ here.
+        self.assertEqual(second_record['retrieved_at'], stamp(FakeDateTime.fixed_now))
+        self.assertNotEqual(second_record['retrieved_at'], second_record['source_provenance']['page_retrieved_at'])
+
+    def test_derived_capture_survives_independent_revalidation_and_orders_correctly_against_its_sibling(self):
+        first, _ = self.capture(self.spec['target_title'])
+        second, _ = self.capture(self.spec['fallback_title'])
+        second_record = self.journal.get(second['record_id'], 'capture')
+        steam, observed = _steam_observation(second_record, self.spec['fallback_title'], second_record['retrieved_at'], 14400)
+        bid = _steam_book(second_record, steam, 'bid')
+        self.assertGreaterEqual(bid['price_cents'], 0)
+        from arbitrage_v2.capture_selection import select_captures
+        rows = [dict(self.journal.get(r['record_id'], 'capture'), record_id=r['record_id'], _recorded_at=stamp(utc(second_record['retrieved_at'])))
+                for r in (first, second)]
+        selected = select_captures(rows, second_record['retrieved_at'])
+        self.assertEqual(selected[(self.app_id, self.spec['fallback_title'], 'details')]['record_id'], second['record_id'])
+
+    def test_cache_capacity_evicts_the_least_recently_used_page(self):
+        self.cache = GroupPageCache(capacity=2)
+        families = [self._family_spec(n) for n in range(3)]
+        fetched = lambda calls: any('/market/listings/' in u for u in calls)
+
+        _, calls = self.capture(families[0]['target_title'], families[0])
+        self.assertTrue(fetched(calls))
+        _, calls = self.capture(families[1]['target_title'], families[1])
+        self.assertTrue(fetched(calls))  # cache now holds families 0 and 1, at capacity
+        _, calls = self.capture(families[0]['fallback_title'], families[0])
+        self.assertFalse(fetched(calls))  # hit; promotes family 0 to most-recently-used
+        _, calls = self.capture(families[2]['target_title'], families[2])
+        self.assertTrue(fetched(calls))  # miss; evicts the least-recently-used, family 1
+        # Check the still-cached page first: a hit never mutates the cache (only a
+        # miss's insert can evict), so this assertion is safe to make before the next
+        # one, which is itself a miss that would disturb the order further.
+        _, calls = self.capture(families[0]['fallback_title'], families[0])
+        self.assertFalse(fetched(calls))  # family 0 is still retained: still a hit
+        _, calls = self.capture(families[1]['fallback_title'], families[1])
+        self.assertTrue(fetched(calls))  # family 1 was evicted: this refetches its page
+
+    def test_capture_without_a_request_context_never_caches(self):
+        first, first_calls = self.capture(self.spec['target_title'], use_cache=False)
+        second, second_calls = self.capture(self.spec['fallback_title'], use_cache=False)
+        self.assertIsNone(first['error'])
+        self.assertIsNone(second['error'])
+        self.assertTrue(any('/market/listings/' in u for u in first_calls))
+        self.assertTrue(any('/market/listings/' in u for u in second_calls))
+
+    def test_commodity_captures_neither_populate_nor_consult_the_cache(self):
+        commodity = fixture('fracture_case')
+        opener = SimpleNamespace(open=lambda request, timeout=None:
+            _ClockFollowingResponse(page(commodity['fields']), listing_url(730, 'Fracture Case')))
+        with request_context(lambda r: None, lambda: 999, cache=self.cache):
+            result = capture_public(self.journal, 730, 'Fracture Case', opener)
+        self.assertIsNone(result['error'])
+        self.assertEqual(len(self.cache._entries), 0)
+
+    def test_no_cache_object_ever_reaches_the_journal(self):
+        first, _ = self.capture(self.spec['target_title'])
+        second, _ = self.capture(self.spec['fallback_title'])
+        for result in (first, second):
+            record = self.journal.get(result['record_id'], 'capture')
+            dumped = json.dumps(record)  # raises if a raw cache object ever leaked in
+            self.assertNotIn('GroupPageCache', dumped)
+            self.assertNotIn('GroupPageEntry', dumped)

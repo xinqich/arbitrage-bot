@@ -23,12 +23,20 @@ class RequestSatisfied(Exception):
 
 
 @contextmanager
-def request_context(begin, remaining, complete=None):
-    token = _context.set({'begin': begin, 'remaining': remaining, 'complete': complete})
+def request_context(begin, remaining, complete=None, cache=None):
+    token = _context.set({'begin': begin, 'remaining': remaining, 'complete': complete, 'cache': cache})
     try:
         yield
     finally:
         _context.reset(token)
+
+
+def current_cache():
+    """The run-scoped object CollectionBatch owns for grouped-page reuse (Stage 3),
+    or None when capture_public is called outside a batch -- e.g. directly, as the
+    unit tests do -- in which case there is no caching at all."""
+    ctx = _context.get()
+    return ctx.get('cache') if ctx else None
 
 
 def prepare_request(journal, request, identifier=None):

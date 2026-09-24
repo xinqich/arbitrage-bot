@@ -1,4 +1,5 @@
 """Anonymous Steam market-page evidence. Decode JSON data; never execute page code."""
+from collections import OrderedDict
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from email.utils import parsedate_to_datetime
@@ -14,7 +15,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 from uuid import uuid4
 
 from .evidence import stamp, utc
-from .collection_transport import prepare_request, prepare_redirect, retry_after, read_response
+from .collection_transport import prepare_request, prepare_redirect, retry_after, read_response, current_cache
 from .money import MAX_INTEGER, exact_integer
 
 LIMIT = 8 * 1024 * 1024  # 8 MiB, matching the qualification record's headroom over the observed ~4.2 MB maximum.
@@ -183,9 +184,12 @@ def _group_queries(listing_row, queries, app_id, title):
     return selected
 
 
-def page_fields(body, app_id, title):
-    """Extract only public market fields; exclude login/session/global page state."""
-    listing_url(app_id, title)
+def decode_group_page(body, app_id):
+    """Decode a market page's SSR envelope into page-level identity, currency, and
+    every query row it carries, without resolving any particular title. This is the
+    reusable half of page parsing (Stage 3): the same decoded structure can serve
+    select_title_fields for every bucket in a grouped page's family, whether it came
+    from a fresh fetch or the run-local group-page cache."""
     if len(body) > LIMIT:
         raise ValueError('steam_page_too_large')
     parser = InlineScripts()
@@ -195,19 +199,107 @@ def page_fields(body, app_id, title):
     config = [row for row in loaders if isinstance(row, dict) and 'filterConfig' in row]
     listing = [row for row in loaders if isinstance(row, dict) and 'bCommodity' in row]
     if (len(config) != 1 or len(listing) != 1 or listing[0].get('appid') != app_id
-            or listing[0].get('success') is not True):
+            or listing[0].get('success') is not True or listing[0]['bCommodity'] not in (True, False)):
         raise ValueError('unsupported_steam_listing_identity')
     currency = config[0]['filterConfig']['currency']['eCurrency']
     context = json.loads(_decode_after(parser.scripts, r'window\.SSR\.renderContext\s*=\s*JSON\.parse\('), parse_float=str)
     queries = json.loads(context['queryData'], parse_float=str)['queries']
     listing_row = listing[0]
-    if listing_row['bCommodity'] is True:
-        selected = _commodity_queries(queries, app_id, title)
-    elif listing_row['bCommodity'] is False:
-        selected = _group_queries(listing_row, queries, app_id, title)
+    return {'page_currency': currency, 'bCommodity': listing_row['bCommodity'],
+            'listing_row': listing_row, 'queries': queries}
+
+
+def select_title_fields(page, app_id, title):
+    """Validate one title's own queries against an already-decoded page (decode_group_page).
+    A fresh fetch and a cache hit both call this, so a title can only ever be served
+    after this identical, per-title validation succeeds -- there is no separate,
+    weaker path for reused pages."""
+    listing_url(app_id, title)
+    if page['bCommodity'] is True:
+        selected = _commodity_queries(page['queries'], app_id, title)
     else:
-        raise ValueError('unsupported_steam_listing_identity')
-    return {'app_id': app_id, 'title': title, 'page_currency': currency, 'queries': selected}
+        selected = _group_queries(page['listing_row'], page['queries'], app_id, title)
+    return {'app_id': app_id, 'title': title, 'page_currency': page['page_currency'], 'queries': selected}
+
+
+def page_fields(body, app_id, title):
+    """Extract only public market fields; exclude login/session/global page state."""
+    listing_url(app_id, title)
+    return select_title_fields(decode_group_page(body, app_id), app_id, title)
+
+
+def _trimmed_group_queries(app_id, page):
+    """Keep only the description and price-history queries a later title selection
+    could need -- one pair per bucket in the family -- plus the one embedded
+    order-book query for the fallback bucket, since select_title_fields still looks
+    it up structurally even though capture_public always discards it again in favour
+    of a fresh follow-up fetch on a cache hit (see capture_public). Everything else a
+    retained entry has no use for -- cookie preferences, asset schema, store items,
+    and the rest of the page's non-market queries -- is dropped."""
+    listing_row = page['listing_row']
+    bucket_titles = {b.get('bucket_id') for b in listing_row.get('buckets', []) if isinstance(b, dict)}
+    fallback_title = listing_row.get('initialFallbackBucketID')
+    kept = []
+    for row in page['queries']:
+        key = row.get('queryKey')
+        if not (isinstance(key, list) and len(key) == 4 and key[0] == 'market' and key[2] == app_id):
+            continue
+        kind, title = key[1], key[3]
+        if (kind in ('description', 'pricehistory') and title in bucket_titles) or (
+                kind == 'orderbook' and title == fallback_title):
+            kept.append(row)
+    return kept
+
+
+class GroupPageEntry:
+    """One retained grouped page: the trimmed page structure plus the provenance a
+    capture derived from it must carry to stay auditable as derived."""
+
+    def __init__(self, page, bucket_titles, retrieved_at, final_url, decoded_body_sha256):
+        self.page = page
+        self.bucket_titles = bucket_titles
+        self.retrieved_at = retrieved_at
+        self.final_url = final_url
+        self.decoded_body_sha256 = decoded_body_sha256
+
+
+class GroupPageCache:
+    """Run-local, in-memory reuse of decoded grouped pages across every bucket title
+    in the same family (Task 4 Stage 3). Never persisted -- a fresh CollectionBatch
+    starts cold -- and bounded to CAPACITY pages with least-recently-used eviction.
+
+    Measured against a real 15-bucket "AK-47 | Slate" page
+    (data/steam-probes/grouped-discovery-20260923T113256Z.json, 4.19 MB decoded):
+    retaining every bucket's description and price-history rows (the one embedded
+    order-book row is negligible) and dropping the page's non-market queries comes to
+    roughly 660 KB per page, so the default cap of 4 costs at most ~2.6 MiB -- well
+    under a single raw page and far below the ~16.8 MB four raw pages would cost.
+    That is small enough that D3a's narrower "requested buckets only" fallback was
+    not needed.
+    """
+
+    CAPACITY = 4
+
+    def __init__(self, capacity=CAPACITY):
+        self.capacity = capacity
+        self._entries = OrderedDict()
+
+    def get(self, app_id, title):
+        for key, entry in list(self._entries.items()):
+            if key[0] == app_id and title in entry.bucket_titles:
+                self._entries.move_to_end(key)
+                return entry
+        return None
+
+    def put(self, app_id, page, retrieved_at, final_url, decoded_body_sha256):
+        bucket_titles = {b.get('bucket_id') for b in page['listing_row'].get('buckets', [])
+                          if isinstance(b, dict)}
+        trimmed = dict(page, queries=_trimmed_group_queries(app_id, page))
+        key = (app_id, decoded_body_sha256)
+        self._entries[key] = GroupPageEntry(trimmed, bucket_titles, retrieved_at, final_url, decoded_body_sha256)
+        self._entries.move_to_end(key)
+        while len(self._entries) > self.capacity:
+            self._entries.popitem(last=False)
 
 
 def _parse_orderbook_endpoint(body):
@@ -378,24 +470,41 @@ def capture_public(journal, app_id, title, opener=None):
     url = listing_url(app_id, title)
     identifier = str(uuid4())
     started = stamp(datetime.now(timezone.utc))
-    timeout = prepare_request(journal, dict(provider='steam_public', kind='details', app_id=app_id, title=title), identifier)
     status, error, payload = None, None, None
     retry_after_value = None
     provenance = {'requested_url': url}
     opener = opener or build_opener(ListingRedirect())
+    cache = current_cache()
+    cached_entry = cache.get(app_id, title) if cache else None
     try:
-        request = Request(url, headers={'User-Agent': 'arbitrage-v2-research/0.4',
-                          'Accept': 'text/html', 'Accept-Language': 'en-US,en;q=0.9'})
-        with opener.open(request, timeout=timeout) as response:
-            status = response.status
-            if not allowed_url(response.url):
-                raise ValueError('unexpected_steam_redirect')
-            body = _read_body(response)
-            provenance.update(final_url=response.url, decoded_body_sha256=sha256(body).hexdigest(),
-                response_date=response.headers.get('Date'), response_age=response.headers.get('Age'))
-        fields = page_fields(body, app_id, title)
-        if fields['queries']['orderbook'] is None:
+        if cached_entry is not None:
+            # Reuse (Stage 3): the page itself was already fetched and validated for
+            # some other title in this family, so no 'details' request happens here.
+            # The order book is never served from the cache -- it is always fetched
+            # fresh below, so a derived capture's price evidence is genuinely current.
+            status = 200
+            fields = select_title_fields(cached_entry.page, app_id, title)
+            provenance.update(derived_from_cached_page=True, page_retrieved_at=cached_entry.retrieved_at,
+                final_url=cached_entry.final_url, decoded_body_sha256=cached_entry.decoded_body_sha256)
             fields['queries']['orderbook'] = _fetch_group_orderbook(journal, app_id, title, opener, provenance)
+        else:
+            timeout = prepare_request(journal, dict(provider='steam_public', kind='details', app_id=app_id, title=title), identifier)
+            request = Request(url, headers={'User-Agent': 'arbitrage-v2-research/0.4',
+                              'Accept': 'text/html', 'Accept-Language': 'en-US,en;q=0.9'})
+            with opener.open(request, timeout=timeout) as response:
+                status = response.status
+                if not allowed_url(response.url):
+                    raise ValueError('unexpected_steam_redirect')
+                body = _read_body(response)
+                page_retrieved_at = stamp(datetime.now(timezone.utc))
+                provenance.update(final_url=response.url, decoded_body_sha256=sha256(body).hexdigest(),
+                    response_date=response.headers.get('Date'), response_age=response.headers.get('Age'))
+            page = decode_group_page(body, app_id)
+            fields = select_title_fields(page, app_id, title)
+            if page['bCommodity'] is False and cache is not None:
+                cache.put(app_id, page, page_retrieved_at, provenance['final_url'], provenance['decoded_body_sha256'])
+            if fields['queries']['orderbook'] is None:
+                fields['queries']['orderbook'] = _fetch_group_orderbook(journal, app_id, title, opener, provenance)
         retrieved = stamp(datetime.now(timezone.utc))
         payload = normalize_fields(fields, retrieved)
         payload['source_fields'] = fields

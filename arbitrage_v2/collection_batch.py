@@ -14,7 +14,7 @@ from hashlib import sha256
 from .collector import GAME_IDS
 from . import catalogue, csgotrader
 from .evidence import stamp, utc
-from .steam_public import _NAMED_PARSE_ERRORS
+from .steam_public import _NAMED_PARSE_ERRORS, GroupPageCache
 
 
 def request_for(watchlist, app_id, title, kind):
@@ -137,6 +137,10 @@ class CollectionBatch:
         self.results, self.deferred, self.seen = [], [], set()
         self.failed = set()
         self.count, self.steam_count = 0, 0
+        # Run-local grouped-page reuse (Task 4 Stage 3): owned here, never persisted,
+        # so a fresh batch always starts cold. Threaded into steam_public through the
+        # per-request context rather than a new fetch_request parameter.
+        self.group_page_cache = GroupPageCache()
         self.before_request = None
         self._inside_hook = False
         self.steamapis_verified = False
@@ -243,7 +247,7 @@ class CollectionBatch:
                 self.deferred.append(dict(request, reason='source_waiting'))
                 continue
             try:
-                with request_context(self.begin_request, self.remaining, self.finish_request):
+                with request_context(self.begin_request, self.remaining, self.finish_request, cache=self.group_page_cache):
                     # Real transports call the gate for each HTTP request, including
                     # redirects. Injected fixture transports have no HTTP hook.
                     if self.fetch is not fetch_request:
