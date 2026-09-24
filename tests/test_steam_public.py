@@ -129,6 +129,12 @@ class SteamPublicTests(unittest.TestCase):
                 normalize_fields(bad,self.at)
         with self.assertRaises(ValueError):listing_url(570,'Fracture Case')
 
+    def test_commodity_page_with_an_integer_bcommodity_is_rejected_not_regrouped(self):
+        body = page(self.fields).decode().replace('\\"bCommodity\\": true', '\\"bCommodity\\": 1')
+        self.assertIn('\\"bCommodity\\": 1', body)
+        with self.assertRaisesRegex(ValueError,'unsupported_steam_listing_identity'):
+            page_fields(body.encode(),730,'Fracture Case')
+
     def test_missing_failed_or_invalid_history_keeps_verified_book(self):
         expected = normalize_fields(self.fields,self.at)['result']['histogram']
         for scenario in ('missing', 'failed', 'currency', 'future', 'malformed', 'empty'):
@@ -351,6 +357,19 @@ class SteamPublicGroupedParserTests(unittest.TestCase):
         spec['buckets'].append(dict(spec['buckets'][1], min_price='1'))
         with self.assertRaisesRegex(ValueError, 'title_not_in_listing_group'):
             page_fields(group_page(spec), self.app_id, self.target_title)
+
+    def test_page_level_bcommodity_must_be_a_real_boolean_not_an_integer(self):
+        # 1 == True and 0 == False, so a membership test against (True, False) admits
+        # integers; select_title_fields then branches on `is True`, which 1 fails, and a
+        # commodity page would be routed down the grouped path instead of being rejected.
+        for value in ('1', '0', '1.0', 'null', '[]'):
+            body = group_page(self.spec).decode().replace('\\"bCommodity\\": false',
+                                                          '\\"bCommodity\\": ' + value)
+            self.assertIn('\\"bCommodity\\": ' + value, body)
+            for title in (self.target_title, self.fallback_title):
+                with self.subTest(value=value, title=title), \
+                        self.assertRaisesRegex(ValueError, 'unsupported_steam_listing_identity'):
+                    page_fields(body.encode(), self.app_id, title)
 
 
 class SteamPublicFollowupResponseTests(unittest.TestCase):
@@ -820,6 +839,25 @@ class SteamPublicGroupPageCacheTests(unittest.TestCase):
         self.assertFalse(fetched(calls))  # family 0 is still retained: still a hit
         _, calls = self.capture(families[1]['fallback_title'], families[1])
         self.assertTrue(fetched(calls))  # family 1 was evicted: this refetches its page
+
+    def test_two_entries_sharing_a_bucket_title_resolve_to_the_newest_page(self):
+        # Reachable when one family is fetched twice with differing bucket lists: an
+        # oldest-first scan would serve the stale page's description/history rows.
+        shared = 'Shared Skin (Field-Tested)'
+        def page_for(extra):
+            buckets = [{'bucket_id': shared, 'filters': [['Quality', 'normal']]},
+                       {'bucket_id': extra, 'filters': [['Quality', 'normal']]}]
+            return {'page_currency': 1, 'bCommodity': False, 'queries': [],
+                    'listing_row': {'appid': self.app_id, 'success': True, 'bCommodity': False,
+                                    'initialFallbackBucketID': shared, 'buckets': buckets}}
+        self.cache.put(self.app_id, page_for('Old Sibling'), '2026-09-24T09:00:00Z', 'https://old', 'sha-old')
+        self.cache.put(self.app_id, page_for('New Sibling'), '2026-09-24T10:00:00Z', 'https://new', 'sha-new')
+        entry = self.cache.get(self.app_id, shared)
+        self.assertEqual(entry.decoded_body_sha256, 'sha-new')
+        self.assertEqual(entry.retrieved_at, '2026-09-24T10:00:00Z')
+        self.assertEqual(entry.final_url, 'https://new')
+        # A title only the older page carries still resolves from that older page.
+        self.assertEqual(self.cache.get(self.app_id, 'Old Sibling').decoded_body_sha256, 'sha-old')
 
     def test_capture_without_a_request_context_never_caches(self):
         first, first_calls = self.capture(self.spec['target_title'], use_cache=False)
