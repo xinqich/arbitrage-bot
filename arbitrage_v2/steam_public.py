@@ -199,7 +199,8 @@ def decode_group_page(body, app_id):
     config = [row for row in loaders if isinstance(row, dict) and 'filterConfig' in row]
     listing = [row for row in loaders if isinstance(row, dict) and 'bCommodity' in row]
     if (len(config) != 1 or len(listing) != 1 or listing[0].get('appid') != app_id
-            or listing[0].get('success') is not True or listing[0]['bCommodity'] not in (True, False)):
+            or listing[0].get('success') is not True
+            or type(listing[0]['bCommodity']) is not bool):
         raise ValueError('unsupported_steam_listing_identity')
     currency = config[0]['filterConfig']['currency']['eCurrency']
     context = json.loads(_decode_after(parser.scripts, r'window\.SSR\.renderContext\s*=\s*JSON\.parse\('), parse_float=str)
@@ -268,14 +269,25 @@ class GroupPageCache:
     in the same family (Task 4 Stage 3). Never persisted -- a fresh CollectionBatch
     starts cold -- and bounded to CAPACITY pages with least-recently-used eviction.
 
-    Measured against a real 15-bucket "AK-47 | Slate" page
-    (data/steam-probes/grouped-discovery-20260923T113256Z.json, 4.19 MB decoded):
-    retaining every bucket's description and price-history rows (the one embedded
-    order-book row is negligible) and dropping the page's non-market queries comes to
-    roughly 660 KB per page, so the default cap of 4 costs at most ~2.6 MiB -- well
-    under a single raw page and far below the ~16.8 MB four raw pages would cost.
-    That is small enough that D3a's narrower "requested buckets only" fallback was
-    not needed.
+    Sizing (corrected). The earlier ~660 KB figure in this docstring was a
+    len(pickle.dumps(...)) measurement, which reports serialization bytes, not resident
+    memory: pickle shares no Python object overhead and interns repeated short strings,
+    so for this structure it understates what is actually retained by roughly 7x. A
+    recursive sys.getsizeof walk over the same retained structure -- 15 buckets and the
+    25,359 history points of the real "AK-47 | Slate" page
+    (data/steam-probes/grouped-discovery-20260923T113256Z.json, 4.19 MB decoded) --
+    comes to ~6-8 MB, so the default cap of 4 costs roughly 25-30 MB, not ~2.6 MiB.
+    Note that a retained entry is therefore *larger* than the raw page it replaces;
+    the saving here is request count, not memory.
+
+    Price history is ~99.8% of those bytes, so D3a's narrower "requested buckets only"
+    fallback would cut an entry to tens of KB. It is deliberately not taken: this is a
+    single-operator desktop tool (docs/LOCAL_DESK.md) where tens of MB of run-local,
+    never-persisted memory is affordable, and D3a's cost is evidence -- derived captures
+    for unrequested buckets would carry history_status 'unavailable' while freshly
+    fetched siblings keep their history. Retaining every bucket's history keeps derived
+    and fresh captures evidentially identical. Lower CAPACITY if a run's memory matters
+    more than that parity.
     """
 
     CAPACITY = 4
@@ -285,7 +297,9 @@ class GroupPageCache:
         self._entries = OrderedDict()
 
     def get(self, app_id, title):
-        for key, entry in list(self._entries.items()):
+        # Newest first: if two retained entries ever share a bucket title (the same
+        # family fetched twice with differing bucket lists), the fresher page wins.
+        for key, entry in reversed(list(self._entries.items())):
             if key[0] == app_id and title in entry.bucket_titles:
                 self._entries.move_to_end(key)
                 return entry
