@@ -81,3 +81,6 @@ Version 1.0.2 expands item types and adds configurable spread/price ranking. Ste
 
 
 Broad screening (1.0.5): the hourly worker reads up to ten DMarket catalogue pages and checks the public CSGO Trader Steam file. It aims for 120 outward, 120 return and 60 exploration candidates in a full batch. Steam summary prices remain disabled until their fee meaning is verified; item names are available for exploration. Detailed coverage is still partial. See [screening settings and limits](docs/CSGOTRADER_SCREENING.md).
+
+
+Direct Steam skins (1.0.6): the anonymous reader now handles grouped (skin) listing pages as well as cases, stickers and capsules, resolving a request to its exact wear variant and reusing one downloaded group page for every variant in the same family within a run. Direct Steam is the preferred detailed provider; SteamApis remains a fallback used only after a direct per-item failure and only with overage confirmed disabled. StatTrak, Souvenir and agent pages are not supported and fail explicitly against that one item. See [release checks](docs/RELEASE_1_0_6_CHECKS.md).

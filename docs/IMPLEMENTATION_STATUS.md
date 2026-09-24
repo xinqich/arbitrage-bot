@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated 2026-09-20. Version 1.0.5. Governed by [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md).
+Updated 2026-09-24. Version 1.0.6. Governed by [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md).
 
 | Milestone | Engineering status | Evidence still needed |
 | --- | --- | --- |
@@ -48,4 +48,4 @@ Version 1.0.5 implements Task 3: the CSGO Trader name catalogue, separate screen
 September 22 repair: the repository reset retained the screening modules but lost their worker, request dispatch, settings, catalogue and page integration. Those Task 3 connections are restored from the verified September 20 release. Task 4 parser and provider-switching work remain excluded. Validation for this repair is recorded with the installation backup.
 
 
-Version 1.0.6 (currently v1.0.5.4; release ritual not initiated yet) completes Task 4's direct Steam reader extension. The anonymous reader has bounded encoded/decoded gzip handling, a versioned sanitized SSR envelope, exact grouped-bucket validation, one observed-filter follow-up, item-scoped stable parser detail errors, and run-local validated grouped-page reuse. Direct Steam is primary; SteamApis remains a separately verified no-overage fallback. The fresh qualification matrix and limits are recorded in DIRECT_STEAM_VARIANTS.md. Existing prediction, route, paper, balances, scheduling, pacing and manual-trading rules are unchanged.
+Version 1.0.6 completes Task 4's direct Steam reader extension. The anonymous reader has bounded encoded/decoded gzip handling, a versioned sanitized SSR envelope, exact grouped-bucket validation, one observed-filter follow-up, item-scoped stable parser detail errors, and run-local validated grouped-page reuse. Direct Steam is primary; SteamApis remains a separately verified no-overage fallback. The fresh qualification matrix and limits are recorded in DIRECT_STEAM_VARIANTS.md, and the release evidence in [RELEASE_1_0_6_CHECKS.md](RELEASE_1_0_6_CHECKS.md). Existing prediction, route, paper, balances, scheduling, pacing and manual-trading rules are unchanged.

@@ -1,7 +1,5 @@
 # Direct Steam variants — qualification record
 
-**Everything below is describing a feature that has been lost to a repo reset. Data from this file must not be used as documentation on what is present in the project, only as a specification for a missing feature.**
-
 Date: 2026-09-22 (UTC). Qualification used a separate temporary SQLite journal and the normal `CollectionBatch` / `request_context` transport hooks. Requests were anonymous HTTP GET requests with `currency=1` and `l=english`; no cookies, account values, JavaScript execution, proxy, or Steam login was used. The temporary journal is not the production journal.
 
 ## Commands

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arbitrage-bot-v2"
-version = "1.0.5"
+version = "1.0.6"
 description = "Continuous market evidence and manual DMarket Steam route research"
 requires-python = ">=3.11"
 dependencies = ["PyNaCl==1.6.2"]
