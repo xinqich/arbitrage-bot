@@ -11,7 +11,7 @@
 - **Never weaken evidence requirements to make something parse.** An unsupported page must fail
   explicitly, scoped to that item. Substituting a neighbouring variant, a different provider's
   quantities, or a guessed price is out of bounds.
-  
+
 
 Read docs/APPROVED_DESIGN.md and docs/IMPLEMENTATION_STATUS.md before extending this project.
 
@@ -23,3 +23,4 @@ V1 is a read-only reference. Do not import its code or database, copy credential
 
 Test money, lifecycle, replay, provenance, and provider contract changes. Do not weaken evidence requirements to produce positive routes.
 
+Never add attribution lines at the end of commit messages.
