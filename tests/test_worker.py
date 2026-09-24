@@ -79,6 +79,18 @@ class WorkerTests(unittest.TestCase):
         self.assertEqual(self.journal.get(self.pred_id), self.prediction)
         self.assertIn('steam_public:details', latest(self.journal, 'worker_health')['source_states'])
 
+    def test_provider_switch_reason_surfaces_in_worker_health_paper_steps(self):
+        self.route()
+        self.captures(bid_quantity=1)  # provider steam_public; partial fill leaves 1 unit held
+        self.assertEqual(step(self.journal, "r1", self.at)["action"], "steam_sale")
+        self.at = stamp(utc(self.at) + timedelta(seconds=1))
+        self.watch["steam_source"] = "steamapis"  # the route's next observation switches provider
+        self.worker().tick(self.at)
+        steps = latest(self.journal, "worker_health")["paper_steps"]
+        self.assertEqual(steps[-1]["status"], "waiting_for_evidence")
+        self.assertEqual(steps[-1]["reason"], "steam_source_changed_since_consumed_depth")
+        self.assertEqual(self.journal.get(self.pred_id), self.prediction)
+
     def test_return_purchase_still_needs_every_frozen_basket_title(self):
         self.route()
         self.watch["item_sources"] = {"Return Case": "steamapis"}

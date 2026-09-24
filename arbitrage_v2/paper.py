@@ -3,7 +3,7 @@ from datetime import timedelta
 from contextlib import nullcontext
 from uuid import uuid4
 
-from .depth import ENGINE, available, book, consume, quote, total
+from .depth import ENGINE, available, book, consume, consumed_provider, quote, total
 from .evidence import stamp, utc
 from .identity import valid_title
 from .prediction import (FAMILY, ITEM_FAMILY, cents, destination_snapshot, return_snapshot,
@@ -56,6 +56,17 @@ def configure(journal, route_id, enabled, watchlist, policy, at, db=None):
 
 def _capacity(journal, snapshot, name, db):
     key = f'{ENGINE}:{snapshot["input_kind"]}:730:{snapshot["title"]}:{name}'
+    # D1: a snapshot that carries a provider (steam_sale_snapshot, return_snapshot) names
+    # the source of its one Steam-sourced book. dmarket-only snapshots (destination_snapshot)
+    # never set this key, so they are never blocked here. A provider switch must not
+    # silently refill the depth an earlier provider's book already had consumed -- see
+    # depth.consumed_provider. A route with nothing consumed yet, or whose consuming
+    # history predates provider tracking, has nothing to protect and is not blocked.
+    provider = snapshot.get('provider')
+    if provider is not None:
+        previous = consumed_provider(journal, key, db)
+        if previous is not None and previous != provider:
+            raise ValueError('steam_source_changed_since_consumed_depth')
     rows, state = available(journal, key, book(snapshot, name), db)
     return key, rows, state
 
@@ -210,7 +221,8 @@ def step(journal, route_id, at):
             return {"route_id": route_id, "status": "waiting_for_evidence", "reason": str(exc)}
 
         if capacity:
-            consume(journal, capacity[0], capacity[2], fill["fills"], snapshot["evidence_ids"], at, decision_id, db)
+            consume(journal, capacity[0], capacity[2], fill["fills"], snapshot["evidence_ids"], at, decision_id, db,
+                    provider=snapshot.get('provider'))
             fills = fill["fills"]
         if not payloads:
             return {"route_id": route_id, "status": "waiting_for_new_depth"}

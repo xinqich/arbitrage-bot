@@ -132,8 +132,11 @@ def steam_sale_snapshot(journal,title,as_of,max_age_seconds=14400,db=None):
     captures,input_kind=_market_captures(journal,title,as_of,max_age_seconds,("details",),db)
     capture=captures["details"]
     steam,observed=_steam_observation(capture,title,as_of,max_age_seconds)
+    # provider: which source produced this Steam-sourced book (Task 4 D1), so paper
+    # capacity tracking can tell a provider switch from ordinary quote movement.
     return {"title":title,"app_id":730,"steam_bid":_steam_book(capture,steam,"bid"),
-        "evidence_ids":[capture["record_id"]],"input_kind":input_kind,"source_time":stamp(observed)}
+        "evidence_ids":[capture["record_id"]],"input_kind":input_kind,"source_time":stamp(observed),
+        "provider":capture.get("provider")}
 
 
 def destination_snapshot(journal,title,as_of,max_age_seconds=14400,db=None):
@@ -163,7 +166,12 @@ def return_snapshot(journal,title,as_of,max_age_seconds,db=None):
             "source_time":stamp(observed),"input_kind":input_kind,
             "quote_expires_at":stamp(min(observed, *(utc(c["retrieved_at"]) for c in captures.values()))
                                      + timedelta(seconds=max_age_seconds)),
-            "history_coverage":"unknown"}
+            "history_coverage":"unknown",
+            # provider: source of the Steam-sourced ask book only (Task 4 D1); dmarket_bid
+            # has no provider ambiguity and is not covered by this field. A capture that
+            # predates provider tracking has none recorded -- treated as unknown below,
+            # not as a mismatch.
+            "provider":captures["details"].get("provider")}
 
 def _offer_ask(capture,title):
     offers={}

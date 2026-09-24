@@ -6,12 +6,13 @@ from io import BytesIO
 import json
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
 import test_paper_entry as entry_fixture
 import test_worker as worker_fixture
-from arbitrage_v2.collection_batch import CollectionBatch, failure_scope, request_for, scope_key
+from arbitrage_v2.collection_batch import CollectionBatch, failure_scope, fetch_request, request_for, scope_key
 from arbitrage_v2.discovery import capture_index, snapshot
 from arbitrage_v2.evidence import stamp, utc
 from arbitrage_v2.journal import Journal
@@ -48,17 +49,25 @@ class FailureScopeTests(unittest.TestCase):
         f=self.f
         bad=request_for(f.watch,730,'AK-47 | Slate (Field-Tested)','details')
         good=request_for(f.watch,730,'Example Case','details')
+        fallback={'provider':'steamapis','kind':'details','app_id':730,'title':bad['title']}
         calls=[]
         def fetch(j,r,k):
             calls.append(r)
-            return {'status':200,'error':'invalid_or_unsupported_steam_page' if r==bad else None}
+            # Both the direct-Steam attempt and its Stage 4 SteamApis fallback fail
+            # item-scoped here, so the title stays genuinely unresolved either way.
+            if r['title']==bad['title'] and r['kind']=='details':
+                return {'status':200,'error':'invalid_or_unsupported_steam_page'}
+            return {'status':200,'error':None}
         batch=self.batch(fetch);batch.ensure([bad,good])
-        self.assertEqual(calls,[bad,good])
-        item_key=scope_key(bad,'item')
+        self.assertEqual(calls,[bad,good,fallback])
+        item_key,fallback_key=scope_key(bad,'item'),scope_key(fallback,'item')
         self.assertEqual(batch.sources[item_key]['scope'],'item')
+        self.assertEqual(batch.sources[fallback_key]['scope'],'item')
         restarted=self.batch(fetch,batch.sources);restarted.ensure([bad,good])
-        self.assertEqual(calls,[bad,good,good])
+        # 'bad' is deferred (still blocked from the first run); only 'good' repeats.
+        self.assertEqual(calls,[bad,good,fallback,good])
         self.assertIn(item_key,restarted.sources)
+        self.assertIn(fallback_key,restarted.sources)
 
     def test_legacy_item_block_is_narrowed_but_not_forgotten(self):
         f=self.f
@@ -281,6 +290,104 @@ class GroupPageReuseTests(unittest.TestCase):
         # If the second batch had reused the first batch's cache, the fallback title
         # would have cost only a 'details_followup'; a fresh 'details' proves it did not.
         self.assertEqual([a['kind'] for a in attempts].count('details'), 2)
+
+
+class ProviderFallbackTests(unittest.TestCase):
+    """Stage 4: an item-scoped direct-Steam 'details' failure gets exactly one visible,
+    paced, journalled SteamApis retry for the same title."""
+
+    def setUp(self):
+        self.f = worker_fixture.WorkerTests()
+        self.f.setUp()
+        self.addCleanup(self.f.doCleanups)
+
+    def batch(self, fetch, states=None):
+        f = self.f
+        return CollectionBatch(f.journal, f.watch, f.config, {}, states or {}, f.clock, lambda: False, fetch)
+
+    def test_item_scope_key_includes_the_provider_so_a_direct_failure_never_blocks_the_fallback(self):
+        direct = {'provider': 'steam_public', 'kind': 'details', 'app_id': 730, 'title': 'X'}
+        fallback = {'provider': 'steamapis', 'kind': 'details', 'app_id': 730, 'title': 'X'}
+        self.assertTrue(scope_key(direct, 'item').startswith('steam_public:'))
+        self.assertTrue(scope_key(fallback, 'item').startswith('steamapis:'))
+        self.assertNotEqual(scope_key(direct, 'item'), scope_key(fallback, 'item'))
+
+    def test_provider_scoped_failure_gets_no_fallback(self):
+        f = self.f
+        request = request_for(f.watch, 730, 'Example Case', 'details')
+
+        def fetch(j, r, k):
+            return {'status': 503, 'error': 'http_503'}
+
+        batch = self.batch(fetch)
+        batch.ensure([request])
+        self.assertEqual([r['provider'] for r in batch.results], ['steam_public'])
+        self.assertEqual(batch.sources['steam_public']['scope'], 'provider')
+
+    def test_no_fallback_when_the_title_already_routes_to_steamapis(self):
+        f = self.f
+        f.watch['item_sources'] = {'Example Case': 'steamapis'}
+        request = request_for(f.watch, 730, 'Example Case', 'details')
+        self.assertEqual(request['provider'], 'steamapis')  # nothing to fall back to
+
+        def fetch(j, r, k):
+            return {'status': 200, 'error': 'invalid_or_unsupported_steam_page'}
+
+        batch = self.batch(fetch)
+        batch.ensure([request])
+        self.assertEqual([r['provider'] for r in batch.results], ['steamapis'])
+
+    def test_item_scoped_direct_failure_gets_a_paced_journalled_steamapis_fallback(self):
+        # Exercised through the real fetch_request/capture_public/collector.capture path
+        # (HTTP mocked only at build_opener), so pacing and request-counting are real,
+        # not asserted against a fixture fetch function standing in for them.
+        f = self.f
+        title = 'Bad Steam Page'
+        watch = dict(f.watch, steam_source='steam_public')
+        request = request_for(watch, 730, title, 'details')
+
+        def open_steam_public(req, timeout=None):
+            # Not a parseable market page at all: an item-scoped parse failure.
+            return FakeSteamResponse(b'<html>not a market page</html>', req.full_url)
+
+        def open_steamapis(req, timeout=None):
+            if req.full_url == 'https://api.steamapis.com/v2/account':
+                body = json.dumps({'result': {'overageEnabled': False}}).encode()
+            else:
+                body = json.dumps({'success': True}).encode()
+            return FakeSteamResponse(body, req.full_url)
+
+        batch = CollectionBatch(f.journal, watch, f.config, {'STEAMAPIS_KEY': 'k'}, {}, f.clock, lambda: False,
+                                 fetch_request, wait=lambda seconds: None)
+        with patch('arbitrage_v2.steam_public.build_opener', return_value=SimpleNamespace(open=open_steam_public)), \
+             patch('arbitrage_v2.collector.build_opener', return_value=SimpleNamespace(open=open_steamapis)):
+            batch.ensure([request])
+        self.assertEqual([(r['provider'], r['status'], r['error'] is None) for r in batch.results],
+                         [('steam_public', 200, False), ('steamapis', 200, True)])
+        attempts = [(a['provider'], a['kind']) for a in f.journal.records('request_attempt')]
+        self.assertEqual(attempts, [('steam_public', 'details'), ('steamapis', 'account'), ('steamapis', 'details')])
+        self.assertEqual(batch.count, 3)  # the fallback's own pacing/counting is real, not a bypassed inner call
+
+    def test_fallback_is_gated_on_free_access_and_records_a_failure_when_not_confirmed(self):
+        f = self.f
+        title = 'Bad Steam Page'
+        watch = dict(f.watch, steam_source='steam_public')
+        request = request_for(watch, 730, title, 'details')
+
+        def open_steam_public(req, timeout=None):
+            return FakeSteamResponse(b'<html>not a market page</html>', req.full_url)
+
+        batch = CollectionBatch(f.journal, watch, f.config, {'STEAMAPIS_KEY': 'k'}, {}, f.clock, lambda: False,
+                                 fetch_request, wait=lambda seconds: None)
+        with patch('arbitrage_v2.steam_public.build_opener', return_value=SimpleNamespace(open=open_steam_public)), \
+             patch('arbitrage_v2.collector.free_access', return_value={'status': 200, 'no_overage': False,
+                   'error': 'free_usage_not_verified'}) as mocked_free_access, \
+             patch('arbitrage_v2.collector.capture') as mocked_capture:
+            batch.ensure([request])
+        mocked_free_access.assert_called_once()
+        mocked_capture.assert_not_called()
+        self.assertEqual(batch.sources['steamapis']['error'], 'free_usage_not_verified')
+        self.assertEqual([r['provider'] for r in batch.results], ['steam_public'])
 
 
 class CaptureFallbackTests(unittest.TestCase):

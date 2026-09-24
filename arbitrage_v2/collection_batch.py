@@ -18,12 +18,13 @@ from .steam_public import _NAMED_PARSE_ERRORS, GroupPageCache
 
 
 def request_for(watchlist, app_id, title, kind):
+    # Stage 4: direct Steam is the preferred detailed provider, including for titles the
+    # catalogue discovered. They now resolve through the same steam_source/item_sources
+    # rule as any watchlist item, instead of being forced to SteamApis. The SteamApis
+    # fallback for a direct-Steam item failure is a separate, visible request built in
+    # CollectionBatch.ensure, not a routing decision made here.
     provider = (watchlist.get("item_sources", {}).get(title, watchlist.get("steam_source", "steamapis"))
                 if kind == "details" else "dmarket")
-    if (kind == 'details' and watchlist.get('catalogue',{}).get('enabled')
-            and title not in {r['title'] for r in watchlist['items']}
-            and title not in watchlist.get('item_sources',{})):
-        provider='steamapis'
     request = {"provider": provider, "kind": kind, "app_id": app_id, "title": title}
     request_key(request)
     return request
@@ -229,9 +230,25 @@ class CollectionBatch:
             retry_count=retry, next_retry_at=retry_at, retry_deadline=retry_deadline if transient else None)
         self._save()
 
+    def _steamapis_fallback_needed(self, request, result):
+        """Stage 4: a direct-Steam 'details' request that failed item-scoped (a fact
+        about this one item, not the provider or endpoint) gets a visible SteamApis
+        retry for the same title. A request already routed to steamapis has nothing to
+        fall back to, and a provider- or endpoint-scoped failure means Steam itself is
+        unreachable or throttled -- handing the whole provider's queue to SteamApis
+        would be a much bigger, unasked-for change, not a per-item fallback."""
+        return (request['provider'] == 'steam_public' and request['kind'] == 'details'
+                and failure_scope(request, result) == 'item')
+
     def ensure(self, requests):
         for request in requests:
             request_key(request)
+        # Item-scoped direct-Steam failures queue a SteamApis retry for the same title.
+        # It is drained by recursing into this same method after the main pass finishes,
+        # rather than switching ensure() to an index-based loop: a fallback request goes
+        # through exactly the same seen/blocked/pacing/journalling logic as any other
+        # request, and self.seen already guarantees it is queued at most once per title.
+        fallbacks = []
         for request in requests:
             key = request_key(request)
             if key in self.seen:
@@ -279,10 +296,15 @@ class CollectionBatch:
             self.results.append(result)
             if result.get('error') or not successful(result):
                 self._failure(request, result)
+                if self._steamapis_fallback_needed(request, result):
+                    fallbacks.append({'provider': 'steamapis', 'kind': 'details',
+                                       'app_id': request['app_id'], 'title': request['title']})
             else:
                 for source_key in applicable:
                     self.sources.pop(source_key, None)
                 self._save()
+        if fallbacks:
+            self.ensure(fallbacks)
 
     def completed(self, requests):
         succeeded = {request_key(r) for r in self.results if successful(r) and not r.get('error')}

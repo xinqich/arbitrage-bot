@@ -7,7 +7,7 @@ import tempfile
 import threading
 import unittest
 
-from arbitrage_v2.depth import ENGINE, available, book, consume, levels, quote
+from arbitrage_v2.depth import ENGINE, available, book, consume, consumed_provider, levels, quote
 from arbitrage_v2.evidence import stamp, utc
 from arbitrage_v2.journal import Journal
 from arbitrage_v2.mandate import load_mandate, convert_legacy
@@ -49,6 +49,46 @@ class DepthTests(unittest.TestCase):
         result = calculate(snapshot(), snapshot("Return Case"), 2, dict(POLICY, other_cost_cents=None))
         self.assertIsNone(result["predicted_net_cents"])
         self.assertFalse(result["costs_known"])
+
+
+class ProviderTrackingTests(unittest.TestCase):
+    """depth.consume/consumed_provider (Task 4 D1), tested against a bare journal --
+    no route or paper.step involved. The route-level blocking behaviour these support
+    is covered separately in ProviderSwitchTests below."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.journal = Journal(Path(self.temp.name)/"journal.sqlite3")
+        self.journal.initialize()
+        self.rows = [{"price_cents": 10, "quantity": 5, "level_id": "10"}]
+
+    def test_provider_is_recorded_beside_state_and_available_still_replays_correctly(self):
+        _, state = available(self.journal, "k", self.rows)
+        consume(self.journal, "k", state, [{"level_id": "10", "quantity": 2}], [], T1, "d1", None,
+                provider="steam_public")
+        event = self.journal.records("paper_book")[-1]
+        self.assertEqual(event["provider"], "steam_public")
+        self.assertNotIn("provider", event["state"]["10"])
+        remaining, _ = available(self.journal, "k", self.rows)
+        self.assertEqual(remaining[0]["quantity"], 3)
+
+    def test_consumed_provider_ignores_events_without_fills(self):
+        _, state = available(self.journal, "k", self.rows)
+        consume(self.journal, "k", state, [], [], T1, "empty", None, provider="steam_public")
+        self.assertIsNone(consumed_provider(self.journal, "k"))
+        _, state = available(self.journal, "k", self.rows)
+        consume(self.journal, "k", state, [{"level_id": "10", "quantity": 1}], [], T1, "real", None,
+                provider="steamapis")
+        self.assertEqual(consumed_provider(self.journal, "k"), "steamapis")
+
+    def test_consumed_provider_is_none_with_no_history_or_with_pre_d1_history(self):
+        self.assertIsNone(consumed_provider(self.journal, "k"))
+        # A live pre-D1 paper trial's paper_book events have no 'provider' key at all.
+        self.journal.append("paper_book", {"schema_version": 1, "engine": ENGINE, "key": "k",
+            "state": {"10": {"visible": 5, "available": 3}}, "fills": [{"level_id": "10", "quantity": 2}],
+            "evidence_ids": [], "at": T1, "decision_id": "legacy"})
+        self.assertIsNone(consumed_provider(self.journal, "k"))
 
 
 class LocalTests(unittest.TestCase):
@@ -189,3 +229,103 @@ class LocalTests(unittest.TestCase):
         converted = convert_legacy(old)
         self.assertEqual(len(converted["starting_balances"]), 1)
         self.assertEqual(converted["starting_balances"][0]["venue"], "dmarket")
+
+
+class ProviderSwitchTests(unittest.TestCase):
+    """Task 4 D1: a provider switch must not replenish already-consumed paper depth."""
+    route = LocalTests.route
+    event = LocalTests.event
+    captures = LocalTests.captures
+
+    def setUp(self):
+        LocalTests.setUp(self)
+
+    def switched_details(self, title, provider, at, bid_quantity=None, sell_quantity=None):
+        """Append a newer 'details' capture for title, same shape as LocalTests.captures
+        produces, but from a different provider and (optionally) a different book."""
+        previous = next(c for c in reversed(self.journal.records("capture"))
+                         if c["title"] == title and c["kind"] == "details")
+        payload = deepcopy(previous["payload"])
+        histogram = payload["result"]["histogram"]
+        histogram["date"] = at
+        if bid_quantity is not None:
+            histogram["buyOrders"] = [{"price": "1.15", "quantity": bid_quantity}]
+        if sell_quantity is not None:
+            histogram["sellOrders"] = [{"price": "1.00", "quantity": sell_quantity}]
+        return self.journal.append("capture", {"provider": provider, "kind": "details", "app_id": 730,
+            "title": title, "retrieved_at": at, "input_kind": "synthetic", "status": 200,
+            "error": None, "payload": payload})
+
+    def test_provider_switch_after_consumed_bid_depth_blocks_the_step_and_records_nothing(self):
+        self.route()
+        self.captures()  # provider steam_public, bid_quantity=1
+        self.assertEqual(step(self.journal, "r1", T2)["action"], "steam_sale")  # consumes 1 of 2
+        events_before = len(self.journal.records("route_event"))
+        books_before = len(self.journal.records("paper_book"))
+        decisions_before = len(self.journal.records("paper_decision"))
+        later = stamp(utc(T2) + timedelta(seconds=1))
+        self.switched_details("Example Case", "steamapis", later, bid_quantity=5)
+        result = step(self.journal, "r1", later)
+        self.assertEqual(result["status"], "waiting_for_evidence")
+        self.assertEqual(result["reason"], "steam_source_changed_since_consumed_depth")
+        self.assertEqual(len(self.journal.records("route_event")), events_before)
+        self.assertEqual(len(self.journal.records("paper_book")), books_before)
+        self.assertEqual(len(self.journal.records("paper_decision")), decisions_before)
+
+    def test_same_provider_after_consumed_bid_depth_advances_normally(self):
+        self.route()
+        self.captures()
+        self.assertEqual(step(self.journal, "r1", T2)["action"], "steam_sale")
+        later = stamp(utc(T2) + timedelta(seconds=1))
+        self.switched_details("Example Case", "steam_public", later, bid_quantity=5)
+        self.assertEqual(step(self.journal, "r1", later)["action"], "steam_sale")
+
+    def test_provider_difference_with_nothing_consumed_yet_is_not_blocked(self):
+        self.route()
+        for title in ("Example Case", "Return Case"):
+            for kind in ("details", "targets"):
+                if kind == "details":
+                    payload = {"result": {"item": {"appId": 730, "marketName": title},
+                        "meta": {"flags": {"commodity": True}}, "histogram": {"date": T2,
+                        "buyOrders": [{"price": "1.15", "quantity": 1}],
+                        "sellOrders": [{"price": "1.00", "quantity": 20}]}},
+                        "provenance": {"book_quantity_semantics": "incremental"}}
+                else:
+                    payload = {"orders": [{"title": title, "attributes": {}, "price": "120", "amount": "20"}]}
+                # 'steamapis' from the very first observation: nothing was ever consumed
+                # under a different provider, so there is nothing to protect.
+                self.journal.append("capture", {"provider": "steamapis" if kind == "details" else "dmarket",
+                    "kind": kind, "app_id": 730, "title": title, "retrieved_at": T2,
+                    "input_kind": "synthetic", "status": 200, "error": None, "payload": payload})
+        self.assertEqual(step(self.journal, "r1", T2)["action"], "steam_sale")
+
+    def test_pre_d1_consumption_with_no_provider_recorded_does_not_block_the_next_step(self):
+        self.route()
+        self.captures()
+        key = f"{ENGINE}:synthetic:730:Example Case:steam_bid"
+        # A live pre-D1 paper trial's paper_book event: fills present, no 'provider' key.
+        # state is left empty so it does not constrain the real book's replayed depth.
+        self.journal.append("paper_book", {"schema_version": 1, "engine": ENGINE, "key": key,
+            "state": {}, "fills": [{"level_id": "999", "quantity": 1}], "evidence_ids": [],
+            "at": T1, "decision_id": "legacy"})
+        later = stamp(utc(T2) + timedelta(seconds=1))
+        self.switched_details("Example Case", "steamapis", later, bid_quantity=5)
+        self.assertEqual(step(self.journal, "r1", later)["action"], "steam_sale")
+
+    def test_return_leg_provider_switch_after_consumed_ask_depth_reports_missing_evidence(self):
+        # Two routes share the same depth keys (test_shared_depth_across_routes_and_
+        # positive_additions above). r1's return purchase consumes 'Example Case'
+        # steam_ask depth; r2 then evaluates the same shared title with a switched
+        # provider and must be held, without losing 'Return Case' as a reported option.
+        self.route("r1")
+        self.route("r2")
+        self.captures(bid_quantity=10)  # generous shared pool: both outward sales complete in one step
+        self.assertEqual(step(self.journal, "r1", T2)["action"], "steam_sale")
+        self.assertEqual(step(self.journal, "r2", T2)["action"], "steam_sale")
+        self.assertEqual(step(self.journal, "r1", T2)["action"], "return_purchase")  # consumes Example Case steam_ask
+        even_later = stamp(utc(T2) + timedelta(seconds=1))
+        self.switched_details("Example Case", "steamapis", even_later, sell_quantity=20)
+        result = step(self.journal, "r2", even_later)
+        self.assertEqual(result["status"], "waiting_for_evidence")
+        self.assertEqual(result["missing"], [{"title": "Example Case",
+            "reason": "steam_source_changed_since_consumed_depth"}])

@@ -82,12 +82,28 @@ def available(journal, key, rows, db=None):
     return [r for r in result if r["quantity"] > 0], updated
 
 
-def consume(journal, key, state, fills, evidence_ids, at, decision_id, db):
+def consume(journal, key, state, fills, evidence_ids, at, decision_id, db, provider=None):
     for row in fills:
         level = state[str(row["level_id"])]
         level["available"] -= row["quantity"]
         if level["available"] < 0:
             raise ValueError("paper depth already used")
+    # provider sits beside state, never inside it -- available() treats every key in
+    # state as a level_id and would crash or silently corrupt replay on a string value.
     journal.append("paper_book", {"schema_version": 1, "engine": ENGINE,
         "key": key, "state": state, "fills": fills, "evidence_ids": evidence_ids,
-        "at": at, "decision_id": decision_id}, db=db)
+        "at": at, "decision_id": decision_id, "provider": provider}, db=db)
+
+
+def consumed_provider(journal, key, db=None):
+    """The provider that produced the most recent depth actually consumed at this key.
+
+    None means either nothing has been consumed yet, or the most recent consuming
+    event predates provider tracking (Task 4 D1) -- both are "unknown", not "steady",
+    so callers must not block on them.
+    """
+    provider = None
+    for event in journal.records("paper_book", db):
+        if event["key"] == key and event["engine"] == ENGINE and event["fills"]:
+            provider = event.get("provider")
+    return provider

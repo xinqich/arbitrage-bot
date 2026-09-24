@@ -206,10 +206,16 @@ class CatalogueTests(unittest.TestCase):
         rows,count=catalogue.research_roster(Journal(self.journal.path),[],1000,search_rules.DEFAULTS,1,{},self.at)
         self.assertEqual(rows[0]['title'],'Z expensive unknown');self.assertEqual(count,5)
 
-    def test_detail_source_for_new_titles_is_existing_steamapis_feed(self):
+    def test_catalogue_discovered_titles_use_the_watchlist_steam_source_not_forced_steamapis(self):
+        # Stage 4: direct Steam is preferred for every title, including ones the
+        # catalogue discovered -- they are no longer forced onto SteamApis.
         watch=dict(self.watch,catalogue={'enabled':True},steam_source='steam_public')
-        self.assertEqual(request_for(watch,730,'Sticker | New','details')['provider'],'steamapis')
+        self.assertEqual(request_for(watch,730,'Sticker | New','details')['provider'],'steam_public')
         self.assertEqual(request_for(watch,730,'Example Case','details')['provider'],'steam_public')
+        # A per-title item_sources override still wins over the watchlist default.
+        overridden=dict(watch,item_sources={'Sticker | New':'steamapis'})
+        self.assertEqual(request_for(overridden,730,'Sticker | New','details')['provider'],'steamapis')
+        self.assertEqual(request_for(overridden,730,'Example Case','details')['provider'],'steam_public')
 
     def test_failed_steam_capture_remains_pending_without_crashing_roster(self):
         self.page([('Agent',100)])
